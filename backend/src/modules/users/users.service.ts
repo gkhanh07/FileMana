@@ -12,6 +12,7 @@ import { join, resolve } from 'node:path';
 import { PrismaService } from '../../prisma/prisma.service';
 import { toAuthUser } from '../auth/auth.service';
 import { UserDto } from '../auth/dto/login.dto';
+import { PERSON_SELECT, PersonDto, toPerson } from './dto/person.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 
 const USER_SELECT = {
@@ -51,6 +52,15 @@ export class UsersService {
       config.getOrThrow<string>('UPLOAD_DIR'),
       'avatars',
     );
+  }
+
+  async people(): Promise<PersonDto[]> {
+    const users = await this.prisma.user.findMany({
+      where: { status: { not: 'DEACTIVATED' } },
+      orderBy: { name: 'asc' },
+      ...PERSON_SELECT,
+    });
+    return users.map(toPerson);
   }
 
   async updateMe(userId: string, dto: UpdateMeDto): Promise<UserDto> {

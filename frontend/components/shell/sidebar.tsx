@@ -7,9 +7,11 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { User } from "@/lib/api/client";
+import type { Favorite } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
 import { isActive, mainNav, settingsNav, SIDEBAR_COOKIE, type NavItem } from "./nav";
+import { Favorites } from "./favorites";
 import { UserMenu } from "./user-menu";
 
 // NFR-10: below 1280px the sidebar is always the rail.
@@ -24,10 +26,12 @@ function subscribeNarrow(onChange: () => void) {
 export function Sidebar({
   workspaceName,
   user,
+  favorites,
   defaultCollapsed,
 }: {
   workspaceName: string;
   user: User;
+  favorites: Favorite[];
   defaultCollapsed: boolean;
 }) {
   const [savedCollapsed, setCollapsed] = useState(defaultCollapsed);
@@ -78,13 +82,7 @@ export function Sidebar({
           ))}
         </nav>
 
-        {/* FR-SHELL-03: pinned projects arrive with the Projects feature. */}
-        {!collapsed && (
-          <div className="flex flex-col gap-1 px-2 pt-4">
-            <h2 className="px-2 font-sans text-xs font-medium text-muted-foreground">{strings.nav.favorites}</h2>
-            <p className="px-2 text-xs text-muted-foreground">{strings.nav.favoritesEmpty}</p>
-          </div>
-        )}
+        <Favorites favorites={favorites} collapsed={collapsed} />
 
         <div className={cn("mt-auto flex w-full flex-col gap-0.5 p-2", collapsed && "items-center")}>
           <NavLink item={settingsNav} active={isActive(settingsNav.href, pathname)} collapsed={collapsed} />

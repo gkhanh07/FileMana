@@ -35,3 +35,9 @@ export function formatRelative(iso: string, timeZone: string, now: Date = new Da
   if (days === 1) return relative.format(-1, "day");
   return formatDate(iso, timeZone);
 }
+
+/** Product rule: past the due date is "overdue" (red), 2 days or less is "soon" (amber). Today is in workspace time. */
+export function dueTone(date: string, timeZone: string, now: Date = new Date()): "overdue" | "soon" | null {
+  const days = (Date.parse(date) - Date.parse(dayKey(now, timeZone))) / 86_400_000;
+  return days < 0 ? "overdue" : days <= 2 ? "soon" : null;
+}
