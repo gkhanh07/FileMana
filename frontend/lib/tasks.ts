@@ -1,11 +1,18 @@
 import type { components } from "./api/schema";
-import { dayKey, dueTone } from "./format";
+import { dayKey, dueTone, formatDueDate } from "./format";
+import { strings } from "./strings";
 
 export type Task = components["schemas"]["TaskDto"];
 export type TaskStatus = components["schemas"]["TaskStatus"];
 export type TaskPriority = components["schemas"]["TaskPriority"];
 export type Label = components["schemas"]["LabelDto"];
-export type TaskPatch = components["schemas"]["UpdateTaskDto"];
+export type TaskPatch = Omit<components["schemas"]["UpdateTaskDto"], "description"> & { description?: unknown[] | null };
+// JSON columns come through OpenAPI as empty objects; these are the real shapes.
+export type TaskDetail = Omit<components["schemas"]["TaskDetailDto"], "description"> & { description: unknown[] | null };
+export type Activity = Omit<components["schemas"]["ActivityDto"], "oldValue" | "newValue"> & {
+  oldValue: unknown;
+  newValue: unknown;
+};
 
 export const TASK_STATUSES: TaskStatus[] = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
 export const TASK_PRIORITIES: TaskPriority[] = ["URGENT", "HIGH", "MEDIUM", "LOW"];
@@ -94,4 +101,40 @@ export function groupTasks(tasks: Task[], by: TaskGroupBy): TaskGroup[] {
   return [...groups.values()]
     .sort((a, b) => (a.key === "none" ? 1 : b.key === "none" ? -1 : a.name.localeCompare(b.name, "vi")))
     .map(({ key, tasks }) => ({ key, tasks }));
+}
+
+const a = strings.tasks.activity;
+const dueText = (v: unknown) => {
+  if (typeof v !== "string") return strings.tasks.noDue;
+  const [date, time] = v.split(" ");
+  return formatDueDate(date, time);
+};
+
+/** FR-ACT-02: what an Activity entry says after the actor's name. */
+export function describeActivity({ action, oldValue, newValue }: Activity): string {
+  const t = strings.tasks;
+  switch (action) {
+    case "task.created":
+      return a.created;
+    case "task.title":
+      return a.title(String(newValue));
+    case "task.status":
+      return a.changed(t.fields.status, t.status[oldValue as TaskStatus], t.status[newValue as TaskStatus]);
+    case "task.priority":
+      return a.changed(t.fields.priority, t.priority[oldValue as TaskPriority], t.priority[newValue as TaskPriority]);
+    case "task.assignee":
+      return newValue ? a.assigned((newValue as { name: string }).name) : a.unassigned;
+    case "task.dueDate":
+      return a.changed(t.fields.due, dueText(oldValue), dueText(newValue));
+    case "task.labels":
+      return a.labels((newValue as string[]).join(", ") || a.noLabels);
+    case "task.description":
+      return a.description;
+    case "task.deleted":
+      return a.deleted;
+    case "task.restored":
+      return a.restored;
+    default:
+      return action;
+  }
 }

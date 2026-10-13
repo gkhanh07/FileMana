@@ -160,7 +160,12 @@ model Task {
   projectId   String       @db.Uuid
   project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   number      Int
+  // FR-TASK-17: a subtask has a parent, one level deep; it shows only inside its parent.
+  parentId    String?      @db.Uuid
+  parent      Task?        @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks    Task[]       @relation("Subtasks")
   title       String       @db.VarChar(200)
+  description Json? // FR-TASK-16: the editor's (BlockNote) block list
   status      TaskStatus   @default(TODO)
   priority    TaskPriority @default(MEDIUM)
   assigneeId  String?      @db.Uuid
@@ -176,6 +181,7 @@ model Task {
   labels      TaskLabel[]
 
   @@unique([projectId, number])
+  @@index([parentId])
   @@index([assigneeId])
   @@index([dueDate])
   @@index([status])

@@ -388,12 +388,15 @@ export class ProjectsService {
     return this.toDto(project);
   }
 
-  // FR-PRJ-04: progress is counted from the tasks, never stored.
-  // ponytail: no subtasks yet; exclude them here once they exist (FR-PRJ-04).
+  // FR-PRJ-04: progress is counted from the tasks, never stored; subtasks don't count.
   private async toDtos(rows: ProjectRow[]): Promise<ProjectDto[]> {
     const counts = await this.prisma.task.groupBy({
       by: ['projectId', 'status'],
-      where: { projectId: { in: rows.map((p) => p.id) }, deletedAt: null },
+      where: {
+        projectId: { in: rows.map((p) => p.id) },
+        deletedAt: null,
+        parentId: null,
+      },
       _count: true,
     });
     return rows.map((p) => {

@@ -28,7 +28,6 @@ export default async function ProjectTasksPage({
       weekStartsOn={workspace.weekStartsOn}
       readOnly={!!project.archivedAt}
       initial={parseTasksView(query)}
-      highlight={query.task ?? null}
     />
   );
 }

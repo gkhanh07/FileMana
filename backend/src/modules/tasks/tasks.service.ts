@@ -8,9 +8,11 @@ import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PERSON_SELECT, toPerson } from '../users/dto/person.dto';
 import {
+  ActivityPageDto,
   CreateTaskDto,
   DoneTasksDto,
   LabelDto,
+  TaskDetailDto,
   TaskDto,
   UpdateTaskDto,
 } from './dto/task.dto';
@@ -28,6 +30,24 @@ const include = {
 
 type TaskRow = Prisma.TaskGetPayload<{ include: typeof include }>;
 
+const detailInclude = {
+  ...include,
+  project: { select: { id: true, key: true, name: true, archivedAt: true } },
+  creator: PERSON_SELECT,
+  parent: { select: { id: true, number: true, title: true } },
+  subtasks: { where: { deletedAt: null }, include, orderBy: { number: 'asc' } },
+} satisfies Prisma.TaskInclude;
+
+// Not in Trash, and neither is its project or its parent (a deleted task takes its subtasks along).
+const alive = {
+  deletedAt: null,
+  project: { deletedAt: null },
+  OR: [{ parentId: null }, { parent: { deletedAt: null } }],
+} satisfies Prisma.TaskWhereInput;
+
+// WEB-124
+const KEY = /^([A-Z]{2,5})-(\d{1,9})$/;
+
 const toDate = (d: string | null | undefined) =>
   d === undefined ? undefined : d === null ? null : new Date(`${d}T00:00:00Z`);
 const fromDate = (d: Date | null) => d?.toISOString().slice(0, 10) ?? null;
@@ -38,6 +58,7 @@ function toDto(t: TaskRow): TaskDto {
     key: `${t.project.key}-${t.number}`,
     number: t.number,
     projectId: t.projectId,
+    parentId: t.parentId,
     title: t.title,
     status: t.status,
     priority: t.priority,
@@ -60,6 +81,9 @@ const person = (p: { id: string; name: string } | null): Value =>
 const same = (a: Value, b: Value) => JSON.stringify(a) === JSON.stringify(b);
 const json = (v: Value) => (v === null ? Prisma.JsonNull : v);
 
+const taskNotFound = () =>
+  new NotFoundException({ code: 'TASK_NOT_FOUND', message: 'Task not found' });
+
 // No roles (FR-ROLE-03): anyone can do this to any task of a project that isn't archived.
 @Injectable()
 export class TasksService {
@@ -73,6 +97,7 @@ export class TasksService {
       where: {
         projectId,
         deletedAt: null,
+        parentId: null, // FR-TASK-17: subtasks show only inside their parent
         OR: [
           { status: { not: 'DONE' } },
           { completedAt: { gte: new Date(Date.now() - RECENT_DONE_MS) } },
@@ -95,6 +120,7 @@ export class TasksService {
       where: {
         projectId,
         deletedAt: null,
+        parentId: null,
         status: 'DONE',
         completedAt: { lt: new Date(Date.now() - RECENT_DONE_MS) },
       },
@@ -105,6 +131,64 @@ export class TasksService {
     });
     return {
       items: rows.slice(0, limit).map(toDto),
+      hasMore: rows.length > limit,
+    };
+  }
+
+  // FR-TASK-13..17
+  async detail(key: string): Promise<TaskDetailDto> {
+    const match = KEY.exec(key);
+    const t =
+      match &&
+      (await this.prisma.task.findFirst({
+        where: {
+          ...alive,
+          number: Number(match[2]),
+          project: { key: match[1], deletedAt: null },
+        },
+        include: detailInclude,
+      }));
+    if (!t) throw taskNotFound();
+    return {
+      ...toDto(t),
+      description: t.description as object[] | null,
+      project: {
+        id: t.project.id,
+        key: t.project.key,
+        name: t.project.name,
+        archived: !!t.project.archivedAt,
+      },
+      creator: toPerson(t.creator),
+      parent: t.parent && {
+        id: t.parent.id,
+        key: `${t.project.key}-${t.parent.number}`,
+        title: t.parent.title,
+      },
+      subtasks: t.subtasks.map(toDto),
+    };
+  }
+
+  // FR-TASK-19: the Activity tab, newest first.
+  async activity(id: string, offset = 0, limit = 20): Promise<ActivityPageDto> {
+    if (!(await this.prisma.task.count({ where: { ...alive, id } }))) {
+      throw taskNotFound();
+    }
+    const rows = await this.prisma.activity.findMany({
+      where: { targetType: 'task', targetId: id },
+      include: { actor: PERSON_SELECT },
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit + 1,
+    });
+    return {
+      items: rows.slice(0, limit).map((a) => ({
+        id: a.id,
+        actor: toPerson(a.actor),
+        action: a.action,
+        oldValue: a.oldValue,
+        newValue: a.newValue,
+        createdAt: a.createdAt,
+      })),
       hasMore: rows.length > limit,
     };
   }
@@ -120,6 +204,7 @@ export class TasksService {
     if (assigneeId) await this.assertUser(assigneeId);
     if (dto.dueTime && !dto.dueDate) throw dueTimeWithoutDate();
     if (dto.labelIds) await this.assertLabels(dto.labelIds);
+    if (dto.parentId) await this.assertParent(dto.parentId, dto.projectId);
     const status = dto.status ?? 'TODO';
 
     const task = await this.prisma.$transaction(async (tx) => {
@@ -132,6 +217,7 @@ export class TasksService {
       const t = await tx.task.create({
         data: {
           projectId: dto.projectId,
+          parentId: dto.parentId,
           number: taskCounter,
           title: dto.title,
           status,
@@ -183,6 +269,8 @@ export class TasksService {
         where: { id },
         data: {
           title: dto.title,
+          description:
+            dto.description === null ? Prisma.JsonNull : dto.description,
           status: dto.status,
           priority: dto.priority,
           assigneeId: dto.assigneeId,
@@ -218,6 +306,13 @@ export class TasksService {
           await this.logChange(tx, userId, t, action, oldValue, newValue);
         }
       }
+      // FR-ACT-01 "edited": the entry says it changed, not the text itself.
+      if (
+        dto.description !== undefined &&
+        !same(before.description, t.description)
+      ) {
+        await this.logChange(tx, userId, t, 'task.description', null, null);
+      }
       return t;
     });
     return toDto(after);
@@ -243,7 +338,8 @@ export class TasksService {
       last.action === action &&
       Date.now() - last.createdAt.getTime() < MERGE_MS
     ) {
-      if (same(last.oldValue, newValue)) {
+      // A description entry has no values, so it never counts as changed back.
+      if (!same(oldValue, newValue) && same(last.oldValue, newValue)) {
         await tx.activity.delete({ where: { id: last.id } });
       } else {
         await tx.activity.update({
@@ -266,6 +362,52 @@ export class TasksService {
     });
   }
 
+  // FR-ROLE-04: anyone can delete any task; it stays in Trash for 30 days.
+  async remove(userId: string, id: string): Promise<void> {
+    const t = await this.findWritable(id);
+    await this.prisma.$transaction([
+      this.prisma.task.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      }),
+      this.prisma.activity.create({
+        data: {
+          actorId: userId,
+          projectId: t.projectId,
+          action: 'task.deleted',
+          targetType: 'task',
+          targetId: id,
+        },
+      }),
+    ]);
+  }
+
+  async restore(userId: string, id: string): Promise<TaskDto> {
+    const t = await this.prisma.task.findFirst({
+      where: { id, deletedAt: { not: null }, project: { deletedAt: null } },
+      select: { projectId: true, project: { select: { archivedAt: true } } },
+    });
+    if (!t) throw taskNotFound();
+    if (t.project.archivedAt) throw projectArchived();
+    const [restored] = await this.prisma.$transaction([
+      this.prisma.task.update({
+        where: { id },
+        data: { deletedAt: null },
+        include,
+      }),
+      this.prisma.activity.create({
+        data: {
+          actorId: userId,
+          projectId: t.projectId,
+          action: 'task.restored',
+          targetType: 'task',
+          targetId: id,
+        },
+      }),
+    ]);
+    return toDto(restored);
+  }
+
   private async findProject(id: string, writable = false) {
     const project = await this.prisma.project.findFirst({
       where: { id, deletedAt: null },
@@ -283,18 +425,13 @@ export class TasksService {
   // FR-ROLE-02: tasks of an archived project are read-only.
   private async findWritable(id: string): Promise<TaskRow> {
     const task = await this.prisma.task.findFirst({
-      where: { id, deletedAt: null, project: { deletedAt: null } },
+      where: { ...alive, id },
       include: {
         ...include,
         project: { select: { key: true, archivedAt: true } },
       },
     });
-    if (!task) {
-      throw new NotFoundException({
-        code: 'TASK_NOT_FOUND',
-        message: 'Task not found',
-      });
-    }
+    if (!task) throw taskNotFound();
     if (task.project.archivedAt) throw projectArchived();
     return task;
   }
@@ -307,6 +444,21 @@ export class TasksService {
       throw new NotFoundException({
         code: 'USER_NOT_FOUND',
         message: 'User not found',
+      });
+    }
+  }
+
+  // FR-TASK-17: one level deep, in the same project.
+  private async assertParent(id: string, projectId: string) {
+    const parent = await this.prisma.task.findFirst({
+      where: { ...alive, id, projectId },
+      select: { parentId: true },
+    });
+    if (!parent) throw taskNotFound();
+    if (parent.parentId) {
+      throw new BadRequestException({
+        code: 'SUBTASK_DEPTH',
+        message: 'A subtask cannot have subtasks',
       });
     }
   }

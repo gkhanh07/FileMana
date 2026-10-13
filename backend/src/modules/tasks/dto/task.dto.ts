@@ -75,6 +75,11 @@ export class CreateTaskDto {
   @ArrayMaxSize(20)
   @IsUUID('all', { each: true })
   labelIds?: string[];
+
+  // FR-TASK-17: makes it a subtask of this task (same project, one level deep).
+  @IsOptional()
+  @IsUUID()
+  parentId?: string;
 }
 
 const defined = (_: object, v: unknown) => v !== undefined;
@@ -84,6 +89,7 @@ const defined = (_: object, v: unknown) => v !== undefined;
 export class UpdateTaskDto extends PartialType(
   OmitType(CreateTaskDto, [
     'projectId',
+    'parentId',
     'title',
     'status',
     'priority',
@@ -110,9 +116,21 @@ export class UpdateTaskDto extends PartialType(
   @ValidateIf(defined)
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
+
+  // FR-TASK-16: the editor's block list; null clears it. The body size limit (100 KB) caps it.
+  @ApiProperty({
+    type: 'array',
+    items: { type: 'object' },
+    nullable: true,
+    required: false,
+  })
+  @ValidateIf((_, v) => v !== null && v !== undefined)
+  @IsArray()
+  description?: object[] | null;
 }
 
-export class DoneTasksQuery {
+// Offset paging for the lists that aren't task lists.
+export class PageQuery {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -141,6 +159,8 @@ export class TaskDto {
   number: number;
   projectId: string;
   title: string;
+  @ApiProperty({ type: String, nullable: true })
+  parentId: string | null;
   @ApiProperty({ enum: TaskStatus, enumName: 'TaskStatus' })
   status: TaskStatus;
   @ApiProperty({ enum: TaskPriority, enumName: 'TaskPriority' })
@@ -160,5 +180,46 @@ export class TaskDto {
 
 export class DoneTasksDto {
   items: TaskDto[];
+  hasMore: boolean;
+}
+
+export class TaskRefDto {
+  id: string;
+  key: string;
+  title: string;
+}
+
+export class TaskProjectDto {
+  id: string;
+  key: string;
+  name: string;
+  archived: boolean;
+}
+
+// FR-TASK-13..17: everything the panel and the full page show.
+export class TaskDetailDto extends TaskDto {
+  @ApiProperty({ type: 'array', items: { type: 'object' }, nullable: true })
+  description: object[] | null;
+  project: TaskProjectDto;
+  creator: PersonDto;
+  @ApiProperty({ type: TaskRefDto, nullable: true })
+  parent: TaskRefDto | null;
+  subtasks: TaskDto[];
+}
+
+// FR-ACT-02: who did what, old → new.
+export class ActivityDto {
+  id: string;
+  actor: PersonDto;
+  action: string;
+  @ApiProperty({ nullable: true })
+  oldValue: unknown;
+  @ApiProperty({ nullable: true })
+  newValue: unknown;
+  createdAt: Date;
+}
+
+export class ActivityPageDto {
+  items: ActivityDto[];
   hasMore: boolean;
 }

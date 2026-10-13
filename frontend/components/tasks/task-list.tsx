@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { UserAvatar } from "@/components/shell/user-avatar";
@@ -26,6 +27,7 @@ import {
 } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 import { StatusIcon } from "./task-bits";
+import { TaskPanel } from "./task-detail";
 import { ROW_GRID, saveError, TaskRow, tasksKey } from "./task-row";
 
 const t = strings.tasks;
@@ -40,7 +42,6 @@ export function TaskList({
   weekStartsOn,
   readOnly,
   initial,
-  highlight,
 }: {
   projectId: string;
   initialTasks: Task[];
@@ -49,7 +50,6 @@ export function TaskList({
   weekStartsOn: number;
   readOnly: boolean;
   initial: TasksView;
-  highlight: string | null;
 }) {
   const { data: tasks } = useQuery({
     queryKey: tasksKey(projectId),
@@ -67,14 +67,30 @@ export function TaskList({
     if (next.group !== "status") params.set("group", next.group);
     if (next.sort !== "due") params.set("sort", next.sort);
     for (const [k, v] of Object.entries(next.filters)) if (v) params.set(k, v);
+    if (openKey) params.set("task", openKey);
     const query = params.toString();
     window.history.replaceState(null, "", query ? `?${query}` : location.pathname);
   };
   const setFilter = (patch: Partial<TaskFilters>) => update({ filters: { ...view.filters, ...patch } });
 
+  // FR-TASK-13: the open task lives in the URL (?task=KEY), so a reload or a shared link reopens it.
+  const openKey = useSearchParams().get("task");
+  const openTask = (key: string) => {
+    const params = new URLSearchParams(location.search);
+    params.set("task", key);
+    window.history.pushState(null, "", `?${params}`);
+  };
+  const closeTask = () => {
+    const params = new URLSearchParams(location.search);
+    params.delete("task");
+    const query = params.toString();
+    window.history.replaceState(null, "", query ? `?${query}` : location.pathname);
+  };
+  // A link or reload with ?task= scrolls its row into view once.
+  const [firstKey] = useState(openKey);
   useEffect(() => {
-    if (highlight) document.getElementById(`task-${highlight}`)?.scrollIntoView({ block: "center" });
-  }, [highlight]);
+    if (firstKey) document.getElementById(`task-${firstKey}`)?.scrollIntoView({ block: "center" });
+  }, [firstKey]);
 
   const filtered = filterTasks(tasks, view.filters, timeZone, weekStartsOn);
   const groups = groupTasks(sortTasks(filtered, view.sort), view.group);
@@ -147,9 +163,12 @@ export function TaskList({
     </div>
   );
 
+  const panel = openKey && <TaskPanel taskKey={openKey} timeZone={timeZone} onOpen={openTask} onClose={closeTask} />;
+
   if (tasks.length === 0 && adding === null) {
     return (
       <div className="flex flex-col items-center gap-3 py-16 text-center">
+        {panel}
         <p className="text-sm text-muted-foreground">{t.empty}</p>
         {!readOnly && (
           <Button
@@ -169,6 +188,7 @@ export function TaskList({
   return (
     <div className="flex flex-col gap-4">
       {toolbar}
+      {panel}
       {filtering && filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <p className="text-sm text-muted-foreground">{t.noMatch}</p>
@@ -239,7 +259,8 @@ export function TaskList({
                         task={task}
                         timeZone={timeZone}
                         readOnly={readOnly}
-                        highlight={task.key === highlight}
+                        highlight={task.key === openKey}
+                        onOpen={openTask}
                       />
                     ))}
                     {!readOnly && (

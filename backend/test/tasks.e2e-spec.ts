@@ -18,6 +18,7 @@ type Task = {
   status: string;
   priority: string;
   assignee: Person | null;
+  parentId: string | null;
   dueDate: string | null;
   dueTime: string | null;
   completedAt: string | null;
@@ -255,6 +256,147 @@ describe('Tasks (e2e)', () => {
     expect(done).toBeGreaterThan(0);
   });
 
+  it('adds subtasks one level deep, inside the parent only (FR-TASK-17)', async () => {
+    const parent = await newTask('Trang chủ');
+    const sub = await newTask('Ảnh bìa', {
+      parentId: parent.id,
+      assigneeId: other.id,
+    });
+    await newTask('Chữ', { parentId: parent.id, status: 'DONE' });
+    await post({ projectId, title: 'Sâu quá', parentId: sub.id })
+      .expect(400)
+      .expect((r) => expect(r.body).toMatchObject({ code: 'SUBTASK_DEPTH' }));
+
+    const list = await http()
+      .get(`/projects/${projectId}/tasks`)
+      .set('Cookie', cookie)
+      .expect(200);
+    const keys = (list.body as Task[]).map((t) => t.key);
+    expect(keys).toContain(parent.key);
+    expect(keys).not.toContain(sub.key);
+
+    const detail = await http()
+      .get(`/tasks/${parent.key}`)
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(detail.body).toMatchObject({
+      key: parent.key,
+      parent: null,
+      project: { id: projectId, key: 'CV', archived: false },
+      creator: { id: me.id },
+      description: null,
+    });
+    expect(
+      (detail.body as { subtasks: Task[] }).subtasks.map((t) => t.title),
+    ).toEqual(['Ảnh bìa', 'Chữ']);
+    const child = await http()
+      .get(`/tasks/${sub.key}`)
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(child.body).toMatchObject({
+      parentId: parent.id,
+      parent: { id: parent.id, key: parent.key, title: 'Trang chủ' },
+      assignee: { id: other.id },
+    });
+
+    // Progress counts top-level tasks only (FR-PRJ-04).
+    const project = await http()
+      .get(`/projects/${projectId}`)
+      .set('Cookie', cookie)
+      .expect(200);
+    const total = await prisma.task.count({
+      where: { projectId, parentId: null },
+    });
+    expect(project.body).toMatchObject({ taskCount: total });
+
+    await http().get('/tasks/CV-99999').set('Cookie', cookie).expect(404);
+    await http().get('/tasks/nope').set('Cookie', cookie).expect(404);
+  });
+
+  it('saves the description and logs one merged entry (FR-TASK-16)', async () => {
+    const t = await newTask('Mô tả');
+    const doc = [{ type: 'paragraph', content: 'Xin chào' }];
+    await patch(t.id, { description: doc }).expect(200);
+    await patch(t.id, {
+      description: [...doc, { type: 'paragraph', content: 'Thêm' }],
+    }).expect(200);
+    const res = await http()
+      .get(`/tasks/${t.key}`)
+      .set('Cookie', cookie)
+      .expect(200);
+    expect((res.body as { description: unknown[] }).description).toHaveLength(
+      2,
+    );
+    expect((await taskLog(t.id)).map((a) => a.action)).toEqual([
+      'task.description',
+    ]);
+    await patch(t.id, { description: 'text' }).expect(400);
+    await patch(t.id, { description: null }).expect(200);
+  });
+
+  it('pages the activity of a task (FR-TASK-19)', async () => {
+    const t = await newTask('Hoạt động');
+    await patch(t.id, { status: 'IN_PROGRESS' }).expect(200);
+    await patch(t.id, { priority: 'HIGH' }).expect(200);
+    const page = await http()
+      .get(`/tasks/${t.id}/activity?limit=2`)
+      .set('Cookie', cookie)
+      .expect(200);
+    const body = page.body as {
+      items: { action: string; actor: Person; oldValue: unknown }[];
+      hasMore: boolean;
+    };
+    expect(body.items.map((a) => a.action)).toEqual([
+      'task.priority',
+      'task.status',
+    ]);
+    expect(body.items[1]).toMatchObject({
+      actor: { id: me.id, name: 'Tâm' },
+      oldValue: 'TODO',
+    });
+    expect(body.hasMore).toBe(true);
+    const rest = await http()
+      .get(`/tasks/${t.id}/activity?offset=2&limit=2`)
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(rest.body).toMatchObject({
+      items: [{ action: 'task.created' }],
+      hasMore: false,
+    });
+  });
+
+  it('deletes to Trash, hides subtasks with the parent, and restores (FR-ROLE-04)', async () => {
+    const parent = await newTask('Xóa đi');
+    const sub = await newTask('Con', { parentId: parent.id });
+    await http()
+      .delete(`/tasks/${parent.id}`)
+      .set('Cookie', cookie)
+      .expect(204);
+    await http().get(`/tasks/${parent.key}`).set('Cookie', cookie).expect(404);
+    await http().get(`/tasks/${sub.key}`).set('Cookie', cookie).expect(404);
+    await patch(sub.id, { title: 'x' }).expect(404);
+    await http()
+      .delete(`/tasks/${parent.id}`)
+      .set('Cookie', cookie)
+      .expect(404);
+    expect(await prisma.task.count({ where: { id: parent.id } })).toBe(1);
+
+    const restored = await http()
+      .post(`/tasks/${parent.id}/restore`)
+      .set('Cookie', cookie)
+      .expect(200);
+    expect(restored.body).toMatchObject({ key: parent.key });
+    await http().get(`/tasks/${sub.key}`).set('Cookie', cookie).expect(200);
+    await http()
+      .post(`/tasks/${parent.id}/restore`)
+      .set('Cookie', cookie)
+      .expect(404);
+    expect((await taskLog(parent.id)).map((a) => a.action)).toEqual([
+      'task.deleted',
+      'task.restored',
+    ]);
+  });
+
   it('rejects writes to tasks of an archived project (FR-ROLE-02)', async () => {
     const t = await newTask('Đóng băng');
     await http()
@@ -267,6 +409,7 @@ describe('Tasks (e2e)', () => {
         expect(r.body).toMatchObject({ code: 'PROJECT_ARCHIVED' }),
       );
     await post({ projectId, title: 'Không được' }).expect(403);
+    await http().delete(`/tasks/${t.id}`).set('Cookie', cookie).expect(403);
     await http()
       .get(`/projects/${projectId}/tasks`)
       .set('Cookie', cookie)

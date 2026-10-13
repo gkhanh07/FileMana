@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -13,10 +15,12 @@ import {
   type AuthUser,
 } from '../../common/decorators/current-user.decorator';
 import {
+  ActivityPageDto,
   CreateTaskDto,
   DoneTasksDto,
-  DoneTasksQuery,
   LabelDto,
+  PageQuery,
+  TaskDetailDto,
   TaskDto,
   UpdateTaskDto,
 } from './dto/task.dto';
@@ -38,7 +42,7 @@ export class TasksController {
   @Get('projects/:id/tasks/done')
   listOlderDone(
     @Id() projectId: string,
-    @Query() query: DoneTasksQuery,
+    @Query() query: PageQuery,
   ): Promise<DoneTasksDto> {
     return this.tasks.listOlderDone(projectId, query.offset, query.limit);
   }
@@ -51,6 +55,20 @@ export class TasksController {
     return this.tasks.create(user.id, dto);
   }
 
+  // FR-SHELL-07: links use the key (WEB-12), so that is what the panel and page ask for.
+  @Get('tasks/:key')
+  detail(@Param('key') key: string): Promise<TaskDetailDto> {
+    return this.tasks.detail(key);
+  }
+
+  @Get('tasks/:id/activity')
+  activity(
+    @Id() id: string,
+    @Query() query: PageQuery,
+  ): Promise<ActivityPageDto> {
+    return this.tasks.activity(id, query.offset, query.limit);
+  }
+
   @Patch('tasks/:id')
   update(
     @CurrentUser() user: AuthUser,
@@ -58,6 +76,19 @@ export class TasksController {
     @Body() dto: UpdateTaskDto,
   ): Promise<TaskDto> {
     return this.tasks.update(user.id, id, dto);
+  }
+
+  // FR-ROLE-04: to Trash; restore is the toast's Undo (and Trash, F19).
+  @Delete('tasks/:id')
+  @HttpCode(204)
+  remove(@CurrentUser() user: AuthUser, @Id() id: string): Promise<void> {
+    return this.tasks.remove(user.id, id);
+  }
+
+  @Post('tasks/:id/restore')
+  @HttpCode(200)
+  restore(@CurrentUser() user: AuthUser, @Id() id: string): Promise<TaskDto> {
+    return this.tasks.restore(user.id, id);
   }
 
   @Get('labels')

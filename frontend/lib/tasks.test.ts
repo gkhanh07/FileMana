@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { filterTasks, groupTasks, NO_FILTERS, parseTasksView, sortTasks, weekRange, type Task } from "./tasks";
+import { formatDueDate } from "./format";
+import { describeActivity, filterTasks, groupTasks, NO_FILTERS, parseTasksView, sortTasks, weekRange, type Activity, type Task } from "./tasks";
 
 const TZ = "Asia/Ho_Chi_Minh";
 // Tuesday 13/10/2026 08:00 in Hanoi.
@@ -82,5 +83,20 @@ describe("sortTasks and groupTasks", () => {
       sort: "due",
       filters: NO_FILTERS,
     });
+  });
+});
+
+describe("describeActivity", () => {
+  const say = (action: string, oldValue: unknown = null, newValue: unknown = null) =>
+    describeActivity({ action, oldValue, newValue } as Activity);
+  it("says what changed, in Vietnamese", () => {
+    expect(say("task.status", "TODO", "IN_PROGRESS")).toBe("đã đổi trạng thái từ Cần làm sang Đang làm");
+    expect(say("task.dueDate", null, "2026-10-15 14:30")).toBe(
+      `đã đổi hạn từ Chưa có hạn sang ${formatDueDate("2026-10-15", "14:30")}`,
+    );
+    expect(say("task.assignee", null, { name: "Lan" })).toBe("đã giao cho Lan");
+    expect(say("task.assignee", { name: "Lan" }, null)).toBe("đã bỏ người làm");
+    expect(say("task.labels", ["Bug"], [])).toBe("đã đổi nhãn thành không có nhãn");
+    expect(say("task.description")).toBe("đã sửa mô tả");
   });
 });

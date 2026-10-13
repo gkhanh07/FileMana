@@ -19,12 +19,14 @@ import { api } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/error";
 import type { Person } from "@/lib/projects";
 import { errorMessage, strings } from "@/lib/strings";
-import { TASK_PRIORITIES, TASK_STATUSES, type Task, type TaskPatch } from "@/lib/tasks";
+import { TASK_PRIORITIES, TASK_STATUSES, type Task, type TaskDetail, type TaskPatch } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 import { LabelChip, PriorityIcon, StatusIcon, TaskDue } from "./task-bits";
 
 const t = strings.tasks;
 export const tasksKey = (projectId: string) => ["tasks", projectId];
+export const taskKey = (key: string) => ["task", key];
+export const activityKey = (id: string) => ["activity", id];
 /** Shared by the rows and the column header so they line up. */
 export const ROW_GRID = "grid grid-cols-[4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem] gap-3 px-4";
 
@@ -32,16 +34,31 @@ export const ROW_GRID = "grid grid-cols-[4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_
 export const saveError = (e: unknown) =>
   toast.error(e instanceof ApiError && e.code !== "NETWORK" ? errorMessage(e.code) : t.saveFailed);
 
-// FR-TASK-04, FR-UI-05, NFR-02: the row changes at once and goes back if the API says no.
-export function useUpdateTask(projectId: string) {
+/** Puts a task into every cache that shows it: the project list, its panel, its parent's subtasks. */
+export function useReplaceTask() {
   const qc = useQueryClient();
-  const key = tasksKey(projectId);
-  const replace = (task: Task) => qc.setQueryData<Task[]>(key, (list) => list?.map((x) => (x.id === task.id ? task : x)));
+  return (task: Task) => {
+    qc.setQueryData<Task[]>(tasksKey(task.projectId), (list) => list?.map((x) => (x.id === task.id ? task : x)));
+    qc.setQueriesData<TaskDetail>({ queryKey: ["task"] }, (d) =>
+      !d
+        ? d
+        : d.id === task.id
+          ? { ...d, ...task }
+          : { ...d, subtasks: d.subtasks.map((x) => (x.id === task.id ? task : x)) },
+    );
+  };
+}
+
+// FR-TASK-04, FR-UI-05, NFR-02: the task changes at once and goes back if the API says no.
+export function useUpdateTask() {
+  const qc = useQueryClient();
+  const replace = useReplaceTask();
   return useMutation({
     mutationFn: ({ task, patch }: { task: Task; patch: TaskPatch; shown: Partial<Task> }) =>
       api<Task>(`/tasks/${task.id}`, { method: "PATCH", body: patch }),
     onMutate: async ({ task, shown }) => {
-      await qc.cancelQueries({ queryKey: key });
+      await qc.cancelQueries({ queryKey: tasksKey(task.projectId) });
+      await qc.cancelQueries({ queryKey: ["task"] });
       replace({ ...task, ...shown });
     },
     onSuccess: replace,
@@ -50,26 +67,38 @@ export function useUpdateTask(projectId: string) {
       replace(task);
       saveError(e);
     },
+    onSettled: (_, __, { task }) => qc.invalidateQueries({ queryKey: activityKey(task.id) }),
   });
 }
 
 export const usePeople = (enabled = true) =>
   useQuery({ queryKey: ["users"], queryFn: () => api<Person[]>("/users"), enabled });
 
+/** One inline edit: `shown` is what the task looks like until the API answers. */
+export function useEditTask(task: Task) {
+  const update = useUpdateTask();
+  return (patch: TaskPatch, shown: Partial<Task> = patch as Partial<Task>) => update.mutate({ task, patch, shown });
+}
+
+export const statusShown = (status: Task["status"]) => ({
+  status,
+  completedAt: status === "DONE" ? new Date().toISOString() : null,
+});
+
 export function TaskRow({
   task,
   timeZone,
   readOnly,
   highlight,
+  onOpen,
 }: {
   task: Task;
   timeZone: string;
   readOnly: boolean;
   highlight: boolean;
+  onOpen: (key: string) => void;
 }) {
-  const update = useUpdateTask(task.projectId);
-  const edit = (patch: TaskPatch, shown: Partial<Task> = patch as Partial<Task>) =>
-    update.mutate({ task, patch, shown });
+  const edit = useEditTask(task);
 
   return (
     <li
@@ -83,7 +112,14 @@ export function TaskRow({
     >
       <span className="font-mono text-xs text-muted-foreground">{task.key}</span>
       <span className="flex min-w-0 items-center gap-2">
-        <span className={cn("truncate", task.status === "DONE" && "text-muted-foreground")}>{task.title}</span>
+        {/* FR-TASK-13: the title opens the panel. */}
+        <button
+          type="button"
+          onClick={() => onOpen(task.key)}
+          className={cn("truncate text-left hover:underline", task.status === "DONE" && "text-muted-foreground")}
+        >
+          {task.title}
+        </button>
         {task.labels.map((l) => (
           <LabelChip key={l.id} label={l} />
         ))}
@@ -93,9 +129,7 @@ export function TaskRow({
         disabled={readOnly}
         value={task.status}
         options={TASK_STATUSES.map((s) => ({ value: s, text: t.status[s], icon: <StatusIcon status={s} /> }))}
-        onChange={(status) =>
-          edit({ status }, { status, completedAt: status === "DONE" ? new Date().toISOString() : null })
-        }
+        onChange={(status) => edit({ status }, statusShown(status))}
       />
       <Pick
         label={t.edit(t.fields.priority, task.key)}
@@ -110,7 +144,7 @@ export function TaskRow({
   );
 }
 
-function Pick<V extends string>({
+export function Pick<V extends string>({
   label,
   value,
   options,
@@ -146,12 +180,14 @@ function Pick<V extends string>({
   );
 }
 
-function AssigneePick({
+export function AssigneePick({
   task,
+  label = t.edit(t.fields.assignee, task.key),
   disabled,
   onChange,
 }: {
   task: Task;
+  label?: string;
   disabled: boolean;
   onChange: (assignee: Person | null) => void;
 }) {
@@ -165,7 +201,7 @@ function AssigneePick({
         <Button
           variant="ghost"
           size="sm"
-          aria-label={t.edit(t.fields.assignee, task.key)}
+          aria-label={label}
           className="-ml-1.5 justify-start px-1.5 font-normal disabled:opacity-100"
         >
           {task.assignee ? (
@@ -197,13 +233,15 @@ function AssigneePick({
 }
 
 // A date plus an optional time, both in workspace time (CLAUDE.md, API Contract).
-function DuePick({
+export function DuePick({
   task,
+  label = t.edit(t.fields.due, task.key),
   timeZone,
   disabled,
   onChange,
 }: {
   task: Task;
+  label?: string;
   timeZone: string;
   disabled: boolean;
   onChange: (due: { dueDate: string | null; dueTime: string | null }) => void;
@@ -230,7 +268,7 @@ function DuePick({
         <Button
           variant="ghost"
           size="sm"
-          aria-label={t.edit(t.fields.due, task.key)}
+          aria-label={label}
           className="-ml-1.5 justify-start px-1.5 font-normal disabled:opacity-100"
         >
           {task.dueDate ? <TaskDue task={task} timeZone={timeZone} /> : <span className="text-muted-foreground">{t.noDue}</span>}
