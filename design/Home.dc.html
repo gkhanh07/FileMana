@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<div style="width:100%;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:14px;line-height:1.45;overflow:hidden">
+  <dc-import name="Sidebar" active="home" hint-size="240px,100%"></dc-import>
+  <div style="display:grid;grid-template-rows:52px minmax(0,1fr);min-width:0">
+    <dc-import name="Topbar" crumbs="Trang chủ" dark="{{ dark }}" hint-size="100%,52px"></dc-import>
+    <main style="overflow:hidden;padding:28px 32px">
+      <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 272px;gap:48px">
+        <section style="min-width:0">
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
+            <h1 style="font-size:24px;margin:0;letter-spacing:-0.01em">Chào buổi sáng, Khánh</h1>
+            <span style="font-size:13px;color:var(--color-neutral-700)">Thứ Hai, 12 tháng 10</span>
+            <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-neutral-700)">Tạo việc <kbd style="font:500 11px var(--font-body);min-width:20px;height:20px;padding:0 5px;display:grid;place-items:center;border:1px solid var(--color-divider);color:var(--color-neutral-800)">C</kbd></span>
+          </div>
+
+          <sc-if value="{{ isDefault }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+                <div>
+                  <div style="height:32px;display:flex;align-items:center;gap:6px;padding:0 4px;border-bottom:1px solid var(--color-divider);cursor:pointer">
+                    <span style="display:flex;color:var(--color-neutral-700)"><lu-i name="chevron-down"></lu-i></span>
+                    <span style="font-size:13px;font-weight:500">{{ g.label }}</span>
+                    <span style="font-size:12px;font-weight:500;color:{{ g.countColor }}">{{ g.count }}</span>
+                  </div>
+                  <sc-for list="{{ g.rows }}" as="t" hint-placeholder-count="3">
+                    <div style="height:36px;display:flex;align-items:center;gap:12px;padding:0 8px 0 10px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 6%,transparent);background:{{ t.bg }};cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 4%,transparent)">
+                      <span style="width:14px;height:14px;flex:none;border:1px solid var(--color-neutral-500);background:var(--color-bg)"></span>
+                      <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</span>
+                      <span style="display:flex;align-items:center;gap:6px;max-width:170px;font-size:12px;color:var(--color-neutral-700);white-space:nowrap"><span style="width:6px;height:6px;flex:none;background:{{ t.pc }}"></span><span style="overflow:hidden;text-overflow:ellipsis">{{ t.project }}</span></span>
+                      <span title="{{ t.prioLabel }}" style="display:flex;color:var(--color-neutral-700)"><lu-i name="{{ t.prio }}"></lu-i></span>
+                      <span style="width:64px;text-align:right;font-size:12px;white-space:nowrap;color:{{ t.dueColor }};font-weight:{{ t.dueWeight }}">{{ t.due }}</span>
+                      <span title="{{ t.statusLabel }}" style="display:flex"><lu-i name="{{ t.status }}"></lu-i></span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ g.addable }}">
+                    <div style="height:36px;display:flex;align-items:center;gap:12px;padding:0 10px;color:var(--color-neutral-700);font-size:13px;cursor:pointer" style-hover="color:var(--color-text);background:color-mix(in srgb,var(--color-text) 4%,transparent)"><lu-i name="plus" size="14"></lu-i><span>Thêm việc cho hôm nay</span></div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isEmpty }}">
+            <div class="blueprint" style="margin-top:8px;padding:48px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px">
+              <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <span style="width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--color-divider);color:var(--color-neutral-700);margin-bottom:10px"><lu-i name="circle-check" size="20"></lu-i></span>
+              <div style="font-size:15px;font-weight:500">Bạn chưa có việc nào hôm nay.</div>
+              <div style="font-size:13px;color:var(--color-neutral-700);max-width:340px">Việc được giao cho bạn hoặc do bạn tạo sẽ hiện ở đây, sắp theo hạn.</div>
+              <button class="btn btn-secondary" style="height:32px;margin-top:14px;gap:8px"><lu-i name="plus"></lu-i>Tạo việc<kbd style="font:500 11px var(--font-body);min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border:1px solid var(--color-divider);color:var(--color-neutral-700)">C</kbd></button>
+            </div>
+            <div style="margin-top:24px;height:32px;display:flex;align-items:center;gap:6px;padding:0 4px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">
+              <lu-i name="chevron-right"></lu-i><span style="font-size:13px;font-weight:500;color:var(--color-text)">7 ngày tới</span><span style="font-size:12px">0</span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isLoading }}">
+            <div style="display:flex;flex-direction:column;gap:20px" aria-busy="true">
+              <sc-for list="{{ skel }}" as="g" hint-placeholder-count="2">
+                <div>
+                  <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 4px;border-bottom:1px solid var(--color-divider)"><span style="width:{{ g.w }};height:10px;background:var(--color-neutral-200)"></span></div>
+                  <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+                    <div style="height:36px;display:flex;align-items:center;gap:12px;padding:0 8px 0 10px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 6%,transparent)">
+                      <span style="width:14px;height:14px;background:var(--color-neutral-200)"></span>
+                      <span style="flex:1"><span style="display:block;width:{{ r.w }};height:10px;background:var(--color-neutral-200)"></span></span>
+                      <span style="width:110px;height:8px;background:var(--color-neutral-200)"></span>
+                      <span style="width:16px;height:10px;background:var(--color-neutral-200)"></span>
+                      <span style="width:48px;height:8px;background:var(--color-neutral-200)"></span>
+                      <span style="width:14px;height:14px;border-radius:50%;background:var(--color-neutral-200)"></span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isError }}">
+            <div class="blueprint" style="margin-top:8px;padding:32px;display:flex;gap:16px;align-items:flex-start">
+              <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <span style="width:32px;height:32px;flex:none;display:grid;place-items:center;border:1px solid var(--color-divider);color:var(--st-red)"><lu-i name="cloud-off"></lu-i></span>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <div style="font-size:15px;font-weight:500">Không tải được danh sách việc</div>
+                <div style="font-size:13px;color:var(--color-neutral-700);max-width:420px">Có vẻ mạng đang chập chờn. Việc của bạn vẫn được lưu an toàn — thử tải lại sau vài giây.</div>
+                <div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-secondary" style="height:32px;gap:8px"><lu-i name="refresh-cw"></lu-i>Thử lại</button><button class="btn btn-ghost" style="height:32px;padding:0 8px">Xem trạng thái hệ thống</button></div>
+              </div>
+            </div>
+          </sc-if>
+        </section>
+
+        <aside style="display:flex;flex-direction:column;gap:32px;padding-top:4px">
+          <div>
+            <div style="height:32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-divider);margin-bottom:4px"><span style="font-size:13px;font-weight:500">Dự án đang chạy</span><a href="#" style="font-size:12px;text-decoration:none">Tất cả</a></div>
+            <sc-for list="{{ projects }}" as="p" hint-placeholder-count="4">
+              <div style="padding:9px 4px;display:flex;flex-direction:column;gap:6px;cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 4%,transparent)">
+                <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="width:8px;height:8px;flex:none;background:{{ p.color }}"></span><span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span><span style="font-size:12px;color:var(--color-neutral-700);font-variant-numeric:tabular-nums">{{ p.pct }}%</span></div>
+                <div style="display:flex;align-items:center;gap:10px;padding-left:16px"><span style="flex:1;height:2px;background:var(--color-neutral-200)"><span style="display:block;height:2px;width:{{ p.w }};background:var(--color-neutral-800)"></span></span><span style="font-size:12px;color:var(--color-neutral-700);width:40px;text-align:right">{{ p.due }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div>
+            <div style="height:32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-divider);margin-bottom:4px"><span style="font-size:13px;font-weight:500">Hoạt động gần đây</span></div>
+            <sc-for list="{{ activity }}" as="a" hint-placeholder-count="5">
+              <div style="display:flex;gap:10px;padding:8px 4px;font-size:13px;line-height:1.4">
+                <span style="width:20px;height:20px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:500;background:{{ a.av }}">{{ a.init }}</span>
+                <div style="min-width:0"><div><span style="font-weight:500">{{ a.who }}</span> {{ a.what }} <span style="font-weight:500">{{ a.obj }}</span></div><div style="font-size:12px;color:var(--color-neutral-700)">{{ a.time }}</div></div>
+              </div>
+            </sc-for>
+            <a href="#" style="display:inline-flex;align-items:center;gap:4px;font-size:13px;text-decoration:none;margin:6px 4px 0">Xem tất cả trong Hộp thư <lu-i name="arrow-right" size="14"></lu-i></a>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;empty&quot;,&quot;loading&quot;,&quot;error&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.props.state ?? 'default';
+    const P = { web: ['Website Redesign', 'oklch(0.6 0.11 255)'], clh: ['Ứng dụng CloudHub', 'oklch(0.64 0.11 175)'], mkt: ['Chiến dịch Marketing Q4', 'oklch(0.7 0.13 60)'], ops: ['Vận hành nội bộ', 'oklch(0.58 0.1 320)'] };
+    const PR = { u: ['p-urgent', 'Khẩn cấp'], h: ['p-high', 'Cao'], m: ['p-medium', 'Trung bình'], l: ['p-low', 'Thấp'] };
+    const ST = { todo: ['st-todo', 'Cần làm'], prog: ['st-progress', 'Đang làm'], rev: ['st-review', 'Review'] };
+    const DUE = { over: ['var(--st-red)', 500], soon: ['var(--st-due-text)', 500], norm: ['var(--color-neutral-700)', 400] };
+    const row = (title, p, pr, due, dk, s, hover) => ({ title, project: P[p][0], pc: P[p][1], prio: PR[pr][0], prioLabel: PR[pr][1], due,
+      dueColor: DUE[dk][0], dueWeight: DUE[dk][1], status: ST[s][0], statusLabel: ST[s][1], bg: hover ? 'color-mix(in srgb,var(--color-text) 4%,transparent)' : 'transparent' });
+    const groups = [
+      { label: 'Quá hạn', count: 3, countColor: 'var(--st-red)', rows: [
+        row('Sửa lỗi đăng nhập bằng Google trên Android', 'clh', 'u', 'Hôm qua', 'over', 'prog'),
+        row('Chốt bố cục trang Bảng giá', 'web', 'h', '09/10', 'over', 'prog'),
+        row('Duyệt nội dung bài đăng Facebook tuần 3', 'mkt', 'm', '08/10', 'over', 'todo')] },
+      { label: 'Hôm nay', count: 4, countColor: 'var(--color-neutral-700)', addable: true, rows: [
+        row('Gia hạn tên miền maystudio.vn', 'ops', 'u', 'Hôm nay', 'soon', 'todo'),
+        row('Thiết kế trang chủ – phiên bản mobile', 'web', 'h', 'Hôm nay', 'soon', 'prog', true),
+        row('Review PR #312: đồng bộ tệp offline', 'clh', 'm', 'Hôm nay', 'soon', 'rev'),
+        row('Gửi brief cho đối tác quay video', 'mkt', 'l', 'Hôm nay', 'soon', 'todo')] },
+      { label: '7 ngày tới', count: 5, countColor: 'var(--color-neutral-700)', rows: [
+        row('Chuẩn hoá bộ icon cho hệ thống thiết kế', 'web', 'm', 'Ngày mai', 'soon', 'todo'),
+        row('Viết tài liệu API tải tệp lên', 'clh', 'm', 'Thứ 4', 'soon', 'todo'),
+        row('Kiểm tra khả năng truy cập (tương phản, focus)', 'web', 'l', 'Thứ 6', 'norm', 'todo'),
+        row('Lên lịch email newsletter tháng 11', 'mkt', 'm', 'Thứ 7', 'norm', 'todo'),
+        row('Tổng hợp chi phí phần mềm quý 4', 'ops', 'l', '19/10', 'norm', 'todo')] }
+    ];
+    const projects = [['web', 72, '30/10'], ['clh', 45, '15/12'], ['mkt', 20, '31/12'], ['ops', 90, '—']]
+      .map(([k, pct, due]) => ({ name: P[k][0], color: P[k][1], pct, w: pct + '%', due }));
+    const H = { Minh: 160, Trang: 80, An: 30, Huy: 200, Linh: 330 };
+    const av = (n) => `color-mix(in oklch, oklch(0.7 0.09 ${H[n]}) 40%, var(--color-bg))`;
+    const activity = [
+      ['Minh', 'đã nhắc bạn trong', 'Thiết kế trang chủ – phiên bản mobile', '2 phút trước'],
+      ['Trang', 'giao cho bạn', 'Gia hạn tên miền maystudio.vn', '1 giờ trước'],
+      ['An', 'bình luận trong', 'Chốt bố cục trang Bảng giá', '3 giờ trước'],
+      ['Huy', 'chuyển sang Review:', 'Review PR #312', 'Hôm qua'],
+      ['Linh', 'đã nhắc bạn trong', 'Kế hoạch nội dung Q4', 'Hôm qua']
+    ].map(([who, what, obj, time]) => ({ who, what, obj, time, init: who[0], av: av(who) }));
+    const skel = [{ w: '64px', rows: [{ w: '62%' }, { w: '48%' }, { w: '70%' }] }, { w: '56px', rows: [{ w: '54%' }, { w: '66%' }, { w: '40%' }, { w: '58%' }] }];
+    return { groups, projects, activity, skel, dark: !!this.props.dark,
+      isDefault: st === 'default', isEmpty: st === 'empty', isLoading: st === 'loading', isError: st === 'error' };
+  }
+}
+</script>
+</body>
+</html>

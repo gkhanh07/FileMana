@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<div style="width:100%;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:14px;line-height:1.45;overflow:hidden">
+  <dc-import name="Sidebar" active="web" hint-size="240px,100%"></dc-import>
+  <div style="display:grid;grid-template-rows:52px auto minmax(0,1fr);min-width:0">
+    <dc-import name="Topbar" crumbs="Dự án / Website Redesign / Tổng quan" hint-size="100%,52px"></dc-import>
+    <dc-import name="ProjectHeader" tab="overview" hint-size="100%,130px"></dc-import>
+    <main style="overflow:hidden;padding:24px 24px 24px 64px">
+      <div style="max-width:1040px;display:flex;flex-direction:column;gap:32px">
+        <div style="height:48px;display:flex;align-items:center;gap:24px;padding:0 16px;border:1px solid var(--color-divider);font-size:13px">
+          <span style="display:flex;align-items:baseline;gap:6px"><b style="font:600 18px var(--font-heading)">72%</b><span style="color:var(--color-neutral-700)">hoàn thành</span></span>
+          <span style="width:180px;height:2px;background:var(--color-neutral-200)"><span style="display:block;width:72%;height:2px;background:var(--color-neutral-800)"></span></span>
+          <span style="width:1px;height:20px;background:var(--color-divider)"></span>
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="5">
+            <span style="display:flex;align-items:center;gap:6px"><lu-i name="{{ s.icon }}" size="14"></lu-i><b style="font-weight:500;font-variant-numeric:tabular-nums;color:{{ s.color }}">{{ s.n }}</b><span style="color:var(--color-neutral-700)">{{ s.label }}</span></span>
+          </sc-for>
+          <a href="#" style="margin-left:auto;text-decoration:none;display:flex;align-items:center;gap:4px">Xem việc <lu-i name="arrow-right" size="14"></lu-i></a>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:48px">
+          <section>
+            <div style="height:32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-divider)"><span style="font-size:13px;font-weight:500">Cột mốc</span><span style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--color-neutral-700);cursor:pointer"><lu-i name="plus" size="14"></lu-i>Thêm</span></div>
+            <sc-for list="{{ milestones }}" as="m" hint-placeholder-count="5">
+              <div style="height:44px;display:grid;grid-template-columns:24px minmax(0,1fr) 120px 64px 72px;gap:12px;align-items:center;padding:0 4px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent)">
+                <span style="display:flex;color:{{ m.iconColor }}"><lu-i name="{{ m.icon }}"></lu-i></span>
+                <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ m.textColor }}">{{ m.name }}</span>
+                <span style="height:2px;background:var(--color-neutral-200)"><span style="display:block;height:2px;width:{{ m.w }};background:var(--color-neutral-800)"></span></span>
+                <span style="font-size:12px;color:var(--color-neutral-700);font-variant-numeric:tabular-nums;text-align:right">{{ m.count }}</span>
+                <span style="font-size:13px;text-align:right;color:{{ m.dueColor }}">{{ m.due }}</span>
+              </div>
+            </sc-for>
+            <div style="margin-top:32px;height:32px;display:flex;align-items:center;border-bottom:1px solid var(--color-divider)"><span style="font-size:13px;font-weight:500">Mục tiêu</span></div>
+            <ul style="margin:12px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:6px;color:var(--color-neutral-900)">
+              <li>Tăng tỉ lệ khách để lại liên hệ từ trang Bảng giá lên 4%.</li>
+              <li>Trang chủ tải dưới 2 giây trên 4G.</li>
+              <li>Mọi trang dùng chung bộ component với ứng dụng CloudHub.</li>
+            </ul>
+          </section>
+          <aside>
+            <div style="height:32px;display:flex;align-items:center;border-bottom:1px solid var(--color-divider);margin-bottom:4px"><span style="font-size:13px;font-weight:500">Hoạt động gần đây</span></div>
+            <sc-for list="{{ activity }}" as="a" hint-placeholder-count="6">
+              <div style="display:flex;gap:10px;padding:8px 0;font-size:13px;line-height:1.4">
+                <span style="width:20px;height:20px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:500;background:{{ a.av }}">{{ a.init }}</span>
+                <div><div><span style="font-weight:500">{{ a.who }}</span> {{ a.what }} <span style="font-weight:500">{{ a.obj }}</span></div><div style="font-size:12px;color:var(--color-neutral-700)">{{ a.time }}</div></div>
+              </div>
+            </sc-for>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const stats = [['st-done', 18, 'Xong'], ['st-progress', 3, 'Đang làm'], ['st-review', 1, 'Review'], ['st-todo', 3, 'Cần làm'], ['p-urgent', 2, 'Quá hạn', 'var(--st-red)']]
+      .map(([icon, n, label, color]) => ({ icon, n, label, color: color || 'var(--color-text)' }));
+    const milestones = [
+      ['Sitemap & wireframe', 6, 6, '15/09', 'done'], ['Thiết kế UI trang chính', 7, 9, '16/10', 'cur'],
+      ['Bộ component Header, Footer, Card', 3, 5, '20/10', ''], ['Phát triển frontend & CMS', 2, 3, '27/10', ''], ['Kiểm thử & ra mắt', 0, 2, '30/10', '']
+    ].map(([name, d, t, due, s]) => ({ name, count: d + '/' + t, w: Math.round(d / t * 100) + '%', due,
+      icon: s === 'done' ? 'circle-check' : 'diamond', iconColor: s === 'done' ? 'var(--st-done)' : s === 'cur' ? 'var(--color-text)' : 'var(--color-neutral-600)',
+      textColor: s === 'done' ? 'var(--color-neutral-700)' : 'var(--color-text)', dueColor: s === 'done' ? 'var(--color-neutral-700)' : 'var(--color-text)' }));
+    const H = { Khánh: 250, An: 30, Duy: 220, Ngọc: 290, Phúc: 120, Minh: 160 };
+    const activity = [
+      ['An', 'tải lên', 'Homepage-final.fig', '1 giờ trước'], ['Duy', 'chuyển sang Đang làm:', 'Header & Footer', '2 giờ trước'],
+      ['Ngọc', 'gửi Review:', 'Viết lại nội dung trang Giới thiệu', '4 giờ trước'], ['Phúc', 'hoàn thành', 'Tối ưu ảnh hero', 'Hôm qua'],
+      ['Khánh', 'sửa hạn của', 'Chốt bố cục trang Bảng giá', 'Hôm qua'], ['Minh', 'bình luận trong', 'Thiết kế trang chủ – mobile', '2 ngày trước']
+    ].map(([who, what, obj, time]) => ({ who, what, obj, time, init: who[0], av: `color-mix(in oklch, oklch(0.7 0.09 ${H[who]}) 40%, var(--color-bg))` }));
+    return { stats, milestones, activity };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<header style="height:52px;display:grid;grid-template-columns:minmax(0,1fr) 380px minmax(0,1fr);align-items:center;gap:16px;padding:0 16px 0 24px;border-bottom:1px solid var(--color-divider);background:var(--color-bg);color:var(--color-text);font-size:13px">
+  <nav style="display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap">
+    <sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="2">
+      <span style="color:{{ c.color }};font-weight:{{ c.weight }};cursor:pointer">{{ c.label }}</span>
+      <sc-if value="{{ c.sep }}"><span style="color:var(--color-neutral-500)">/</span></sc-if>
+    </sc-for>
+  </nav>
+  <div tabindex="0" style="height:32px;display:flex;align-items:center;gap:8px;padding:0 6px 0 10px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-neutral-700);cursor:text" style-hover="border-color:color-mix(in srgb,var(--color-text) 35%,transparent)">
+    <lu-i name="search"></lu-i>
+    <span style="flex:1">Tìm việc, dự án, tài liệu, người…</span>
+    <kbd style="font:500 11px var(--font-body);height:20px;padding:0 6px;display:grid;place-items:center;border:1px solid var(--color-divider);background:var(--color-bg);color:var(--color-neutral-700)">⌘K</kbd>
+  </div>
+  <div style="justify-self:end;display:flex;align-items:center;gap:4px">
+    <button class="btn btn-primary blueprint" style="height:32px;padding:0 4px 0 10px;gap:0;font-size:14px;margin-right:8px;white-space:nowrap">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <span style="display:flex;align-items:center;gap:6px;padding-right:8px"><lu-i name="plus"></lu-i>Tạo mới</span>
+      <span style="display:flex;align-items:center;height:100%;padding-left:4px;border-left:1px solid color-mix(in srgb,var(--color-bg) 35%,transparent)"><lu-i name="chevron-down"></lu-i></span>
+    </button>
+    <span title="Thông báo" style="position:relative;width:32px;height:32px;display:grid;place-items:center;color:var(--color-neutral-700);cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 7%,transparent);color:var(--color-text)"><lu-i name="bell"></lu-i><span style="position:absolute;top:7px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--color-text);box-shadow:0 0 0 2px var(--color-bg)"></span></span>
+    <span title="Đổi giao diện" style="width:32px;height:32px;display:grid;place-items:center;color:var(--color-neutral-700);cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 7%,transparent);color:var(--color-text)"><lu-i name="{{ themeIcon }}"></lu-i></span>
+  </div>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:52},&quot;crumbs&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Trang chủ&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const parts = (this.props.crumbs ?? 'Trang chủ').split(' / ');
+    const crumbs = parts.map((label, i) => {
+      const last = i === parts.length - 1;
+      return { label, sep: !last, color: last ? 'var(--color-text)' : 'var(--color-neutral-700)', weight: last ? 500 : 400 };
+    });
+    return { crumbs, themeIcon: this.props.dark ? 'sun' : 'moon' };
+  }
+}
+</script>
+</body>
+</html>

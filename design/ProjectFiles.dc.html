@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<div style="width:100%;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:14px;line-height:1.45;overflow:hidden">
+  <dc-import name="Sidebar" active="web" hint-size="240px,100%"></dc-import>
+  <div style="display:grid;grid-template-rows:52px minmax(0,1fr);min-width:0">
+    <dc-import name="Topbar" crumbs="Dự án / Website Redesign / Tài liệu &amp; tệp" hint-size="100%,52px"></dc-import>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <dc-import name="ProjectHeader" tab="files" hint-size="100%,130px"></dc-import>
+      <div style="padding:16px 24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;gap:2px">
+            <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:13px;font-weight:500;border:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-text) 8%,transparent)">Tất cả<span style="font-size:12px;font-weight:400;color:var(--color-neutral-700)">12</span></span>
+            <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:13px;border:1px solid transparent">Tài liệu<span style="font-size:12px;color:var(--color-neutral-700)">4</span></span>
+            <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:13px;border:1px solid transparent">Tệp<span style="font-size:12px;color:var(--color-neutral-700)">8</span></span>
+          </div>
+          <span style="width:220px;height:28px;display:flex;align-items:center;gap:8px;padding:0 8px;margin-left:8px;border:1px solid var(--color-divider);background:var(--color-surface);font-size:13px;color:var(--color-neutral-700)"><lu-i name="search" size="14"></lu-i>Lọc theo tên…</span>
+          <button class="btn btn-secondary" style="height:32px;margin-left:auto;gap:8px"><lu-i name="upload"></lu-i>Tải lên</button>
+          <button class="btn btn-secondary" style="height:32px;gap:8px"><lu-i name="file-plus"></lu-i>Tài liệu mới</button>
+        </div>
+        <div class="blueprint">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="height:64px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;border-bottom:1px solid var(--color-divider);background:repeating-linear-gradient(-45deg,transparent 0 7px,color-mix(in srgb,var(--color-text) 3%,transparent) 7px 8px)">
+            <span style="display:flex;color:var(--color-neutral-700)"><lu-i name="upload"></lu-i></span>
+            <span>Kéo thả tệp vào đây, hoặc <a href="#">chọn từ máy</a></span>
+            <span style="color:var(--color-neutral-700)">· PDF, Figma, ảnh, Excel · tối đa 200 MB mỗi tệp</span>
+          </div>
+          <sc-for list="{{ uploads }}" as="u" hint-placeholder-count="2">
+            <div style="height:40px;display:grid;grid-template-columns:16px minmax(0,1fr) 120px 240px 40px 28px;gap:12px;align-items:center;padding:0 12px;font-size:13px;border-top:1px solid color-mix(in srgb,var(--color-text) 7%,transparent)">
+              <span style="display:flex;color:var(--color-neutral-700)"><lu-i name="{{ u.icon }}"></lu-i></span>
+              <span>{{ u.name }}</span>
+              <span style="font-size:12px;color:var(--color-neutral-700);font-variant-numeric:tabular-nums">{{ u.size }}</span>
+              <span style="height:2px;background:var(--color-neutral-200)"><span style="display:block;height:2px;width:{{ u.w }};background:var(--color-neutral-800)"></span></span>
+              <span style="font-size:12px;color:var(--color-neutral-700);text-align:right;font-variant-numeric:tabular-nums">{{ u.pct }}</span>
+              <span title="Huỷ" style="display:grid;place-items:center;color:var(--color-neutral-700)"><lu-i name="x" size="14"></lu-i></span>
+            </div>
+          </sc-for>
+        </div>
+        <div>
+          <div style="height:32px;display:grid;grid-template-columns:minmax(0,1fr) 100px 150px 130px 100px 32px;gap:16px;align-items:center;padding:0 8px;border-bottom:1px solid var(--color-divider);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700)"><span>Tên</span><span>Loại</span><span>Chủ sở hữu</span><span>Cập nhật</span><span style="text-align:right">Dung lượng</span><span></span></div>
+          <sc-for list="{{ files }}" as="f" hint-placeholder-count="8">
+            <div style="height:38px;display:grid;grid-template-columns:minmax(0,1fr) 100px 150px 130px 100px 32px;gap:16px;align-items:center;padding:0 8px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);cursor:pointer;background:{{ f.bg }}" style-hover="background:color-mix(in srgb,var(--color-text) 4%,transparent)">
+              <span style="display:flex;align-items:center;gap:10px;min-width:0"><span style="display:flex;color:var(--color-neutral-700)"><lu-i name="{{ f.icon }}"></lu-i></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:{{ f.weight }}">{{ f.name }}</span></span>
+              <span style="font-size:13px;color:var(--color-neutral-700)">{{ f.type }}</span>
+              <span style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:500;background:{{ f.av }}">{{ f.init }}</span>{{ f.owner }}</span>
+              <span style="font-size:13px;color:var(--color-neutral-700)">{{ f.updated }}</span>
+              <span style="font-size:13px;color:var(--color-neutral-700);text-align:right;font-variant-numeric:tabular-nums">{{ f.size }}</span>
+              <span style="display:grid;place-items:center;color:var(--color-neutral-700);opacity:{{ f.menuOp }}"><lu-i name="ellipsis"></lu-i></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const H = { Khánh: 250, An: 30, Ngọc: 290, Huy: 200, Phúc: 120, Minh: 160, Linh: 330 };
+    const uploads = [{ icon: 'file-spreadsheet', name: 'Bao-gia-Q4.xlsx', size: '1,5 / 2,4 MB', w: '64%', pct: '64%' },
+      { icon: 'file-archive', name: 'Moodboard-hero.zip', size: '18 MB · Đang chờ', w: '0%', pct: '—' }];
+    const T = { doc: ['file-text', 'Tài liệu'], fig: ['frame', 'Figma'], pdf: ['file', 'PDF'], png: ['file-image', 'Ảnh PNG'], mp4: ['film', 'Video'] };
+    const files = [
+      ['Yêu cầu dự án (Brief)', 'doc', 'Khánh', '2 giờ trước', '—'], ['Hướng dẫn giọng văn website', 'doc', 'Ngọc', 'Hôm qua', '—'],
+      ['Checklist ra mắt', 'doc', 'Huy', '4 ngày trước', '—'], ['Ghi chú họp kick-off 15/09', 'doc', 'Minh', '3 tuần trước', '—'],
+      ['Homepage-final.fig', 'fig', 'An', '1 giờ trước', '24,6 MB'], ['Proposal-v3.pdf', 'pdf', 'Khánh', '5 ngày trước', '3,2 MB'],
+      ['Sitemap-v2.png', 'png', 'Linh', '3 ngày trước', '1,1 MB'], ['Brand-guideline-2025.pdf', 'pdf', 'An', '2 tuần trước', '8,4 MB'],
+      ['Hero-video-draft.mp4', 'mp4', 'Phúc', '1 tuần trước', '48 MB']
+    ].map(([name, t, owner, updated, size], i) => ({ name, icon: T[t][0], type: T[t][1], owner, init: owner[0], updated, size,
+      av: `color-mix(in oklch, oklch(0.7 0.09 ${H[owner]}) 40%, var(--color-bg))`, weight: t === 'doc' ? 500 : 400,
+      bg: i === 4 ? 'color-mix(in srgb,var(--color-text) 4%,transparent)' : 'transparent', menuOp: i === 4 ? 1 : 0 }));
+    return { uploads, files };
+  }
+}
+</script>
+</body>
+</html>

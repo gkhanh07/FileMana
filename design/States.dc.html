@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<div style="width:100%;height:100%;padding:40px 48px;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:14px;line-height:1.45;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;align-content:start;overflow:hidden">
+  <section class="blueprint" style="grid-column:span 2;padding:20px 24px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h3 style="font-size:20px;margin:0 0 16px">Nút</h3>
+    <div style="display:grid;grid-template-columns:96px repeat(5,minmax(0,1fr));gap:14px 16px;align-items:center;font-size:12px">
+      <span></span><sc-for list="{{ stateNames }}" as="s" hint-placeholder-count="5"><span style="color:var(--color-neutral-700)">{{ s }}</span></sc-for>
+      <sc-for list="{{ btnRows }}" as="r" hint-placeholder-count="5">
+        <span style="color:var(--color-neutral-700)">{{ r.name }}</span>
+        <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
+          <span style="display:flex"><span style="position:relative;height:{{ c.h }};width:{{ c.w }};display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 {{ c.px }};font:600 14px var(--font-heading);background:{{ c.bg }};color:{{ c.color }};border:1px solid {{ c.border }};outline:{{ c.outline }};outline-offset:2px;opacity:{{ c.op }}"><sc-if value="{{ c.corners }}"><span class="blueprint" style="position:absolute;inset:-1px;border:none"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></span></sc-if><sc-if value="{{ c.icon }}"><lu-i name="{{ c.icon }}"></lu-i></sc-if>{{ c.label }}</span></span>
+        </sc-for>
+      </sc-for>
+    </div>
+  </section>
+
+  <section class="blueprint" style="padding:20px 24px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h3 style="font-size:20px;margin:0 0 16px">Ô nhập</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+      <span style="height:32px;display:flex;align-items:center;padding:0 10px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-neutral-600)">Tên việc</span>
+      <span style="height:32px;display:flex;align-items:center;padding:0 10px;background:var(--color-surface);border:1px solid color-mix(in srgb,var(--color-text) 45%,transparent);color:var(--color-neutral-600)">Hover</span>
+      <span style="height:32px;display:flex;align-items:center;padding:0 10px;background:var(--color-surface);border:1px solid var(--color-accent);outline:2px solid var(--color-accent);outline-offset:0">Gia hạn tên miền<span style="display:inline-block;width:1px;height:16px;margin-left:1px;background:var(--color-accent)"></span></span>
+      <span style="display:flex;flex-direction:column;gap:4px"><span style="height:32px;display:flex;align-items:center;padding:0 10px;background:var(--color-surface);border:1px solid var(--st-red);color:var(--color-neutral-600)">Tên việc</span><span style="font-size:12px;color:var(--st-red)">Hãy đặt tên cho việc trước khi tạo.</span></span>
+      <span style="height:32px;display:flex;align-items:center;padding:0 10px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-neutral-600);opacity:.45">Không thể sửa</span>
+    </div>
+  </section>
+
+  <section class="blueprint" style="padding:20px 24px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h3 style="font-size:20px;margin:0 0 16px">Hàng</h3>
+    <sc-for list="{{ rowStates }}" as="r" hint-placeholder-count="5">
+      <div style="display:grid;grid-template-columns:76px minmax(0,1fr);align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--color-neutral-700)">{{ r.name }}</span>
+        <div style="position:relative;height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);background:{{ r.bg }};outline:{{ r.outline }};outline-offset:-2px;opacity:{{ r.op }};font-size:14px">
+          <sc-if value="{{ r.bar }}"><span style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--color-accent)"></span></sc-if>
+          <span style="width:14px;height:14px;flex:none;border:1px solid var(--color-neutral-500)"></span><lu-i name="{{ r.icon }}"></lu-i><span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </section>
+
+  <section class="blueprint" style="padding:20px 24px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h3 style="font-size:20px;margin:0 0 16px">Ký hiệu</h3>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 16px;font-size:13px">
+      <sc-for list="{{ glyphs }}" as="g" hint-placeholder-count="12">
+        <span style="display:flex;align-items:center;gap:8px;height:24px;color:{{ g.color }};font-weight:{{ g.weight }}"><span style="display:flex;color:var(--color-neutral-700)"><lu-i name="{{ g.icon }}"></lu-i></span>{{ g.label }}</span>
+      </sc-for>
+    </div>
+  </section>
+
+  <section class="blueprint" style="padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h3 style="font-size:20px;margin:0 0 4px">Phản hồi</h3>
+    <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 6px 0 12px;background:var(--color-neutral-900);color:var(--color-neutral-100);box-shadow:var(--shadow-md);font-size:13px">
+      <lu-i name="st-done"></lu-i><span style="flex:1">Đã chuyển 3 việc sang Done</span><span style="font-weight:500;color:var(--color-accent-300);padding:0 6px">Hoàn tác</span><span style="font-size:11px;color:var(--color-neutral-400)">⌘Z</span><span style="width:28px;height:28px;display:grid;place-items:center;color:var(--color-neutral-400)"><lu-i name="x" size="14"></lu-i></span>
+    </div>
+    <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 6px 0 12px;background:var(--color-neutral-900);color:var(--color-neutral-100);box-shadow:var(--shadow-md);font-size:13px">
+      <span style="display:flex;color:var(--st-red)"><lu-i name="circle-alert"></lu-i></span><span style="flex:1">Chưa lưu được bình luận</span><span style="font-weight:500;color:var(--color-accent-300);padding:0 6px">Thử lại</span><span style="width:28px;height:28px;display:grid;place-items:center;color:var(--color-neutral-400)"><lu-i name="x" size="14"></lu-i></span>
+    </div>
+    <div style="display:flex;gap:12px;padding:12px;border:1px solid var(--color-divider);font-size:13px">
+      <span style="display:flex;color:var(--st-red)"><lu-i name="cloud-off"></lu-i></span>
+      <div style="flex:1"><div style="font-weight:500">Không tải lên được Bao-gia-Q4.xlsx</div><div style="color:var(--color-neutral-700)">Mạng bị ngắt giữa chừng. Tệp chưa được lưu.</div></div>
+      <button class="btn btn-secondary" style="height:28px;padding:0 10px;font-size:13px;align-self:center">Thử lại</button>
+    </div>
+  </section>
+
+  <section class="blueprint" style="padding:20px 24px;display:flex;flex-direction:column;gap:16px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h3 style="font-size:20px;margin:0">Trống</h3>
+    <sc-for list="{{ empties }}" as="e" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent)">
+        <span style="width:32px;height:32px;flex:none;display:grid;place-items:center;border:1px solid var(--color-divider);color:var(--color-neutral-700)"><lu-i name="{{ e.icon }}"></lu-i></span>
+        <div style="flex:1;font-size:13px"><div style="font-weight:500">{{ e.title }}</div><div style="color:var(--color-neutral-700)">{{ e.desc }}</div></div>
+        <button class="btn btn-secondary" style="height:28px;padding:0 10px;font-size:13px">{{ e.action }}</button>
+      </div>
+    </sc-for>
+  </section>
+
+  <section class="blueprint" style="padding:20px 24px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h3 style="font-size:20px;margin:0 0 16px">Đang tải</h3>
+    <sc-for list="{{ skel }}" as="s" hint-placeholder-count="5">
+      <div style="height:40px;display:flex;align-items:center;gap:12px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent)">
+        <span style="width:20px;height:20px;background:var(--color-neutral-200)"></span>
+        <span style="flex:1"><span style="display:block;height:10px;width:{{ s.w }};background:var(--color-neutral-200)"></span></span>
+        <span style="width:64px;height:2px;background:var(--color-neutral-200)"></span>
+        <span style="width:20px;height:20px;border-radius:50%;background:var(--color-neutral-200)"></span>
+      </div>
+    </sc-for>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:980}}">
+class Component extends DCLogic {
+  renderVals() {
+    const stateNames = ['Mặc định', 'Hover', 'Focus (bàn phím)', 'Nhấn', 'Vô hiệu'];
+    const T = 'color-mix(in srgb,var(--color-text) ';
+    const kinds = [
+      { name: 'Chính', label: 'Tạo việc', bgs: ['var(--color-accent)', 'var(--color-accent-600)', 'var(--color-accent)', 'var(--color-accent-700)', 'var(--color-accent)'], color: 'var(--color-bg)', border: 'var(--color-accent)', corners: 1 },
+      { name: 'Phụ', label: 'Dự án mới', bgs: ['transparent', T + '7%,transparent)', 'transparent', T + '14%,transparent)', 'transparent'], color: 'var(--color-text)', border: 'var(--color-divider)' },
+      { name: 'Ghost', label: 'Xem tất cả', bgs: ['transparent', 'color-mix(in srgb,var(--color-accent) 10%,transparent)', 'transparent', 'color-mix(in srgb,var(--color-accent) 18%,transparent)', 'transparent'], color: 'var(--color-accent-700)', border: 'transparent' },
+      { name: 'Icon', icon: 'ellipsis', w: '32px', bgs: ['transparent', T + '7%,transparent)', 'transparent', T + '14%,transparent)', 'transparent'], color: 'var(--color-text)', border: 'transparent' },
+      { name: 'Nhỏ · 28px', label: 'Thử lại', h: '28px', bgs: ['transparent', T + '7%,transparent)', 'transparent', T + '14%,transparent)', 'transparent'], color: 'var(--color-text)', border: 'var(--color-divider)' }
+    ];
+    const btnRows = kinds.map(k => ({ name: k.name, cells: k.bgs.map((bg, i) => ({ bg, label: k.label || '', icon: k.icon || (k.corners ? '' : ''), color: k.color, border: k.border,
+      h: k.h || '32px', w: k.w || 'auto', px: k.w ? '0' : '12px', corners: k.corners, outline: i === 2 ? '2px solid var(--color-accent)' : 'none', op: i === 4 ? 0.45 : 1 })) }));
+    const rowStates = [
+      ['Mặc định', 'transparent', 'none', 1], ['Hover', T + '4%,transparent)', 'none', 1], ['Đã chọn', 'var(--color-accent-100)', 'none', 1, 1],
+      ['Focus', 'transparent', '2px solid var(--color-accent)', 1], ['Lưu trữ', 'transparent', 'none', 0.5]
+    ].map(([name, bg, outline, op, bar], i) => ({ name, bg, outline, op, bar, icon: i === 4 ? 'archive' : 'st-todo', title: i === 4 ? 'Landing page CloudHub beta' : 'Chuẩn hoá bộ icon cho hệ thống thiết kế' }));
+    const glyphs = [
+      ['st-todo', 'Cần làm'], ['p-urgent', 'Khẩn cấp', 'var(--st-red)'], ['st-progress', 'Đang làm'], ['p-high', 'Cao'], ['st-review', 'Review'], ['p-medium', 'Trung bình'],
+      ['st-done', 'Xong'], ['p-low', 'Thấp'], ['st-planning', 'Lên kế hoạch'], ['calendar', 'Quá hạn · 09/10', 'var(--st-red)', 500], ['st-hold', 'Tạm dừng'], ['calendar', 'Sắp hạn (≤ 2 ngày)', 'var(--st-due-text)', 500]
+    ].map(([icon, label, color, weight]) => ({ icon, label, color: color || 'var(--color-text)', weight: weight || 400 }));
+    const empties = [
+      { icon: 'inbox', title: 'Bạn đã đọc hết thông báo.', desc: 'Nhắc tên và việc mới sẽ hiện ở đây.', action: 'Xem đã lưu trữ' },
+      { icon: 'list-filter', title: 'Không có việc nào khớp bộ lọc.', desc: 'Thử bỏ bớt điều kiện lọc.', action: 'Xoá bộ lọc' },
+      { icon: 'files', title: 'Dự án chưa có tài liệu.', desc: 'Kéo thả tệp hoặc viết tài liệu đầu tiên.', action: 'Tài liệu mới' }
+    ];
+    const skel = [{ w: '58%' }, { w: '42%' }, { w: '66%' }, { w: '50%' }, { w: '36%' }];
+    return { stateNames, btnRows, rowStates, glyphs, empties, skel };
+  }
+}
+</script>
+</body>
+</html>

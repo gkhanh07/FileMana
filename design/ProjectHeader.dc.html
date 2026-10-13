@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<div style="padding:20px 24px 0;border-bottom:1px solid var(--color-divider);color:var(--color-text);font-family:var(--font-body)">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="width:28px;height:28px;flex:none;display:grid;place-items:center;font:600 16px var(--font-heading);color:var(--color-bg);background:oklch(0.6 0.11 255)">W</span>
+    <h1 style="font-size:24px;margin:0">Website Redesign</h1>
+    <span style="height:24px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid var(--color-divider);font-size:12px"><lu-i name="st-active" size="14"></lu-i>Đang chạy</span>
+    <span title="Đã ghim" style="display:flex;color:var(--color-neutral-700)"><lu-i name="star"></lu-i></span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px;font-size:13px">
+      <span style="display:flex;align-items:center;gap:6px;color:var(--color-neutral-700)"><lu-i name="calendar"></lu-i><span>Hạn <b style="font-weight:500;color:var(--color-text)">30/10</b></span></span>
+      <span style="display:flex;align-items:center">
+        <sc-for list="{{ members }}" as="m" hint-placeholder-count="4"><span title="{{ m.name }}" style="width:24px;height:24px;margin-right:-6px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:500;box-shadow:0 0 0 2px var(--color-bg);background:{{ m.av }}">{{ m.init }}</span></sc-for>
+        <span style="margin-left:12px;font-size:12px;color:var(--color-neutral-700)">+2</span>
+      </span>
+      <span style="width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--color-divider);cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 7%,transparent)"><lu-i name="ellipsis"></lu-i></span>
+    </div>
+  </div>
+  <p style="margin:6px 0 0 40px;font-size:13px;color:var(--color-neutral-700)">Làm mới maystudio.vn: trang chủ, bảng giá, blog và bộ component dùng chung. Ra mắt cuối tháng 10.</p>
+  <nav style="display:flex;gap:24px;margin:14px 0 0 40px">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+      <span style="position:relative;height:36px;display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:{{ t.color }};font-weight:{{ t.weight }}" style-hover="color:var(--color-text)">{{ t.label }}<sc-if value="{{ t.n }}"><span style="font-size:12px;color:var(--color-neutral-700)">{{ t.n }}</span></sc-if><sc-if value="{{ t.active }}"><span style="position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--color-accent)"></span></sc-if></span>
+    </sc-for>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:130},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;overview&quot;,&quot;tasks&quot;,&quot;files&quot;],&quot;default&quot;:&quot;overview&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const tab = this.props.tab ?? 'overview';
+    const H = { Khánh: 250, An: 30, Duy: 220, Ngọc: 290 };
+    const members = Object.keys(H).map(n => ({ name: n, init: n[0], av: `color-mix(in oklch, oklch(0.7 0.09 ${H[n]}) 40%, var(--color-bg))` }));
+    const tabs = [['overview', 'Tổng quan'], ['tasks', 'Công việc', 25], ['files', 'Tài liệu & tệp', 12]].map(([k, label, n]) => ({
+      label, n, active: k === tab, color: k === tab ? 'var(--color-text)' : 'var(--color-neutral-700)', weight: k === tab ? 500 : 400 }));
+    return { members, tabs };
+  }
+}
+</script>
+</body>
+</html>

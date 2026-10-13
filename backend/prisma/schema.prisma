@@ -1,0 +1,50 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  DEACTIVATED
+}
+
+// A single row: the workspace the seed creates.
+model Workspace {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  timezone     String   @default("Asia/Ho_Chi_Minh")
+  weekStartsOn Int      @default(1) // 0 = Sunday, 1 = Monday
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  email        String     @unique // stored lower-case
+  name         String
+  passwordHash String?
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  sessions     Session[]
+}
+
+model Session {
+  id         String   @id @default(uuid()) @db.Uuid
+  tokenHash  String   @unique // SHA-256 of the cookie value
+  userId     String   @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  remember   Boolean
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}

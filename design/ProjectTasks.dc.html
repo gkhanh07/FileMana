@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<div style="width:100%;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:14px;line-height:1.45;overflow:hidden">
+  <dc-import name="Sidebar" active="web" hint-size="240px,100%"></dc-import>
+  <div style="display:grid;grid-template-rows:52px minmax(0,1fr);min-width:0">
+    <dc-import name="Topbar" crumbs="Dự án / Website Redesign / Công việc" hint-size="100%,52px"></dc-import>
+    <div style="position:relative;display:flex;flex-direction:column;min-height:0">
+      <dc-import name="ProjectHeader" tab="tasks" hint-size="100%,130px"></dc-import>
+      <div style="height:48px;flex:none;display:flex;align-items:center;gap:8px;padding:0 24px">
+        <div style="display:flex;border:1px solid var(--color-divider);font-size:13px">
+          <span style="height:26px;display:flex;align-items:center;gap:6px;padding:0 10px;background:color-mix(in srgb,var(--color-text) 8%,transparent);font-weight:500"><lu-i name="list" size="14"></lu-i>Danh sách</span>
+          <span style="height:26px;display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--color-neutral-700);border-left:1px solid var(--color-divider);cursor:pointer"><lu-i name="kanban" size="14"></lu-i>Bảng</span>
+        </div>
+        <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 8px;font-size:13px;color:var(--color-neutral-700);cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 6%,transparent);color:var(--color-text)"><lu-i name="list-filter" size="14"></lu-i>Lọc</span>
+        <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 8px;font-size:13px;color:var(--color-neutral-700);cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 6%,transparent);color:var(--color-text)"><lu-i name="sliders-horizontal" size="14"></lu-i>Hiển thị</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--color-neutral-700);display:flex;align-items:center;gap:6px">Nhóm theo trạng thái · Tạo việc <kbd style="font:500 11px var(--font-body);min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border:1px solid var(--color-divider);color:var(--color-neutral-800)">C</kbd></span>
+      </div>
+      <div style="flex:1;min-height:0;border-top:1px solid var(--color-divider)">
+        <div style="height:32px;display:grid;grid-template-columns:16px 64px minmax(0,1fr) 120px 112px 128px 80px 40px;gap:12px;align-items:center;padding:0 24px;border-bottom:1px solid var(--color-divider);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700)">
+          <span style="width:14px;height:14px;display:grid;place-items:center;border:1px solid {{ headCbBorder }};background:{{ headCbBg }};color:var(--color-bg)"><sc-if value="{{ bulk }}"><span style="width:8px;height:1.5px;background:var(--color-bg)"></span></sc-if></span>
+          <span>ID</span><span>Tên việc</span><span>Trạng thái</span><span>Ưu tiên</span><span>Phụ trách</span><span>Hạn</span><span></span>
+        </div>
+        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+          <div style="height:36px;display:flex;align-items:center;gap:8px;padding:0 16px 0 20px;background:color-mix(in srgb,var(--color-text) 3%,transparent);border-bottom:1px solid var(--color-divider)">
+            <span style="display:flex;color:var(--color-neutral-700)"><lu-i name="{{ g.chev }}" size="14"></lu-i></span>
+            <lu-i name="{{ g.icon }}"></lu-i>
+            <span style="font-size:13px;font-weight:500">{{ g.label }}</span>
+            <span style="font-size:12px;color:var(--color-neutral-700)">{{ g.n }}</span>
+            <span title="Thêm việc vào nhóm" style="margin-left:auto;width:28px;height:28px;display:grid;place-items:center;color:var(--color-neutral-700)"><lu-i name="plus"></lu-i></span>
+          </div>
+          <sc-for list="{{ g.rows }}" as="t" hint-placeholder-count="2">
+            <div style="position:relative;height:36px;display:grid;grid-template-columns:16px 64px minmax(0,1fr) 120px 112px 128px 80px 40px;gap:12px;align-items:center;padding:0 24px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);background:{{ t.bg }};cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 4%,transparent)">
+              <sc-if value="{{ t.sel }}"><span style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--color-accent)"></span></sc-if>
+              <span style="width:14px;height:14px;display:grid;place-items:center;border:1px solid {{ t.cbBorder }};background:{{ t.cbBg }};color:var(--color-bg)"><sc-if value="{{ t.checked }}"><lu-i name="check" size="12"></lu-i></sc-if></span>
+              <span style="font-size:12px;color:var(--color-neutral-700);font-variant-numeric:tabular-nums">{{ t.id }}</span>
+              <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</span>
+              <span style="position:relative;height:28px;display:flex;align-items:center;gap:8px;font-size:13px;margin-left:-8px;padding-left:8px;box-shadow:{{ t.cellRing }}"><lu-i name="{{ t.st }}"></lu-i>{{ t.stLabel }}
+                <sc-if value="{{ t.menu }}">
+                  <div style="position:absolute;top:32px;left:0;width:220px;z-index:5;background:var(--color-bg);border:1px solid var(--color-divider);box-shadow:var(--shadow-md);padding:4px;cursor:default">
+                    <div style="height:32px;display:flex;align-items:center;padding:0 8px;font-size:13px;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);margin:-4px -4px 4px">Đổi trạng thái…</div>
+                    <sc-for list="{{ statusMenu }}" as="o" hint-placeholder-count="4">
+                      <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:13px;background:{{ o.bg }}"><lu-i name="{{ o.icon }}"></lu-i><span style="flex:1">{{ o.label }}</span><sc-if value="{{ o.cur }}"><span style="display:flex;color:var(--color-neutral-700)"><lu-i name="check" size="14"></lu-i></span></sc-if><span style="font-size:11px;color:var(--color-neutral-700);width:12px;text-align:right">{{ o.key }}</span></div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </span>
+              <span style="display:flex;align-items:center;gap:8px;font-size:13px;color:{{ t.prColor }}"><span style="display:flex;color:var(--color-neutral-700)"><lu-i name="{{ t.pr }}"></lu-i></span>{{ t.prLabel }}</span>
+              <span style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:500;background:{{ t.av }}">{{ t.init }}</span>{{ t.who }}</span>
+              <span style="font-size:13px;color:{{ t.dueColor }};font-weight:{{ t.dueWeight }}">{{ t.due }}</span>
+              <span style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--color-neutral-700);opacity:{{ t.cmOp }}"><lu-i name="message-square" size="14"></lu-i>{{ t.cm }}</span>
+            </div>
+          </sc-for>
+        </sc-for>
+      </div>
+      <sc-if value="{{ bulk }}">
+        <div style="position:absolute;left:50%;bottom:32px;transform:translateX(-50%);height:44px;display:flex;align-items:center;gap:2px;padding:0 6px 0 14px;background:var(--color-bg);border:1px solid var(--color-divider);box-shadow:var(--shadow-md);font-size:13px;white-space:nowrap">
+          <span style="font-weight:500;margin-right:8px">3 việc đã chọn</span>
+          <span style="width:1px;height:20px;background:var(--color-divider);margin-right:4px"></span>
+          <sc-for list="{{ bulkActions }}" as="b" hint-placeholder-count="4">
+            <span style="height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;cursor:pointer;color:{{ b.color }}" style-hover="background:color-mix(in srgb,var(--color-text) 7%,transparent)"><lu-i name="{{ b.icon }}"></lu-i>{{ b.label }}</span>
+          </sc-for>
+          <span style="width:1px;height:20px;background:var(--color-divider);margin:0 4px"></span>
+          <span title="Bỏ chọn" style="height:32px;display:flex;align-items:center;gap:6px;padding:0 8px;color:var(--color-neutral-700)"><kbd style="font:500 11px var(--font-body);height:18px;padding:0 4px;display:grid;place-items:center;border:1px solid var(--color-divider)">Esc</kbd><lu-i name="x"></lu-i></span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ panel }}">
+        <div style="position:absolute;top:0;right:0;bottom:0"><dc-import name="TaskPanel" hint-size="520px,100%" style="height:100%"></dc-import></div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bulk&quot;,&quot;menu&quot;,&quot;panel&quot;,&quot;plain&quot;],&quot;default&quot;:&quot;bulk&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const mode = this.props.mode ?? 'bulk';
+    const bulk = mode === 'bulk', panel = mode === 'panel', menuMode = mode === 'menu';
+    const H = { Khánh: 250, An: 30, Duy: 220, Ngọc: 290, Huy: 200 };
+    const PR = { u: ['p-urgent', 'Khẩn cấp'], h: ['p-high', 'Cao'], m: ['p-medium', 'Trung bình'], l: ['p-low', 'Thấp'] };
+    const ST = { prog: ['st-progress', 'Đang làm'], rev: ['st-review', 'Review'], todo: ['st-todo', 'Cần làm'] };
+    const DUE = { over: ['var(--st-red)', 500], soon: ['var(--st-due-text)', 500], norm: ['var(--color-text)', 400] };
+    const checkedIds = bulk ? ['WEB-127', 'WEB-129', 'WEB-133'] : [];
+    const r = (id, title, s, p, who, due, dk, cm) => {
+      const checked = checkedIds.includes(id); const sel = checked || (panel && id === 'WEB-124');
+      const menu = menuMode && id === 'WEB-127';
+      return { id, title, st: ST[s][0], stLabel: ST[s][1], pr: PR[p][0], prLabel: PR[p][1], prColor: p === 'u' ? 'var(--st-red)' : 'var(--color-text)',
+        who, init: who[0], av: `color-mix(in oklch, oklch(0.7 0.09 ${H[who]}) 40%, var(--color-bg))`, due, dueColor: DUE[dk][0], dueWeight: DUE[dk][1],
+        cm, cmOp: cm ? 1 : 0, checked, sel, menu, bg: sel ? 'var(--color-accent-100)' : menu ? 'color-mix(in srgb,var(--color-text) 4%,transparent)' : 'transparent',
+        cbBorder: checked ? 'var(--color-text)' : 'var(--color-neutral-400)', cbBg: checked ? 'var(--color-text)' : 'transparent',
+        cellRing: menu ? '0 0 0 2px var(--color-accent)' : 'none' };
+    };
+    const groups = [
+      { icon: 'st-progress', label: 'Đang làm', n: 3, chev: 'chevron-down', rows: [
+        r('WEB-124', 'Thiết kế trang chủ – phiên bản mobile', 'prog', 'h', 'Khánh', 'Hôm nay', 'soon', 4),
+        r('WEB-127', 'Xây dựng component Header & Footer', 'prog', 'm', 'Duy', 'Thứ 4', 'soon', 2),
+        r('WEB-118', 'Chốt bố cục trang Bảng giá', 'prog', 'h', 'Khánh', '09/10', 'over', 6)] },
+      { icon: 'st-review', label: 'Review', n: 1, chev: 'chevron-down', rows: [
+        r('WEB-129', 'Viết lại nội dung trang Giới thiệu', 'rev', 'm', 'Ngọc', 'Thứ 6', 'norm', 3)] },
+      { icon: 'st-todo', label: 'Cần làm', n: 3, chev: 'chevron-down', rows: [
+        r('WEB-131', 'Chuẩn hoá bộ icon cho hệ thống thiết kế', 'todo', 'm', 'Khánh', 'Ngày mai', 'soon', 1),
+        r('WEB-133', 'Kiểm tra khả năng truy cập (tương phản, focus)', 'todo', 'l', 'Khánh', 'Thứ 6', 'norm', 0),
+        r('WEB-135', 'Sửa lỗi menu di động bị che trên Safari iOS', 'todo', 'u', 'Huy', '10/10', 'over', 2)] },
+      { icon: 'st-done', label: 'Xong', n: 18, chev: 'chevron-right', rows: [] }
+    ];
+    const statusMenu = [['st-todo', 'Cần làm', 1], ['st-progress', 'Đang làm', 2, 1], ['st-review', 'Review', 3, 0, 1], ['st-done', 'Xong', 4]]
+      .map(([icon, label, key, cur, hi]) => ({ icon, label, key, cur, bg: hi ? 'color-mix(in srgb,var(--color-text) 8%,transparent)' : 'transparent' }));
+    const bulkActions = [['st-progress', 'Trạng thái'], ['circle-user', 'Phụ trách'], ['calendar', 'Hạn'], ['trash-2', 'Xoá', 'var(--st-red)']]
+      .map(([icon, label, color]) => ({ icon, label, color: color || 'var(--color-text)' }));
+    return { groups, statusMenu, bulkActions, bulk, panel,
+      headCbBorder: bulk ? 'var(--color-text)' : 'var(--color-neutral-400)', headCbBg: bulk ? 'var(--color-text)' : 'transparent' };
+  }
+}
+</script>
+</body>
+</html>

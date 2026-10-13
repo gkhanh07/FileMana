@@ -1,0 +1,35 @@
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../generated/prisma/client';
+
+@Injectable()
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
+  private readonly logger = new Logger(PrismaService.name);
+
+  constructor(config: ConfigService) {
+    super({
+      adapter: new PrismaPg({
+        connectionString: config.getOrThrow<string>('DATABASE_URL'),
+      }),
+    });
+  }
+
+  // The pg adapter connects lazily, so run a query to fail fast if the DB is unreachable.
+  async onModuleInit() {
+    await this.$queryRaw`SELECT 1`;
+    this.logger.log('Database connected successfully');
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
+}

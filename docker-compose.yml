@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:17.6-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  # One-off: applies migrations and creates the first account (FR-ROLE-01). Safe to re-run.
+  migrate:
+    build:
+      context: ./backend
+      target: build
+    command: sh -c "npx prisma migrate deploy && node dist/seed.js"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      WORKSPACE_NAME: ${WORKSPACE_NAME:-FileMana}
+      SEED_EMAIL: ${SEED_EMAIL}
+      SEED_NAME: ${SEED_NAME}
+      SEED_PASSWORD: ${SEED_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ./backend
+      target: runtime
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PORT: 3001
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    ports:
+      - "3001:3001"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    restart: unless-stopped
+    environment:
+      API_URL: http://api:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  db-data:

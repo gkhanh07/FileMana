@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script><style>body{margin:0;background:#d9d9dc}a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}</style></helmet>
+<div style="--st-done:oklch(0.6 0.13 150);--st-progress:oklch(0.6 0.17 245);--st-review:oklch(0.57 0.15 300);--st-due:oklch(0.72 0.15 70);--st-due-text:oklch(0.52 0.12 60);--st-red:oklch(0.55 0.19 27);--st-gray:var(--color-neutral-500);padding:64px 72px 120px;font-family:var(--font-body);color:var(--color-text);display:flex;flex-direction:column;gap:80px">
+  <header style="max-width:1440px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px">
+    <div><div style="font-size:12px;color:var(--color-neutral-700);margin-bottom:6px">Mây Studio · Không gian làm việc nội bộ · v1</div><h1 style="font-size:44px;margin:0">Việc · Dự án · Tài liệu</h1></div>
+    <div style="font-size:14px;line-height:1.55;color:var(--color-neutral-800);display:flex;flex-direction:column;gap:8px">
+      <p style="margin:0">Industry được nén cho công cụ dùng cả ngày: chữ 14px, hàng 36px, nút 32px, icon Lucide 16px nét 1.5. Viền thay cho bóng; bóng chỉ ở menu, modal và panel việc. Góc vuông và dấu "+" của Industry giữ ở nút chính, modal và các khối trạng thái.</p>
+      <p style="margin:0">Màu thương hiệu (xanh thép) chỉ dùng cho nút chính, vòng focus, chỉ báo nav và link. Trạng thái là chấm nhỏ: <b style="font-weight:500;color:var(--st-done)">Xong</b>, <b style="font-weight:500;color:var(--st-progress)">Đang làm</b> (xanh lam rực, khác hẳn xanh thép), <b style="font-weight:500;color:var(--st-review)">Review</b>, <b style="font-weight:500;color:var(--st-due-text)">sắp hạn</b>, <b style="font-weight:500;color:var(--st-red)">quá hạn</b>.</p>
+    </div>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">01</span>Trang chủ — Việc của tôi</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="1a" data-screen-label="1a Trang chủ" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">1a</span><span style="font-weight:500">Trang chủ</span><span style="color:var(--color-neutral-700)">Quá hạn → Hôm nay → 7 ngày tới</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Home" hint-size="1440px,900px" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="1b" data-screen-label="1b Trang chủ Dark" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">1b</span><span style="font-weight:500">Trang chủ · Dark</span><span style="color:var(--color-neutral-700)">Cùng bảng màu, đảo thang sáng</span></div>
+        <div style="--color-bg:#151618;--color-surface:#1c1d20;--color-text:#e3e4e6;--color-divider:color-mix(in srgb,#e3e4e6 13%,transparent);--color-accent:#7ea5cb;--color-neutral-100:#212225;--color-neutral-200:#2b2c2f;--color-neutral-300:#3a3b3e;--color-neutral-400:#55565a;--color-neutral-500:#76777b;--color-neutral-600:#939498;--color-neutral-700:#aeafb3;--color-neutral-800:#d0d1d4;--color-neutral-900:#e7e7ea;--color-accent-100:#1d2a37;--color-accent-200:#2c455d;--color-accent-300:#416180;--color-accent-400:#597ea3;--color-accent-500:#749dc4;--color-accent-600:#94bce3;--color-accent-700:#b5d9fd;--color-accent-800:#d6ebff;--color-accent-900:#eef6ff;--shadow-sm:0 1px 2px rgba(0,0,0,.4);--shadow-md:0 0 0 1px rgba(255,255,255,.06),0 4px 12px rgba(0,0,0,.45);--shadow-lg:0 0 0 1px rgba(255,255,255,.07),0 16px 40px rgba(0,0,0,.55);--st-done:oklch(0.72 0.14 150);--st-progress:oklch(0.72 0.14 245);--st-review:oklch(0.72 0.13 300);--st-due:oklch(0.8 0.14 75);--st-due-text:oklch(0.8 0.13 75);--st-red:oklch(0.7 0.17 25);width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);color:var(--color-text);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Home" dark="{{ true }}" hint-size="1440px,900px" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="1c" data-screen-label="1c Trang chủ Trống" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">1c</span><span style="font-weight:500">Trang chủ · Trống</span><span style="color:var(--color-neutral-700)">Một lời nhắn, một hành động</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Home" state="empty" hint-size="1440px,900px" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="1d" data-screen-label="1d Trang chủ Đang tải" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">1d</span><span style="font-weight:500">Trang chủ · Đang tải</span><span style="color:var(--color-neutral-700)">Skeleton theo đúng bố cục thật</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Home" state="loading" hint-size="1440px,900px" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="1e" data-screen-label="1e Trang chủ Lỗi" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">1e</span><span style="font-weight:500">Trang chủ · Lỗi</span><span style="color:var(--color-neutral-700)">Ngôn ngữ thường, có Thử lại</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Home" state="error" hint-size="1440px,900px" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">02</span>Dự án</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="2a" data-screen-label="2a Danh sách dự án" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">2a</span><span style="font-weight:500">Danh sách dự án</span><span style="color:var(--color-neutral-700)">Bảng mặc định, lọc theo trạng thái, hàng đang hover</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Projects" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">03</span>Chi tiết dự án</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="3a" data-screen-label="3a Tổng quan" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">3a</span><span style="font-weight:500">Tổng quan</span><span style="color:var(--color-neutral-700)">Một dải số liệu nhỏ, cột mốc, hoạt động</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="ProjectOverview" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="3b" data-screen-label="3b Công việc · Danh sách · Chọn nhiều" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">3b</span><span style="font-weight:500">Công việc · Danh sách · Chọn nhiều</span><span style="color:var(--color-neutral-700)">3 việc đã chọn, thanh thao tác nổi</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="ProjectTasks" mode="bulk" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="3c" data-screen-label="3c Công việc · Danh sách · Đổi trạng thái" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">3c</span><span style="font-weight:500">Công việc · Danh sách · Đổi trạng thái</span><span style="color:var(--color-neutral-700)">Dropdown ngay trong ô, phím số 1–4</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="ProjectTasks" mode="menu" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="3d" data-screen-label="3d Công việc · Bảng · Đang kéo" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">3d</span><span style="font-weight:500">Công việc · Bảng · Đang kéo</span><span style="color:var(--color-neutral-700)">WEB-127 kéo từ Đang làm sang Review</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="ProjectBoard" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="3e" data-screen-label="3e Tài liệu & tệp" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">3e</span><span style="font-weight:500">Tài liệu & tệp</span><span style="color:var(--color-neutral-700)">Một danh sách chung, vùng thả tệp, tiến trình tải lên</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="ProjectFiles" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+      <div id="3f" data-screen-label="3f Tài liệu · Trình soạn khối" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">3f</span><span style="font-weight:500">Tài liệu · Trình soạn khối</span><span style="color:var(--color-neutral-700)">Sidebar thu gọn 56px, menu "/" đang mở</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="DocEditor" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">04</span>Panel chi tiết việc</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="4a" data-screen-label="4a Panel việc mở trên danh sách" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">4a</span><span style="font-weight:500">Panel việc mở trên danh sách</span><span style="color:var(--color-neutral-700)">520px, danh sách vẫn hiện phía sau; đang @nhắc tên</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="ProjectTasks" mode="panel" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">05</span>Tạo nhanh</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="5a" data-screen-label="5a Tạo việc · phím C" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">5a</span><span style="font-weight:500">Tạo việc · phím C</span><span style="color:var(--color-neutral-700)">Chỉ cần tên; mặc định: dự án hiện tại, tôi, Trung bình</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="ProjectTasks" mode="plain" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import><dc-import name="QuickCreate" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">06</span>Command palette</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="6a" data-screen-label="6a Tìm mọi thứ · ⌘K" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">6a</span><span style="font-weight:500">Tìm mọi thứ · ⌘K</span><span style="color:var(--color-neutral-700)">Nhóm kết quả, dòng đầu đang được chọn bằng bàn phím</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Home" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import><dc-import name="CommandPalette" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">07</span>Hộp thư</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="7a" data-screen-label="7a Hộp thư" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">7a</span><span style="font-weight:500">Hộp thư</span><span style="color:var(--color-neutral-700)">Danh sách + xem trước; một mục đang hover hiện thao tác</span></div>
+        <div style="width:1440px;height:900px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="Inbox" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <h2 style="font-size:22px;margin:0;display:flex;align-items:baseline;gap:12px"><span style="font:500 13px var(--font-body);color:var(--color-neutral-700)">08</span>Trạng thái & thành phần</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+      <div id="8a" data-screen-label="8a Bảng trạng thái" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:10px;font-size:13px"><span style="font:600 11px ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--color-text);color:var(--color-bg)">8a</span><span style="font-weight:500">Bảng trạng thái</span><span style="color:var(--color-neutral-700)">Hover, focus, chọn, vô hiệu; toast, lỗi, trống, đang tải</span></div>
+        <div style="width:1440px;height:1040px;position:relative;overflow:hidden;background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.12)"><dc-import name="States" hint-size="1440px,100%" style="position:absolute;inset:0"></dc-import></div>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/styles.css"><script src="_ds/industry-e2a31009-9559-4359-bac4-1b0ef50a1405/_ds_bundle.js"></script><script src="icons.js"></script></helmet>
+<div style="width:100%;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:14px;line-height:1.45;overflow:hidden">
+  <dc-import name="Sidebar" active="inbox" hint-size="240px,100%"></dc-import>
+  <div style="display:grid;grid-template-rows:52px minmax(0,1fr);min-width:0">
+    <dc-import name="Topbar" crumbs="Hộp thư" hint-size="100%,52px"></dc-import>
+    <div style="display:grid;grid-template-columns:440px minmax(0,1fr);min-height:0">
+      <section style="display:flex;flex-direction:column;border-right:1px solid var(--color-divider);min-height:0">
+        <div style="height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px 0 24px">
+          <h1 style="font-size:22px;margin:0">Hộp thư</h1><span style="font-size:13px;color:var(--color-neutral-700)">3 chưa đọc</span>
+          <span style="margin-left:auto;height:28px;display:flex;align-items:center;gap:6px;padding:0 8px;font-size:13px;cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 6%,transparent)"><lu-i name="check-check" size="14"></lu-i>Đọc tất cả</span>
+        </div>
+        <div style="height:40px;flex:none;display:flex;align-items:center;gap:2px;padding:0 20px;border-bottom:1px solid var(--color-divider)">
+          <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:13px;font-weight:500;border:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-text) 8%,transparent)">Tất cả</span>
+          <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:13px">Nhắc đến<span style="font-size:12px;color:var(--color-neutral-700)">2</span></span>
+          <span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:13px">Giao cho tôi<span style="font-size:12px;color:var(--color-neutral-700)">1</span></span>
+        </div>
+        <sc-for list="{{ items }}" as="it" hint-placeholder-count="8">
+          <div style="position:relative;height:68px;flex:none;display:flex;gap:12px;padding:12px 16px 12px 24px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);background:{{ it.bg }};cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 4%,transparent)">
+            <sc-if value="{{ it.sel }}"><span style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--color-accent)"></span></sc-if>
+            <sc-if value="{{ it.unread }}"><span style="position:absolute;left:10px;top:23px;width:6px;height:6px;border-radius:50%;background:var(--color-text)"></span></sc-if>
+            <span style="width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:500;background:{{ it.av }}">{{ it.init }}</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:{{ it.weight }}"><b style="font-weight:600">{{ it.who }}</b> {{ it.what }} <span>'{{ it.obj }}'</span></div>
+              <div style="font-size:12px;color:var(--color-neutral-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.snippet }}</div>
+            </div>
+            <sc-if value="{{ it.showTime }}"><span style="font-size:12px;color:var(--color-neutral-700);white-space:nowrap">{{ it.time }}</span></sc-if>
+            <sc-if value="{{ it.hover }}"><span style="display:flex;gap:2px;align-self:flex-start;margin-top:-4px"><span title="Đánh dấu đã đọc" style="width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--color-divider);background:var(--color-bg)"><lu-i name="mail-open" size="14"></lu-i></span><span title="Lưu trữ  E" style="width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--color-divider);background:var(--color-bg)"><lu-i name="archive" size="14"></lu-i></span></span></sc-if>
+          </div>
+        </sc-for>
+      </section>
+      <section style="display:flex;flex-direction:column;min-height:0">
+        <div style="height:56px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px 0 32px;border-bottom:1px solid var(--color-divider);font-size:13px">
+          <span style="width:8px;height:8px;background:oklch(0.6 0.11 255)"></span><span style="color:var(--color-neutral-700)">Website Redesign</span><span style="color:var(--color-neutral-500)">/</span><span style="color:var(--color-neutral-700)">WEB-124</span>
+          <span style="margin-left:auto;display:flex;align-items:center;gap:4px">
+            <span title="Đánh dấu đã đọc" style="height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 6%,transparent)"><lu-i name="mail-open"></lu-i>Đã đọc</span>
+            <span title="Lưu trữ" style="height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;cursor:pointer" style-hover="background:color-mix(in srgb,var(--color-text) 6%,transparent)"><lu-i name="archive"></lu-i>Lưu trữ<kbd style="font:500 11px var(--font-body);height:18px;padding:0 4px;display:grid;place-items:center;border:1px solid var(--color-divider);color:var(--color-neutral-700)">E</kbd></span>
+            <button class="btn btn-secondary" style="height:32px;gap:6px;margin-left:4px">Mở việc<lu-i name="arrow-up-right"></lu-i></button>
+          </span>
+        </div>
+        <div style="padding:28px 32px;max-width:760px;display:flex;flex-direction:column;gap:20px">
+          <div>
+            <h2 style="font-size:26px;margin:0 0 10px">Thiết kế trang chủ – phiên bản mobile</h2>
+            <div style="display:flex;gap:8px;font-size:13px">
+              <span style="height:26px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid var(--color-divider)"><lu-i name="st-progress" size="14"></lu-i>Đang làm</span>
+              <span style="height:26px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid var(--color-divider)"><span style="display:flex;color:var(--color-neutral-700)"><lu-i name="p-high" size="14"></lu-i></span>Cao</span>
+              <span style="height:26px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid var(--color-divider);color:var(--st-due-text);font-weight:500"><lu-i name="calendar" size="14"></lu-i>Hôm nay</span>
+              <span style="height:26px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid var(--color-divider)"><span style="width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:500;background:color-mix(in oklch, oklch(0.7 0.09 250) 40%, var(--color-bg))">K</span>Khánh</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;border-top:1px solid var(--color-divider)">
+            <div style="display:flex;gap:12px;padding:16px 0;font-size:14px;color:var(--color-neutral-700)">
+              <span style="width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:500;color:var(--color-text);background:color-mix(in oklch, oklch(0.7 0.09 250) 40%, var(--color-bg))">K</span>
+              <div><div style="font-size:13px"><b style="font-weight:500;color:var(--color-text)">Khánh</b> · Hôm qua 17:40</div><div>Mình đã đẩy bản wireframe 360px lên Figma, mọi người góp ý trước trưa mai nhé.</div></div>
+            </div>
+            <div style="display:flex;gap:12px;padding:16px;margin:0 -16px;background:var(--color-accent-100);font-size:14px">
+              <span style="width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:500;background:color-mix(in oklch, oklch(0.7 0.09 160) 40%, var(--color-bg))">M</span>
+              <div><div style="font-size:13px;color:var(--color-neutral-700)"><b style="font-weight:500;color:var(--color-text)">Minh</b> · 2 phút trước</div><div><span style="color:var(--color-accent-700);font-weight:500">@Khánh</span> mình đã cập nhật lưới 4 cột cho mobile, bạn xem lại phần hero giúp nhé. CTA đang hơi sát mép.</div>
+                <div style="display:flex;gap:6px;margin-top:10px"><span style="height:28px;display:flex;align-items:center;gap:6px;padding:0 8px;font-size:12px;border:1px solid var(--color-divider);background:var(--color-bg)"><lu-i name="file-image" size="14"></lu-i>hero-grid-v2.png</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="border:1px solid var(--color-divider);background:var(--color-bg)">
+            <div style="padding:10px 12px;font-size:14px;color:var(--color-neutral-600);min-height:44px">Trả lời Minh…</div>
+            <div style="height:36px;display:flex;align-items:center;gap:2px;padding:0 6px;color:var(--color-neutral-700)">
+              <span style="width:28px;height:28px;display:grid;place-items:center"><lu-i name="at-sign"></lu-i></span><span style="width:28px;height:28px;display:grid;place-items:center"><lu-i name="paperclip"></lu-i></span><span style="width:28px;height:28px;display:grid;place-items:center"><lu-i name="smile"></lu-i></span>
+              <span style="margin-left:auto;font-size:12px">⌘↵ để gửi</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const H = { Minh: 160, Trang: 80, An: 30, Huy: 200, Linh: 330, Phúc: 120, Duy: 220, Vy: 0 };
+    const items = [
+      ['Minh', 'đã nhắc bạn trong', 'Thiết kế trang chủ – phiên bản mobile', '@Khánh mình đã cập nhật lưới 4 cột cho mobile…', '2 phút trước', 1, 1],
+      ['Trang', 'đã giao cho bạn', 'Gia hạn tên miền maystudio.vn', 'Hạn hôm nay · Vận hành nội bộ', '1 giờ trước', 1],
+      ['An', 'bình luận trong', 'Chốt bố cục trang Bảng giá', 'Bảng so sánh nên để 3 cột, gói Doanh nghiệp…', '3 giờ trước', 1, 0, 1],
+      ['Huy', 'chuyển sang Review', 'Review PR #312: đồng bộ tệp offline', 'Ứng dụng CloudHub', 'Hôm qua'],
+      ['Linh', 'đã nhắc bạn trong', 'Kế hoạch nội dung Q4', '@Khánh cần ảnh team cho bài tuyển dụng', 'Hôm qua'],
+      ['Phúc', 'đã tải lên', 'Proposal-v3.pdf', 'Website Redesign · 3,2 MB', '2 ngày trước'],
+      ['Duy', 'đã hoàn thành', 'Thiết lập CMS cho blog', 'Website Redesign', '2 ngày trước'],
+      ['Vy', 'đã thêm bạn vào', 'Cổng thông tin đối tác', 'Dự án đang tạm dừng', '3 ngày trước']
+    ].map(([who, what, obj, snippet, time, unread, sel, hover]) => ({ who, what, obj, snippet, time, unread, sel, hover, showTime: !hover,
+      init: who[0], av: `color-mix(in oklch, oklch(0.7 0.09 ${H[who]}) 40%, var(--color-bg))`, weight: unread ? 500 : 400,
+      bg: sel ? 'var(--color-accent-100)' : hover ? 'color-mix(in srgb,var(--color-text) 4%,transparent)' : 'transparent' }));
+    return { items };
+  }
+}
+</script>
+</body>
+</html>
