@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByLabel("Email").fill(EMAIL);
   await page.getByLabel("Mật khẩu").fill(PASSWORD);
   await page.getByRole("button", { name: "Đăng nhập" }).click();
-  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
 });
 
 // FR-TASK-01..05, 21..23, FR-PRJ-04

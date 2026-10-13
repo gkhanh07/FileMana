@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { UserAvatar } from "@/components/shell/user-avatar";
@@ -27,7 +26,7 @@ import {
 } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 import { StatusIcon } from "./task-bits";
-import { TaskPanel } from "./task-detail";
+import { refreshMyTasks, TaskPanel, useOpenTask } from "./task-detail";
 import { ROW_GRID, saveError, TaskRow, tasksKey } from "./task-row";
 
 const t = strings.tasks;
@@ -73,19 +72,7 @@ export function TaskList({
   };
   const setFilter = (patch: Partial<TaskFilters>) => update({ filters: { ...view.filters, ...patch } });
 
-  // FR-TASK-13: the open task lives in the URL (?task=KEY), so a reload or a shared link reopens it.
-  const openKey = useSearchParams().get("task");
-  const openTask = (key: string) => {
-    const params = new URLSearchParams(location.search);
-    params.set("task", key);
-    window.history.pushState(null, "", `?${params}`);
-  };
-  const closeTask = () => {
-    const params = new URLSearchParams(location.search);
-    params.delete("task");
-    const query = params.toString();
-    window.history.replaceState(null, "", query ? `?${query}` : location.pathname);
-  };
+  const { openKey, openTask, closeTask } = useOpenTask();
   // A link or reload with ?task= scrolls its row into view once.
   const [firstKey] = useState(openKey);
   useEffect(() => {
@@ -310,7 +297,7 @@ function GroupTitle({ group, by }: { group: TaskGroup; by: TaskGroupBy }) {
   );
 }
 
-function Choice({
+export function Choice({
   label,
   value,
   options,
@@ -358,6 +345,7 @@ function AddRow({
     mutationFn: (title: string) => api<Task>("/tasks", { method: "POST", body: { projectId, title, ...defaults } }),
     onSuccess: (task) => {
       qc.setQueryData<Task[]>(tasksKey(projectId), (list) => [...(list ?? []), task]);
+      void refreshMyTasks(qc);
       setTitle("");
       input.current?.focus();
     },

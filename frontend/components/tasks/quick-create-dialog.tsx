@@ -14,7 +14,7 @@ import type { Person, Project } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import { TASK_PRIORITIES, type Task, type TaskPriority } from "@/lib/tasks";
 import { PriorityIcon } from "./task-bits";
-import { saveError, tasksKey, usePeople } from "./task-row";
+import { myTasksKey, saveError, tasksKey, usePeople } from "./task-row";
 
 const t = strings.tasks;
 const LAST_PROJECT = "filemana.lastProject";
@@ -94,6 +94,7 @@ function QuickCreateForm({ me, onDone }: { me: Person; onDone: () => void }) {
         },
       });
       void qc.invalidateQueries({ queryKey: tasksKey(task.projectId) });
+      void qc.invalidateQueries({ queryKey: myTasksKey });
       router.refresh();
       if (keepOpen) {
         setTitle("");

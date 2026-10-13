@@ -1,6 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { formatDueDate } from "./format";
-import { describeActivity, filterTasks, groupTasks, NO_FILTERS, parseTasksView, sortTasks, weekRange, type Activity, type Task } from "./tasks";
+import {
+  describeActivity,
+  dueBucket,
+  filterMyTasks,
+  filterTasks,
+  groupMyTasks,
+  groupTasks,
+  NO_FILTERS,
+  NO_MY_FILTERS,
+  parseTasksView,
+  sortTasks,
+  weekRange,
+  type Activity,
+  type MyTask,
+  type Task,
+} from "./tasks";
 
 const TZ = "Asia/Ho_Chi_Minh";
 // Tuesday 13/10/2026 08:00 in Hanoi.
@@ -98,5 +113,43 @@ describe("describeActivity", () => {
     expect(say("task.assignee", { name: "Lan" }, null)).toBe("đã bỏ người làm");
     expect(say("task.labels", ["Bug"], [])).toBe("đã đổi nhãn thành không có nhãn");
     expect(say("task.description")).toBe("đã sửa mô tả");
+  });
+});
+
+describe("my tasks (FR-HOME-02, FR-MY-02..04)", () => {
+  const web = { id: "w", key: "WEB", name: "Web", color: "blue" };
+  const app = { id: "a", key: "APP", name: "App", color: "red" };
+  const mine = (extra: Partial<MyTask>) => task({ project: web, ...extra }) as MyTask;
+  const list = [
+    mine({ dueDate: "2026-10-12" }),
+    mine({ dueDate: "2026-10-13", project: app, status: "IN_PROGRESS" }),
+    mine({ dueDate: "2026-10-20" }),
+    mine({ dueDate: "2026-10-21", priority: "URGENT" }),
+    mine({ status: "DONE" }),
+  ];
+  const [overdue, today, week, later, none] = list;
+
+  it("buckets due dates by workspace today; the next 7 days are 'week'", () => {
+    expect(dueBucket("2026-10-12", TZ, NOW)).toBe("overdue");
+    expect(dueBucket("2026-10-13", TZ, NOW)).toBe("today");
+    expect(dueBucket("2026-10-20", TZ, NOW)).toBe("week");
+    expect(dueBucket("2026-10-21", TZ, NOW)).toBe("later");
+    expect(dueBucket(null, TZ, NOW)).toBe("none");
+  });
+  it("groups by due, project or status, empty groups left out", () => {
+    const keys = (by: "due" | "project" | "status") => groupMyTasks(list, by, TZ, NOW).map((g) => g.key);
+    expect(keys("due")).toEqual(["overdue", "today", "week", "later", "none"]);
+    expect(keys("project")).toEqual(["a", "w"]);
+    expect(keys("status")).toEqual(["TODO", "IN_PROGRESS", "DONE"]);
+    expect(groupMyTasks([overdue, later], "due", TZ, NOW).map((g) => g.key)).toEqual(["overdue", "later"]);
+  });
+  it("hides Done unless shown or filtered for", () => {
+    const nums = (l: MyTask[]) => l.map((t) => t.number);
+    expect(nums(filterMyTasks(list, NO_MY_FILTERS, false))).toEqual(nums([overdue, today, week, later]));
+    expect(filterMyTasks(list, NO_MY_FILTERS, true)).toHaveLength(5);
+    expect(filterMyTasks(list, { ...NO_MY_FILTERS, status: "DONE" }, false)).toEqual([none]);
+    expect(filterMyTasks(list, { ...NO_MY_FILTERS, project: "a" }, false)).toEqual([today]);
+    expect(filterMyTasks(list, { ...NO_MY_FILTERS, priority: "URGENT" }, false)).toEqual([later]);
+    expect(sortTasks(list, "priority")[0]).toBe(later);
   });
 });

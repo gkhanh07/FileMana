@@ -1,8 +1,10 @@
 import type { components } from "./api/schema";
-import { dayKey, dueTone, formatDueDate } from "./format";
+import { dayKey, daysUntil, dueTone, formatDueDate } from "./format";
 import { strings } from "./strings";
 
 export type Task = components["schemas"]["TaskDto"];
+// FR-HOME-02, FR-MY-01: a task from a list across projects carries its project.
+export type MyTask = components["schemas"]["MyTaskDto"];
 export type TaskStatus = components["schemas"]["TaskStatus"];
 export type TaskPriority = components["schemas"]["TaskPriority"];
 export type Label = components["schemas"]["LabelDto"];
@@ -75,7 +77,7 @@ export function filterTasks(
 }
 
 /** FR-TASK-03: nearest due first (no date last), most urgent first, or newest first. */
-export function sortTasks(tasks: Task[], sort: TaskSort): Task[] {
+export function sortTasks<T extends Task>(tasks: T[], sort: TaskSort): T[] {
   const due = (t: Task) => (t.dueDate ? `${t.dueDate} ${t.dueTime ?? "99:99"}` : "9999");
   return [...tasks].sort((a, b) =>
     sort === "priority"
@@ -101,6 +103,51 @@ export function groupTasks(tasks: Task[], by: TaskGroupBy): TaskGroup[] {
   return [...groups.values()]
     .sort((a, b) => (a.key === "none" ? 1 : b.key === "none" ? -1 : a.name.localeCompare(b.name, "vi")))
     .map(({ key, tasks }) => ({ key, tasks }));
+}
+
+export type DueBucket = "overdue" | "today" | "week" | "later" | "none";
+export const DUE_BUCKETS: DueBucket[] = ["overdue", "today", "week", "later", "none"];
+
+/** FR-HOME-02, FR-MY-02: which due group a task falls in, by workspace "today". "week" is the next 7 days. */
+export function dueBucket(dueDate: string | null, timeZone: string, now: Date = new Date()): DueBucket {
+  if (!dueDate) return "none";
+  const days = daysUntil(dueDate, timeZone, now);
+  return days < 0 ? "overdue" : days === 0 ? "today" : days <= 7 ? "week" : "later";
+}
+
+export type MyTasksGroupBy = "due" | "project" | "status";
+export type MyTaskFilters = { project: string | null; priority: TaskPriority | null; status: TaskStatus | null };
+export const NO_MY_FILTERS: MyTaskFilters = { project: null, priority: null, status: null };
+
+/** FR-MY-03, FR-MY-04: Done stays hidden unless shown, or asked for by the status filter. */
+export function filterMyTasks(tasks: MyTask[], f: MyTaskFilters, showDone: boolean): MyTask[] {
+  return tasks.filter(
+    (t) =>
+      (!f.project || t.project.id === f.project) &&
+      (!f.priority || t.priority === f.priority) &&
+      (!f.status || t.status === f.status) &&
+      (showDone || t.status !== "DONE" || f.status === "DONE"),
+  );
+}
+
+export type MyTaskGroup = { key: string; tasks: MyTask[] };
+
+/** FR-MY-02: non-empty groups only. Due in bucket order, status in workflow order, projects A–Z. */
+export function groupMyTasks(
+  tasks: MyTask[],
+  by: MyTasksGroupBy,
+  timeZone: string,
+  now: Date = new Date(),
+): MyTaskGroup[] {
+  const groups =
+    by === "due"
+      ? DUE_BUCKETS.map((b) => ({ key: b, tasks: tasks.filter((t) => dueBucket(t.dueDate, timeZone, now) === b) }))
+      : by === "status"
+        ? TASK_STATUSES.map((s) => ({ key: s, tasks: tasks.filter((t) => t.status === s) }))
+        : [...new Map(tasks.map((t) => [t.project.id, t.project])).values()]
+            .sort((a, b) => a.name.localeCompare(b.name, "vi"))
+            .map((p) => ({ key: p.id, tasks: tasks.filter((t) => t.project.id === p.id) }));
+  return groups.filter((g) => g.tasks.length > 0);
 }
 
 const a = strings.tasks.activity;

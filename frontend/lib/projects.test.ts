@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterProjects, suggestKey, type Project } from "./projects";
+import { filterProjects, runningProjects, suggestKey, type Project } from "./projects";
 
 describe("suggestKey", () => {
   it("takes word initials without diacritics", () => {
@@ -37,5 +37,25 @@ describe("filterProjects", () => {
   });
   it("sorts by last updated", () => {
     expect(names(filterProjects(all, "open", "", "updated"))).toEqual(["Web", "Không hạn", "App"]);
+  });
+});
+
+describe("runningProjects (FR-HOME-07)", () => {
+  const me = { id: "me", name: "Tâm" };
+  const p = (name: string, extra: Partial<Project>) =>
+    ({ name, status: "ACTIVE", archivedAt: null, dueDate: null, members: [me], ...extra }) as Project;
+  it("keeps Active projects I'm in, nearest due first, at most 5", () => {
+    const list = [
+      p("Không hạn", {}),
+      p("Gần", { dueDate: "2026-10-20" }),
+      p("Xa", { dueDate: "2026-12-01" }),
+      p("Tạm dừng", { status: "ON_HOLD" }),
+      p("Lưu trữ", { archivedAt: "2026-10-01T00:00:00Z" }),
+      p("Không có tôi", { members: [] }),
+      p("A", {}),
+      p("B", {}),
+      p("C", {}),
+    ];
+    expect(runningProjects(list, "me").map((x) => x.name)).toEqual(["Gần", "Xa", "Không hạn", "A", "B"]);
   });
 });

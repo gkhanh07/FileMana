@@ -324,6 +324,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_mine"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/projects/{id}/tasks/done": {
         parameters: {
             query?: never;
@@ -572,6 +588,33 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        MyTaskProjectDto: {
+            id: string;
+            key: string;
+            name: string;
+            color: string;
+        };
+        MyTaskDto: {
+            parentId: string | null;
+            status: components["schemas"]["TaskStatus"];
+            priority: components["schemas"]["TaskPriority"];
+            assignee: components["schemas"]["PersonDto"] | null;
+            dueDate: string | null;
+            dueTime: string | null;
+            /** Format: date-time */
+            completedAt: string | null;
+            id: string;
+            key: string;
+            number: number;
+            projectId: string;
+            title: string;
+            labels: components["schemas"]["LabelDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            project: components["schemas"]["MyTaskProjectDto"];
         };
         DoneTasksDto: {
             items: components["schemas"]["TaskDto"][];
@@ -1214,6 +1257,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaskDto"][];
+                };
+            };
+        };
+    };
+    TasksController_mine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyTaskDto"][];
                 };
             };
         };

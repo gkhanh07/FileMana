@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByLabel("Email").fill(EMAIL);
   await page.getByLabel("Mật khẩu").fill(PASSWORD);
   await page.getByRole("button", { name: "Đăng nhập" }).click();
-  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
 });
 
 // FR-PRJ-01..03, 05, 06, 10, 11, FR-SHELL-03, FR-SHELL-05

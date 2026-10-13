@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { CornerLeftUp, Ellipsis, Link2, Maximize2, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/shell/user-avatar";
@@ -29,6 +29,7 @@ import {
   TASK_STATUSES,
   type Activity,
   type Label,
+  type MyTask,
   type Task,
   type TaskDetail as Detail,
 } from "@/lib/tasks";
@@ -38,6 +39,7 @@ import {
   activityKey,
   AssigneePick,
   DuePick,
+  myTasksKey,
   Pick,
   saveError,
   statusShown,
@@ -55,6 +57,26 @@ const TaskEditor = dynamic(() => import("./task-editor"), {
 
 /** How a task link opens: in the panel (`onOpen`) or as its own page. */
 type Open = ((key: string) => void) | undefined;
+
+// FR-TASK-13: the open task lives in the URL (?task=KEY), so a reload or a shared link reopens it.
+export function useOpenTask() {
+  const openKey = useSearchParams().get("task");
+  const openTask = (key: string) => {
+    const params = new URLSearchParams(location.search);
+    params.set("task", key);
+    window.history.pushState(null, "", `?${params}`);
+  };
+  const closeTask = () => {
+    const params = new URLSearchParams(location.search);
+    params.delete("task");
+    const query = params.toString();
+    window.history.replaceState(null, "", query ? `?${query}` : location.pathname);
+  };
+  return { openKey, openTask, closeTask };
+}
+
+/** A new task may be mine, so Home and My Tasks load again. */
+export const refreshMyTasks = (qc: QueryClient) => qc.invalidateQueries({ queryKey: myTasksKey });
 
 // FR-TASK-13: a 520px panel from the right. Not modal, so the list behind stays usable.
 export function TaskPanel({
@@ -465,6 +487,7 @@ function Subtasks({
       api<Task>("/tasks", { method: "POST", body: { projectId: task.projectId, parentId: task.id, title } }),
     onSuccess: (sub) => {
       qc.setQueryData<Detail>(taskKey(task.key), (x) => x && { ...x, subtasks: [...x.subtasks, sub] });
+      void refreshMyTasks(qc);
       setTitle("");
     },
     onError: saveError,
@@ -606,12 +629,15 @@ function useDelete(task: Task, onDeleted: () => void) {
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: tasksKey(task.projectId) });
     void qc.invalidateQueries({ queryKey: ["task"] });
+    void refreshMyTasks(qc);
   };
   return useMutation({
     mutationFn: () => api(`/tasks/${task.id}`, { method: "DELETE" }),
     onSuccess: () => {
       qc.setQueryData<Task[]>(tasksKey(task.projectId), (list) => list?.filter((x) => x.id !== task.id));
       qc.setQueriesData<Detail>({ queryKey: ["task"] }, (x) => x && { ...x, subtasks: x.subtasks.filter((s) => s.id !== task.id) });
+      // Its subtasks go to Trash with it.
+      qc.setQueryData<MyTask[]>(myTasksKey, (list) => list?.filter((x) => x.id !== task.id && x.parentId !== task.id));
       qc.removeQueries({ queryKey: taskKey(task.key) });
       onDeleted();
       toast.success(d.deleted(task.key), {

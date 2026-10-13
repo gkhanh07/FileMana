@@ -19,7 +19,7 @@ import { api } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/error";
 import type { Person } from "@/lib/projects";
 import { errorMessage, strings } from "@/lib/strings";
-import { TASK_PRIORITIES, TASK_STATUSES, type Task, type TaskDetail, type TaskPatch } from "@/lib/tasks";
+import { TASK_PRIORITIES, TASK_STATUSES, type MyTask, type Task, type TaskDetail, type TaskPatch } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 import { LabelChip, PriorityIcon, StatusIcon, TaskDue } from "./task-bits";
 
@@ -27,6 +27,8 @@ const t = strings.tasks;
 export const tasksKey = (projectId: string) => ["tasks", projectId];
 export const taskKey = (key: string) => ["task", key];
 export const activityKey = (id: string) => ["activity", id];
+/** Home and My Tasks (FR-HOME-02, FR-MY-01). */
+export const myTasksKey = ["my-tasks"];
 /** Shared by the rows and the column header so they line up. */
 export const ROW_GRID = "grid grid-cols-[4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem] gap-3 px-4";
 
@@ -34,11 +36,12 @@ export const ROW_GRID = "grid grid-cols-[4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_
 export const saveError = (e: unknown) =>
   toast.error(e instanceof ApiError && e.code !== "NETWORK" ? errorMessage(e.code) : t.saveFailed);
 
-/** Puts a task into every cache that shows it: the project list, its panel, its parent's subtasks. */
+/** Puts a task into every cache that shows it: the project list, my tasks, its panel, its parent's subtasks. */
 export function useReplaceTask() {
   const qc = useQueryClient();
   return (task: Task) => {
     qc.setQueryData<Task[]>(tasksKey(task.projectId), (list) => list?.map((x) => (x.id === task.id ? task : x)));
+    qc.setQueryData<MyTask[]>(myTasksKey, (list) => list?.map((x) => (x.id === task.id ? { ...x, ...task } : x)));
     qc.setQueriesData<TaskDetail>({ queryKey: ["task"] }, (d) =>
       !d
         ? d
@@ -59,6 +62,7 @@ export function useUpdateTask() {
     onMutate: async ({ task, shown }) => {
       await qc.cancelQueries({ queryKey: tasksKey(task.projectId) });
       await qc.cancelQueries({ queryKey: ["task"] });
+      await qc.cancelQueries({ queryKey: myTasksKey });
       replace({ ...task, ...shown });
     },
     onSuccess: replace,

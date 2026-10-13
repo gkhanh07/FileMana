@@ -13,7 +13,14 @@ export const strings = {
   },
   signOut: "Đăng xuất",
   home: {
-    greeting: (name: string) => `Xin chào, ${name}`,
+    greeting: (hour: number, name: string) =>
+      `${hour >= 5 && hour < 11 ? "Chào buổi sáng" : hour >= 11 && hour < 13 ? "Chào buổi trưa" : hour >= 13 && hour < 18 ? "Chào buổi chiều" : "Chào buổi tối"}, ${name}`,
+    tasks: "Việc của tôi",
+    empty: "Không có việc nào quá hạn hay đến hạn trong 7 ngày tới.",
+    allTasks: "Xem tất cả việc của tôi",
+    projects: "Dự án đang chạy",
+    noProjects: "Bạn chưa tham gia dự án nào đang chạy.",
+    percent: (done: number, total: number) => `${total ? Math.round((done / total) * 100) : 0}%`,
   },
   nav: {
     label: "Điều hướng chính",
@@ -178,6 +185,15 @@ export const strings = {
       hint: "Enter để tạo · Shift+Enter để tạo và thêm việc khác",
       created: (key: string) => `Đã tạo ${key}.`,
       view: "Xem",
+    },
+    my: {
+      due: { overdue: "Quá hạn", today: "Hôm nay", week: "7 ngày tới", later: "Sau đó", none: "Không có hạn" },
+      groupBy: { due: "Hạn", project: "Dự án", status: "Trạng thái" },
+      project: "Dự án",
+      showDone: "Hiện việc đã xong",
+      empty: "Chưa có việc nào giao cho bạn.",
+      allDone: "Bạn đã xong hết việc.",
+      done: (key: string) => `Đã hoàn thành ${key}.`,
     },
     detail: {
       label: (key: string) => `Chi tiết ${key}`,

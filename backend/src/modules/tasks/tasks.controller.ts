@@ -19,6 +19,7 @@ import {
   CreateTaskDto,
   DoneTasksDto,
   LabelDto,
+  MyTaskDto,
   PageQuery,
   TaskDetailDto,
   TaskDto,
@@ -37,6 +38,11 @@ export class TasksController {
   @Get('projects/:id/tasks')
   list(@Id() projectId: string): Promise<TaskDto[]> {
     return this.tasks.list(projectId);
+  }
+
+  @Get('me/tasks')
+  mine(@CurrentUser() user: AuthUser): Promise<MyTaskDto[]> {
+    return this.tasks.mine(user.id);
   }
 
   @Get('projects/:id/tasks/done')

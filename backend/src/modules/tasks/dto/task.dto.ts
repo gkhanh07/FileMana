@@ -178,6 +178,18 @@ export class TaskDto {
   updatedAt: Date;
 }
 
+export class MyTaskProjectDto {
+  id: string;
+  key: string;
+  name: string;
+  color: string;
+}
+
+// FR-HOME-02, FR-MY-01: a task in a list that spans projects carries its project.
+export class MyTaskDto extends TaskDto {
+  project: MyTaskProjectDto;
+}
+
 export class DoneTasksDto {
   items: TaskDto[];
   hasMore: boolean;

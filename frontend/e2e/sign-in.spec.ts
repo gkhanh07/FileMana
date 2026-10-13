@@ -23,7 +23,7 @@ test("signs in, then signs out", async ({ page }) => {
   await page.getByLabel("Email").fill(EMAIL);
   await page.getByLabel("Mật khẩu").fill(PASSWORD);
   await page.getByRole("button", { name: "Đăng nhập" }).click();
-  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
 
   await page.getByRole("button", { name: "Tài khoản" }).click();
   await page.getByRole("menuitem", { name: "Đăng xuất" }).click();

@@ -19,6 +19,14 @@ export function suggestKey(name: string): string {
   return key.length >= 2 ? key : "";
 }
 
+/** FR-HOME-07: up to 5 Active projects I'm in (members include the owner), nearest due first. */
+export function runningProjects(projects: Project[], userId: string): Project[] {
+  return projects
+    .filter((p) => p.status === "ACTIVE" && !p.archivedAt && p.members.some((m) => m.id === userId))
+    .sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"))
+    .slice(0, 5);
+}
+
 /** The status filter on the Projects page. "open" (the default) hides Completed (FR-PRJ-02). */
 export type StatusFilter = "open" | ProjectStatus | "archived";
 export type ProjectSort = "due" | "updated";

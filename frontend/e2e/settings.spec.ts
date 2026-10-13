@@ -20,13 +20,13 @@ async function signIn(page: Page, password = PASSWORD) {
 async function otherDevice(browser: Browser) {
   const page = await (await browser.newContext()).newPage();
   await signIn(page);
-  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
   return page;
 }
 
 test.beforeEach(async ({ page }) => {
   await signIn(page);
-  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
   await page.goto("/settings");
 });
 

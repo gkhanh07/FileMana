@@ -397,6 +397,50 @@ describe('Tasks (e2e)', () => {
     ]);
   });
 
+  it('lists my tasks across projects, with their project (FR-HOME-02, FR-MY-01)', async () => {
+    const parent = await newTask('Của tôi', { assigneeId: other.id });
+    const sub = await newTask('Việc con của tôi', { parentId: parent.id });
+    const old = await newTask('Xong lâu rồi', { status: 'DONE' });
+    await prisma.task.update({
+      where: { id: old.id },
+      data: { completedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
+    });
+    const gone = await newTask('Đã xóa');
+    await http().delete(`/tasks/${gone.id}`).set('Cookie', cookie).expect(204);
+    const archived = (
+      await http()
+        .post('/projects')
+        .set('Cookie', cookie)
+        .send({ name: 'Kho cũ', key: 'KC' })
+        .expect(201)
+    ).body as { id: string };
+    const shelved = (
+      await post({
+        projectId: archived.id,
+        title: 'Trong dự án lưu trữ',
+      }).expect(201)
+    ).body as Task;
+    await http()
+      .post(`/projects/${archived.id}/archive`)
+      .set('Cookie', cookie)
+      .expect(200);
+
+    const res = await http().get('/me/tasks').set('Cookie', cookie).expect(200);
+    const mine = res.body as (Task & { project: { key: string } })[];
+    const keys = mine.map((t) => t.key);
+    expect(keys).toContain(sub.key);
+    expect(keys).not.toContain(parent.key);
+    expect(keys).not.toContain(old.key);
+    expect(keys).not.toContain(gone.key);
+    expect(keys).not.toContain(shelved.key);
+    expect(mine.every((t) => t.assignee?.id === me.id)).toBe(true);
+    expect(mine.find((t) => t.key === sub.key)).toMatchObject({
+      parentId: parent.id,
+      project: { id: projectId, key: 'CV', name: 'Công việc' },
+    });
+    await http().get('/me/tasks').expect(401);
+  });
+
   it('rejects writes to tasks of an archived project (FR-ROLE-02)', async () => {
     const t = await newTask('Đóng băng');
     await http()

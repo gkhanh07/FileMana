@@ -12,6 +12,7 @@ import {
   CreateTaskDto,
   DoneTasksDto,
   LabelDto,
+  MyTaskDto,
   TaskDetailDto,
   TaskDto,
   UpdateTaskDto,
@@ -107,6 +108,30 @@ export class TasksService {
       orderBy: { number: 'asc' },
     });
     return rows.map(toDto);
+  }
+
+  // FR-HOME-02, FR-MY-01: every task assigned to me across projects, subtasks included.
+  // Archived projects are read-only, so their tasks stay out. Done only from the last 14 days.
+  async mine(userId: string): Promise<MyTaskDto[]> {
+    const rows = await this.prisma.task.findMany({
+      where: {
+        ...alive,
+        assigneeId: userId,
+        project: { deletedAt: null, archivedAt: null },
+        AND: {
+          OR: [
+            { status: { not: 'DONE' } },
+            { completedAt: { gte: new Date(Date.now() - RECENT_DONE_MS) } },
+          ],
+        },
+      },
+      include: {
+        ...include,
+        project: { select: { id: true, key: true, name: true, color: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((t) => ({ ...toDto(t), project: t.project }));
   }
 
   // The Done group's "See all": the older Done tasks, newest first.
