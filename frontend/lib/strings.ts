@@ -176,6 +176,15 @@ export const strings = {
     saveFailed: "Chưa lưu được thay đổi. Kiểm tra kết nối rồi thử lại.",
     dueEditor: { date: "Ngày", time: "Giờ (không bắt buộc)", save: "Lưu", clear: "Bỏ hạn" },
     edit: (field: string, key: string) => `${field} của ${key}`,
+    bulk: {
+      select: (key: string) => `Chọn ${key}`,
+      label: "Thao tác hàng loạt",
+      selected: (n: number) => `Đã chọn ${n} việc`,
+      clear: "Bỏ chọn",
+      delete: "Xóa",
+      updated: (n: number) => `Đã cập nhật ${n} việc.`,
+      deleted: (n: number) => `Đã xóa ${n} việc.`,
+    },
     quick: {
       title: "Công việc mới",
       titleLabel: "Tên công việc",

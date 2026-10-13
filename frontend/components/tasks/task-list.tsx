@@ -34,6 +34,7 @@ import {
 import { cn } from "@/lib/utils";
 import { StatusIcon } from "./task-bits";
 import { TaskBoard } from "./task-board";
+import { TaskBulkBar } from "./task-bulk-bar";
 import { refreshMyTasks, TaskPanel, useOpenTask } from "./task-detail";
 import { ROW_GRID, saveError, TaskRow, tasksKey } from "./task-row";
 
@@ -66,6 +67,9 @@ export function TaskList({
   const [view, setView] = useState(initial);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [adding, setAdding] = useState<string | null>(null);
+  // FR-TASK-25: ticked task ids, and the last one ticked for Shift ranges.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [anchor, setAnchor] = useState<string | null>(null);
 
   const update = (patch: Partial<TasksView>) => {
     const next = { ...view, ...patch };
@@ -99,6 +103,22 @@ export function TaskList({
   const filtered = filterTasks(tasks, view.filters, timeZone, weekStartsOn);
   const groups = groupTasks(sortTasks(filtered, view.sort), view.group);
   const filtering = Object.values(view.filters).some(Boolean);
+  // Rows in screen order; a hidden task (filtered out, collapsed group) is never acted on.
+  const shown = view.layout === "list" ? groups.flatMap((g) => (collapsed.has(g.key) ? [] : g.tasks)) : [];
+  const chosen = shown.filter((x) => selected.has(x.id));
+  const select = (id: string, shift: boolean) => {
+    const from = shown.findIndex((x) => x.id === anchor);
+    const to = shown.findIndex((x) => x.id === id);
+    const range = shift && from >= 0 ? shown.slice(Math.min(from, to), Math.max(from, to) + 1).map((x) => x.id) : [id];
+    const on = !selected.has(id);
+    setSelected((s) => {
+      const next = new Set(s);
+      for (const r of range) if (on) next.add(r);
+      else next.delete(r);
+      return next;
+    });
+    setAnchor(id);
+  };
   // Everyone who has a task here, for the assignee filter.
   const assignees = [
     ...new Map(
@@ -239,6 +259,7 @@ export function TaskList({
     <div className="flex flex-col gap-4">
       {toolbar}
       {panel}
+      {chosen.length > 0 && <TaskBulkBar projectId={projectId} tasks={chosen} onClear={() => setSelected(new Set())} />}
       {filtering && filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <p className="text-sm text-muted-foreground">{t.noMatch}</p>
@@ -270,6 +291,7 @@ export function TaskList({
               "h-8 items-center border-b text-xs tracking-wide text-muted-foreground uppercase",
             )}
           >
+            <span />
             <span>{t.columns.key}</span>
             <span>{t.columns.title}</span>
             <span>{t.fields.status}</span>
@@ -337,6 +359,8 @@ export function TaskList({
                         readOnly={readOnly}
                         highlight={task.key === openKey}
                         onOpen={openTask}
+                        selected={selected.has(task.id)}
+                        onSelect={(shift) => select(task.id, shift)}
                       />
                     ))}
                     {!readOnly && (

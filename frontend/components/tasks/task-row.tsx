@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/shell/user-avatar";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +31,7 @@ export const activityKey = (id: string) => ["activity", id];
 /** Home and My Tasks (FR-HOME-02, FR-MY-01). */
 export const myTasksKey = ["my-tasks"];
 /** Shared by the rows and the column header so they line up. */
-export const ROW_GRID = "grid grid-cols-[4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem] gap-3 px-4";
+export const ROW_GRID = "grid grid-cols-[1rem_4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem] gap-3 px-4";
 
 /** A server error has its own text; anything else (offline, timeout) gets the FR-UI-05 "not saved" text. */
 export const saveError = (e: unknown) =>
@@ -95,12 +96,17 @@ export function TaskRow({
   readOnly,
   highlight,
   onOpen,
+  selected,
+  onSelect,
 }: {
   task: Task;
   timeZone: string;
   readOnly: boolean;
   highlight: boolean;
   onOpen: (key: string) => void;
+  selected: boolean;
+  /** FR-TASK-25: Shift extends the selection from the last ticked row. */
+  onSelect: (shift: boolean) => void;
 }) {
   const edit = useEditTask(task);
 
@@ -112,8 +118,21 @@ export function TaskRow({
         ROW_GRID,
         "h-9 items-center border-b text-sm [contain-intrinsic-size:auto_36px] [content-visibility:auto] hover:bg-muted/50",
         highlight && "bg-accent",
+        selected && "bg-muted",
       )}
     >
+      {readOnly ? (
+        <span />
+      ) : (
+        <Checkbox
+          aria-label={t.bulk.select(task.key)}
+          checked={selected}
+          onClick={(e) => {
+            e.preventDefault();
+            onSelect(e.shiftKey);
+          }}
+        />
+      )}
       <span className="font-mono text-xs text-muted-foreground">{task.key}</span>
       <span className="flex min-w-0 items-center gap-2">
         {/* FR-TASK-13: the title opens the panel. */}

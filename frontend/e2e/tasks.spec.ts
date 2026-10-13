@@ -63,6 +63,24 @@ test("quick create, add rows, edit inline, filter and see progress", async ({ pa
   await page.getByRole("button", { name: "Xóa bộ lọc" }).click();
   await expect(rows).toHaveCount(3);
 
+  // FR-TASK-25/26: tick one, Shift+tick another selects the rows between; every action has Undo.
+  await page.getByRole("checkbox", { name: "Chọn UDDD-2" }).click();
+  await page.getByRole("checkbox", { name: "Chọn UDDD-3" }).click({ modifiers: ["Shift"] });
+  const bar = page.getByRole("toolbar", { name: "Thao tác hàng loạt" });
+  await expect(bar).toContainText("Đã chọn 2 việc");
+  await bar.getByRole("button", { name: "Ưu tiên" }).click();
+  await page.getByRole("menuitem", { name: "Thấp" }).click();
+  await expect(page.getByRole("button", { name: "Ưu tiên của UDDD-2" })).toHaveText("Thấp");
+  await expect(page.getByRole("button", { name: "Ưu tiên của UDDD-3" })).toHaveText("Thấp");
+  await page.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect(page.getByRole("button", { name: "Ưu tiên của UDDD-2" })).toHaveText("Khẩn cấp");
+  await expect(page.getByRole("button", { name: "Ưu tiên của UDDD-3" })).toHaveText("Trung bình");
+  await bar.getByRole("button", { name: "Xóa" }).click();
+  await expect(rows).toHaveCount(1);
+  await expect(bar).toHaveCount(0);
+  await page.getByRole("button", { name: "Hoàn tác" }).last().click();
+  await expect(rows).toHaveCount(3);
+
   // FR-TASK-07/09: the board, and a keyboard drag into the next column.
   await page.getByRole("combobox", { name: "Kiểu xem" }).click();
   await page.getByRole("option", { name: "Bảng" }).click();
