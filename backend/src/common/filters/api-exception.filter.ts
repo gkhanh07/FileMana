@@ -13,6 +13,7 @@ const DEFAULT_CODES: Record<number, string> = {
   401: 'UNAUTHENTICATED',
   403: 'FORBIDDEN',
   404: 'NOT_FOUND',
+  413: 'FILE_TOO_LARGE',
   429: 'TOO_MANY_REQUESTS',
 };
 

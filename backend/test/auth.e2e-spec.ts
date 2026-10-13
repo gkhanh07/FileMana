@@ -75,6 +75,8 @@ describe('Auth (e2e)', () => {
       email: 'an@example.com',
       name: 'An',
       theme: 'system',
+      jobTitle: null,
+      avatarUrl: null,
     });
     const cookie = cookieOf(res);
     expect(cookie).toMatch(/^sid=/);

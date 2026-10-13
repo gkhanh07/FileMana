@@ -41,6 +41,9 @@ services:
       PORT: 3001
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
     ports:
       - "3001:3001"
     depends_on:
@@ -62,3 +65,4 @@ services:
 
 volumes:
   db-data:
+  uploads:

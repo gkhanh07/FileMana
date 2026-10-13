@@ -12,17 +12,24 @@ export async function api<T = void>(
   path: string,
   options: { method?: string; body?: unknown } = {},
 ): Promise<T> {
+  const json = options.body !== undefined && !(options.body instanceof FormData);
   let res: Response;
   try {
     res = await fetch(`${BASE_URL}${path}`, {
       method: options.method ?? "GET",
       credentials: "include",
-      headers: options.body !== undefined ? { "Content-Type": "application/json" } : undefined,
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      // FormData (file uploads) sets its own multipart Content-Type.
+      headers: json ? { "Content-Type": "application/json" } : undefined,
+      body: json ? JSON.stringify(options.body) : (options.body as FormData | undefined),
     });
   } catch {
     throw new ApiError(0, "NETWORK", "Network error");
   }
   if (!res.ok) throw await readApiError(res);
   return res.status === 204 ? (undefined as T) : ((await res.json()) as T);
+}
+
+// The API serves avatars at a path; the browser loads them from the API's origin.
+export function avatarSrc(user: User): string | undefined {
+  return user.avatarUrl ? `${BASE_URL}${user.avatarUrl}` : undefined;
 }

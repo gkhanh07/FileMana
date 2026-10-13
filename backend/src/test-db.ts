@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process';
-import { resolve } from 'node:path';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { Client } from 'pg';
 
 const TEST_DB = 'filemana_test';
@@ -24,6 +25,9 @@ export async function prepareTestDb() {
       `Refusing to prepare the test database on host "${hostname}"`,
     );
   }
+
+  // Uploads from tests go to a temp folder, not the dev one.
+  process.env.UPLOAD_DIR = join(tmpdir(), 'filemana-test-uploads');
 
   const testUrl = new URL(devUrl);
   testUrl.pathname = `/${TEST_DB}`;

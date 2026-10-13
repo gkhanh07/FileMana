@@ -16,6 +16,7 @@ import { api, type User } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/error";
 import { errorMessage, strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
+import { UserAvatar } from "./user-avatar";
 
 export function UserMenu({ user, collapsed }: { user: User; collapsed: boolean }) {
   const router = useRouter();
@@ -42,9 +43,7 @@ export function UserMenu({ user, collapsed }: { user: User; collapsed: boolean }
           collapsed && "mx-auto w-9 justify-center px-0",
         )}
       >
-        <span aria-hidden className="grid size-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-medium">
-          {user.name.charAt(0).toUpperCase()}
-        </span>
+        <UserAvatar user={user} />
         {!collapsed && (
           <>
             <span className="flex-1 truncate font-medium">{user.name}</span>
