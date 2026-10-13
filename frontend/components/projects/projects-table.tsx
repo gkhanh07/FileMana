@@ -24,8 +24,7 @@ const t = strings.projects;
 const FILTERS: StatusFilter[] = ["open", ...PROJECT_STATUSES, "archived"];
 export type ProjectsView = { status: StatusFilter; q: string; sort: ProjectSort };
 
-// FR-PRJ-01/02. Filtering runs on the client; the view lives in the URL without refetching.
-// ponytail: no progress column yet; it arrives with tasks (FR-PRJ-04).
+// FR-PRJ-01/02/04. Filtering runs on the client; the view lives in the URL without refetching.
 export function ProjectsTable({
   projects,
   timeZone,
@@ -111,6 +110,7 @@ export function ProjectsTable({
               <th className="font-medium">{t.columns.name}</th>
               <th className="w-44 font-medium">{t.columns.owner}</th>
               <th className="w-28 font-medium">{t.columns.due}</th>
+              <th className="w-40 font-medium">{t.columns.progress}</th>
               <th className="w-32 font-medium">{t.columns.members}</th>
               <th className="w-32 font-medium">{t.columns.status}</th>
               <th className="w-10" />
@@ -137,6 +137,19 @@ export function ProjectsTable({
                 </td>
                 <td>
                   <ProjectDue project={p} timeZone={timeZone} />
+                </td>
+                <td>
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
+                      <span
+                        className="block h-full bg-primary"
+                        style={{ width: `${p.taskCount ? (p.doneCount / p.taskCount) * 100 : 0}%` }}
+                      />
+                    </span>
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {t.progress(p.doneCount, p.taskCount)}
+                    </span>
+                  </span>
                 </td>
                 <td>
                   <MemberStack people={p.members} />

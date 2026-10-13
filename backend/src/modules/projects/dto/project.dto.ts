@@ -127,6 +127,9 @@ export class ProjectDto {
   archivedAt: Date | null;
   // In the current user's Favorites.
   pinned: boolean;
+  // FR-PRJ-04: progress is doneCount / taskCount.
+  taskCount: number;
+  doneCount: number;
   createdAt: Date;
   updatedAt: Date;
 }

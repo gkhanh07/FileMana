@@ -5,7 +5,7 @@ const dateFormat = (timeZone: string) =>
 const timeFormat = (timeZone: string) =>
   new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 // en-CA writes yyyy-mm-dd, which makes a calendar-day key in any timezone.
-const dayKey = (at: Date, timeZone: string) => new Intl.DateTimeFormat("en-CA", { timeZone }).format(at);
+export const dayKey = (at: Date, timeZone: string) => new Intl.DateTimeFormat("en-CA", { timeZone }).format(at);
 const relative = new Intl.RelativeTimeFormat("vi", { numeric: "auto" });
 
 /** A timestamp from the API (ISO 8601 UTC) as "13/10/2026". */

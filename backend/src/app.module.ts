@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ClientErrorsController } from './modules/client-errors/client-errors.controller';
 import { HealthController } from './modules/health/health.controller';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 import { UsersModule } from './modules/users/users.module';
 import { WorkspaceController } from './modules/workspace/workspace.controller';
 import { PrismaModule } from './prisma/prisma.module';
@@ -25,6 +26,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     UsersModule,
     ProjectsModule,
+    TasksModule,
   ],
   controllers: [HealthController, WorkspaceController, ClientErrorsController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],

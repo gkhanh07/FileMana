@@ -24,7 +24,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
       <Sidebar workspaceName={workspace.name} user={me} favorites={favorites} defaultCollapsed={collapsed} />
       <div className="flex min-w-0 flex-1 flex-col">
         <OfflineBar />
-        <Topbar />
+        <Topbar me={me} />
         {children}
       </div>
     </div>

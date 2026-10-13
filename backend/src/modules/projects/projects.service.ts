@@ -33,7 +33,9 @@ const toDate = (d: string | null | undefined) =>
   d === undefined ? undefined : d === null ? null : new Date(`${d}T00:00:00Z`);
 const fromDate = (d: Date | null) => d?.toISOString().slice(0, 10) ?? null;
 
-function toDto(p: ProjectRow): ProjectDto {
+type Progress = { taskCount: number; doneCount: number };
+
+function toDto(p: ProjectRow, progress: Progress): ProjectDto {
   const others = p.members.map((m) => m.user).filter((u) => u.id !== p.ownerId);
   return {
     id: p.id,
@@ -48,6 +50,7 @@ function toDto(p: ProjectRow): ProjectDto {
     members: [p.owner, ...others].map(toPerson),
     archivedAt: p.archivedAt,
     pinned: p.favorites.length > 0,
+    ...progress,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };
@@ -74,11 +77,11 @@ export class ProjectsService {
       include: include(userId),
       orderBy: { updatedAt: 'desc' },
     });
-    return rows.map(toDto);
+    return this.toDtos(rows);
   }
 
   async get(userId: string, id: string): Promise<ProjectDto> {
-    return toDto(await this.find(userId, id));
+    return this.toDto(await this.find(userId, id));
   }
 
   async create(userId: string, dto: CreateProjectDto): Promise<ProjectDto> {
@@ -116,7 +119,7 @@ export class ProjectsService {
         });
         return p;
       });
-      return toDto(project);
+      return toDto(project, { taskCount: 0, doneCount: 0 });
     } catch (e) {
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -166,7 +169,7 @@ export class ProjectsService {
       },
       include: include(userId),
     });
-    return toDto(updated);
+    return this.toDto(updated);
   }
 
   // FR-PRJ-10: hidden from the default list and read-only until restored.
@@ -177,7 +180,7 @@ export class ProjectsService {
 
   async restore(userId: string, id: string): Promise<ProjectDto> {
     const project = await this.find(userId, id);
-    if (!project.archivedAt) return toDto(project);
+    if (!project.archivedAt) return this.toDto(project);
     return this.setArchived(userId, id, null, 'project.restored');
   }
 
@@ -382,7 +385,28 @@ export class ProjectsService {
       });
       return p;
     });
-    return toDto(project);
+    return this.toDto(project);
+  }
+
+  // FR-PRJ-04: progress is counted from the tasks, never stored.
+  // ponytail: no subtasks yet; exclude them here once they exist (FR-PRJ-04).
+  private async toDtos(rows: ProjectRow[]): Promise<ProjectDto[]> {
+    const counts = await this.prisma.task.groupBy({
+      by: ['projectId', 'status'],
+      where: { projectId: { in: rows.map((p) => p.id) }, deletedAt: null },
+      _count: true,
+    });
+    return rows.map((p) => {
+      const mine = counts.filter((c) => c.projectId === p.id);
+      return toDto(p, {
+        taskCount: mine.reduce((n, c) => n + c._count, 0),
+        doneCount: mine.find((c) => c.status === 'DONE')?._count ?? 0,
+      });
+    });
+  }
+
+  private async toDto(row: ProjectRow): Promise<ProjectDto> {
+    return (await this.toDtos([row]))[0];
   }
 
   // FR-ACT-01/02: written in the same transaction as the change.

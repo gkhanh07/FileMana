@@ -1,20 +1,8 @@
-import { notFound } from "next/navigation";
 import { MembersPopover } from "@/components/projects/members-popover";
 import { ProjectDue, ProjectIcon, ProjectStatusBadge } from "@/components/projects/project-bits";
 import { ArchivedBanner, PinButton, ProjectTabs } from "@/components/projects/project-header";
 import { ProjectMenu } from "@/components/projects/project-menu";
-import { ApiError } from "@/lib/api/error";
-import { getWorkspace, serverApi } from "@/lib/api/server";
-import type { Project } from "@/lib/projects";
-
-async function getProject(id: string) {
-  try {
-    return await serverApi<Project>(`/projects/${id}`);
-  } catch (e) {
-    if (e instanceof ApiError && e.statusCode === 404) notFound();
-    throw e;
-  }
-}
+import { getProject, getWorkspace } from "@/lib/api/server";
 
 // FR-PRJ-05/06: the header and tabs stay put while the tab below changes.
 export default async function ProjectLayout({

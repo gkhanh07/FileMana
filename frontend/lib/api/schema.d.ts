@@ -308,6 +308,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/projects/{id}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/tasks/done": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_listOlderDone"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TasksController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["TasksController_update"];
+        trace?: never;
+    };
+    "/labels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_labels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -368,6 +448,8 @@ export interface components {
             owner: components["schemas"]["PersonDto"];
             members: components["schemas"]["PersonDto"][];
             pinned: boolean;
+            taskCount: number;
+            doneCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -413,6 +495,60 @@ export interface components {
         };
         ReorderFavoritesDto: {
             projectIds: string[];
+        };
+        /** @enum {string} */
+        TaskStatus: "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE";
+        /** @enum {string} */
+        TaskPriority: "URGENT" | "HIGH" | "MEDIUM" | "LOW";
+        LabelDto: {
+            id: string;
+            name: string;
+            color: string;
+        };
+        TaskDto: {
+            status: components["schemas"]["TaskStatus"];
+            priority: components["schemas"]["TaskPriority"];
+            assignee: components["schemas"]["PersonDto"] | null;
+            dueDate: string | null;
+            dueTime: string | null;
+            /** Format: date-time */
+            completedAt: string | null;
+            id: string;
+            key: string;
+            number: number;
+            projectId: string;
+            title: string;
+            labels: components["schemas"]["LabelDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        DoneTasksDto: {
+            items: components["schemas"]["TaskDto"][];
+            hasMore: boolean;
+        };
+        CreateTaskDto: {
+            status?: components["schemas"]["TaskStatus"];
+            priority?: components["schemas"]["TaskPriority"];
+            /** Format: uuid */
+            assigneeId?: string | null;
+            dueDate?: string | null;
+            dueTime?: string | null;
+            /** Format: uuid */
+            projectId: string;
+            title: string;
+            labelIds?: string[];
+        };
+        UpdateTaskDto: {
+            /** Format: uuid */
+            assigneeId?: string | null;
+            dueDate?: string | null;
+            dueTime?: string | null;
+            labelIds?: string[];
+            title?: string;
+            status?: components["schemas"]["TaskStatus"];
+            priority?: components["schemas"]["TaskPriority"];
         };
     };
     responses: never;
@@ -956,6 +1092,118 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FavoriteDto"][];
+                };
+            };
+        };
+    };
+    TasksController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDto"][];
+                };
+            };
+        };
+    };
+    TasksController_listOlderDone: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoneTasksDto"];
+                };
+            };
+        };
+    };
+    TasksController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTaskDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDto"];
+                };
+            };
+        };
+    };
+    TasksController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTaskDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDto"];
+                };
+            };
+        };
+    };
+    TasksController_labels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelDto"][];
                 };
             };
         };
