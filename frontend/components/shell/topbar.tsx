@@ -1,13 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { strings } from "@/lib/strings";
 import { isActive, mainNav, settingsNav } from "./nav";
 import { ThemeMenu } from "./theme-menu";
 
-// FR-SHELL-04. Search (⌘K), Create (FR-SHELL-05) and the bell are placeholders until those features ship.
+// FR-SHELL-04. Search (⌘K) and Create (FR-SHELL-05) are placeholders until those features ship; the bell waits for the Inbox (Phase 2).
 export function Topbar() {
   const pathname = usePathname();
   const current = [...mainNav, settingsNav].find((item) => isActive(item.href, pathname));
@@ -26,9 +26,6 @@ export function Topbar() {
         <Button disabled className="mr-2">
           <Plus />
           {strings.topbar.create}
-        </Button>
-        <Button variant="ghost" size="icon" disabled aria-label={strings.topbar.notifications}>
-          <Bell />
         </Button>
         <ThemeMenu />
       </div>

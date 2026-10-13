@@ -100,7 +100,7 @@ Home answers one question: what do I need to do today. So the task list always s
 | FR-HOME-05 | Ticking the checkbox moves the task to Done and shows a small toast with Undo | MVP |
 | FR-HOME-06 | Clicking a row opens the task detail panel on the same page | MVP |
 | FR-HOME-07 | Right column "Active projects": up to 5 projects I belong to, with name, progress bar, %, due date | MVP |
-| FR-HOME-08 | Right column "Recent activity": the 5 newest items relevant to me, with a link to Inbox | MVP |
+| FR-HOME-08 | Right column "Recent activity": the 5 newest items relevant to me, with a link to Inbox | Phase 2 |
 | FR-HOME-09 | "Coming up" block: milestones and project deadlines in the next 14 days | Phase 2 |
 
 ### My Tasks
@@ -293,29 +293,31 @@ All content is internal only: "Copy link" works only for signed-in users. Public
 
 The Inbox only receives what needs the user's attention or action. Nobody is notified about their own actions.
 
+**On hold (decided 2026-10-13):** the whole Inbox and every notification, not built in any phase until the product owner asks for it. The notification parts of other MVP requirements wait with it: the unread count in FR-SHELL-01, the bell in FR-SHELL-04, FR-HOME-08, the notification in FR-CMT-02 and FR-DOC-05 (the @mention itself stays MVP), and "Go to Inbox" in FR-SEARCH-04.
+
 ### Events that create a notification
 
 | Event | Recipient | Priority |
 |---|---|---|
-| Assigned a task | The assignee | MVP |
-| Mentioned with @ in a comment or doc | The mentioned person | MVP |
-| New comment on a task | Task followers | MVP |
-| Task status, due date or assignee changed | Task followers | MVP |
-| Task due in 1 day, or just became overdue | The assignee | MVP |
-| Added to a project | The person added | MVP |
+| Assigned a task | The assignee | Phase 2 |
+| Mentioned with @ in a comment or doc | The mentioned person | Phase 2 |
+| New comment on a task | Task followers | Phase 2 |
+| Task status, due date or assignee changed | Task followers | Phase 2 |
+| Task due in 1 day, or just became overdue | The assignee | Phase 2 |
+| Added to a project | The person added | Phase 2 |
 | Project status or due date changed | Project members | Phase 2 |
 
 ### Requirements
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-INBOX-01 | Two panes: notification list on the left, the related task/doc on the right (editable in place) | MVP |
-| FR-INBOX-02 | Each item: actor avatar, a description ("Minh đã nhắc bạn trong 'Thiết kế trang chủ'"), project, relative time, unread dot | MVP |
-| FR-INBOX-03 | Filters: All, Mentions, Assigned to me, Unread | MVP |
-| FR-INBOX-04 | Several events on the same task are grouped into one item showing the latest event | MVP |
-| FR-INBOX-05 | Opening an item marks it read; mark unread, mark all as read, archive | MVP |
-| FR-INBOX-06 | The bell in the top bar shows the unread count and opens a list of the 10 newest notifications with an "Open Inbox" link | MVP |
-| FR-INBOX-07 | New notifications appear without reloading the page | MVP |
+| FR-INBOX-01 | Two panes: notification list on the left, the related task/doc on the right (editable in place) | Phase 2 |
+| FR-INBOX-02 | Each item: actor avatar, a description ("Minh đã nhắc bạn trong 'Thiết kế trang chủ'"), project, relative time, unread dot | Phase 2 |
+| FR-INBOX-03 | Filters: All, Mentions, Assigned to me, Unread | Phase 2 |
+| FR-INBOX-04 | Several events on the same task are grouped into one item showing the latest event | Phase 2 |
+| FR-INBOX-05 | Opening an item marks it read; mark unread, mark all as read, archive | Phase 2 |
+| FR-INBOX-06 | The bell in the top bar shows the unread count and opens a list of the 10 newest notifications with an "Open Inbox" link | Phase 2 |
+| FR-INBOX-07 | New notifications appear without reloading the page | Phase 2 |
 | FR-INBOX-08 | Snooze a notification and get reminded later (this afternoon, tomorrow) | Phase 2 |
 | FR-INBOX-09 | Daily email digest of unread notifications | Phase 2 |
 | FR-INBOX-10 | Browser push notifications | Phase 2 |
@@ -482,7 +484,7 @@ The MVP contains everything the team needs to drop their old tools and use the a
 | List, Kanban, task panel | Real-time doc editing | Public share links |
 | Comments, @mentions | Google sign-in | Recurring, dependent tasks |
 | Basic files and docs | Email, push, settings | Time tracking |
-| Inbox, ⌘K search | Mobile layouts | Slack, Zalo integrations |
+| ⌘K search | Inbox, mobile layouts | Slack, Zalo integrations |
 | Members, Trash | Private projects | 2FA, English UI |
 
 Gates: MVP → Phase 2 when the team uses the MVP reliably; Phase 2 → Later when a real need appears.
