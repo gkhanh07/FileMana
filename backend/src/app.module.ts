@@ -5,6 +5,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthGuard } from './common/guards/auth.guard';
 import { validateEnv } from './config/env';
 import { AuthModule } from './modules/auth/auth.module';
+import { ClientErrorsController } from './modules/client-errors/client-errors.controller';
 import { HealthController } from './modules/health/health.controller';
 import { UsersModule } from './modules/users/users.module';
 import { WorkspaceController } from './modules/workspace/workspace.controller';
@@ -23,7 +24,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     UsersModule,
   ],
-  controllers: [HealthController, WorkspaceController],
+  controllers: [HealthController, WorkspaceController, ClientErrorsController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}

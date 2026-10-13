@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client-errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ClientErrorsController_report"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -92,6 +108,11 @@ export interface components {
             name: string;
             timezone: string;
             weekStartsOn: number;
+        };
+        ClientErrorDto: {
+            message: string;
+            stack?: string;
+            url: string;
         };
         LoginDto: {
             /** Format: email */
@@ -152,6 +173,27 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["WorkspaceDto"];
                 };
+            };
+        };
+    };
+    ClientErrorsController_report: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClientErrorDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

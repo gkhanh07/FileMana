@@ -42,3 +42,25 @@ test("theme is saved to the account, not just this browser", async ({ page }) =>
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/);
 });
+
+test("at 1024px the sidebar is the icon rail", async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  const nav = page.getByRole("navigation", { name: "Điều hướng chính" });
+  await expect(nav.getByText("Dự án")).toBeHidden();
+  await expect(nav.getByRole("link", { name: "Dự án" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Thu gọn thanh bên" })).toBeHidden();
+});
+
+test("offline bar shows while the connection is lost", async ({ page, context }) => {
+  await context.setOffline(true);
+  await expect(page.getByText("Đang mất kết nối")).toBeVisible();
+  await context.setOffline(false);
+  await expect(page.getByText("Đang mất kết nối")).toBeHidden();
+});
+
+test("unknown route shows the not-found page", async ({ page }) => {
+  await page.goto("/xyz");
+  await expect(page.getByRole("heading", { name: "Không tìm thấy trang" })).toBeVisible();
+  await page.getByRole("link", { name: "Về Trang chủ" }).click();
+  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+});

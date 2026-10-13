@@ -38,8 +38,15 @@ export const strings = {
     themes: { light: "Sáng", dark: "Tối", system: "Theo hệ thống" },
   },
   comingSoon: "Phần này đang được xây dựng.",
+  offline: "Đang mất kết nối",
+  notFound: {
+    title: "Không tìm thấy trang",
+    message: "Trang này không tồn tại hoặc đã bị chuyển đi.",
+    home: "Về Trang chủ",
+  },
   gateError: {
     title: "Không tải được trang",
+    message: "Đã có lỗi khi tải trang này. Bạn thử lại nhé.",
     retry: "Thử lại",
   },
 } as const;

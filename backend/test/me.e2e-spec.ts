@@ -75,4 +75,25 @@ describe('Me and workspace (e2e)', () => {
       .send({ email: 'x@example.com' })
       .expect(400);
   });
+
+  it('POST /client-errors logs a browser error for a signed-in user', async () => {
+    await http()
+      .post('/client-errors')
+      .set('Cookie', cookie)
+      .send({
+        message: 'boom',
+        stack: 'at x',
+        url: 'http://localhost/projects',
+      })
+      .expect(204);
+    await http()
+      .post('/client-errors')
+      .send({ message: 'boom', url: '/' })
+      .expect(401);
+    await http()
+      .post('/client-errors')
+      .set('Cookie', cookie)
+      .send({ message: 'x'.repeat(1001), url: '/' })
+      .expect(400);
+  });
 });

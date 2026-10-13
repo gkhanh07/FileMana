@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorReporter } from "@/components/shell/error-reporter";
 import { SIDEBAR_COOKIE } from "@/components/shell/nav";
+import { OfflineBar } from "@/components/shell/offline-bar";
 import { Sidebar } from "@/components/shell/sidebar";
 import { ThemeSync } from "@/components/shell/theme-menu";
 import { Topbar } from "@/components/shell/topbar";
@@ -17,8 +19,10 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
     <div className="flex flex-1">
       <SessionRefresh />
       <ThemeSync theme={me.theme} />
+      <ErrorReporter />
       <Sidebar workspaceName={workspace.name} user={me} defaultCollapsed={collapsed} />
       <div className="flex min-w-0 flex-1 flex-col">
+        <OfflineBar />
         <Topbar />
         {children}
       </div>

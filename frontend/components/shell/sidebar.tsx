@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -12,6 +12,14 @@ import { cn } from "@/lib/utils";
 import { isActive, mainNav, settingsNav, SIDEBAR_COOKIE, type NavItem } from "./nav";
 import { UserMenu } from "./user-menu";
 
+// NFR-10: below 1280px the sidebar is always the rail.
+const NARROW = "(max-width: 1279px)";
+function subscribeNarrow(onChange: () => void) {
+  const query = matchMedia(NARROW);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
 // FR-SHELL-01, FR-SHELL-02: 240px sidebar that collapses into a 56px icon rail.
 export function Sidebar({
   workspaceName,
@@ -22,11 +30,14 @@ export function Sidebar({
   user: User;
   defaultCollapsed: boolean;
 }) {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const [savedCollapsed, setCollapsed] = useState(defaultCollapsed);
+  // ponytail: the server can't see the width, so a narrow screen paints wide for one frame.
+  const narrow = useSyncExternalStore(subscribeNarrow, () => matchMedia(NARROW).matches, () => false);
+  const collapsed = savedCollapsed || narrow;
   const pathname = usePathname();
 
   const toggle = () => {
-    const next = !collapsed;
+    const next = !savedCollapsed;
     setCollapsed(next);
     document.cookie = `${SIDEBAR_COOKIE}=${next ? 1 : 0}; path=/; max-age=31536000; samesite=lax`;
   };
@@ -42,24 +53,23 @@ export function Sidebar({
         <div className={cn("flex h-13 shrink-0 items-center gap-2.5", !collapsed && "pr-2 pl-4")}>
           {!collapsed && (
             <>
-              <span
-                aria-hidden
-                className="grid size-6 shrink-0 place-items-center rounded-sm bg-primary font-heading text-sm text-primary-foreground"
-              >
-                {workspaceName.charAt(0).toUpperCase()}
-              </span>
+              <WorkspaceMark name={workspaceName} />
               <span className="flex-1 truncate font-medium">{workspaceName}</span>
             </>
           )}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={toggle}
-            aria-label={collapsed ? strings.nav.expand : strings.nav.collapse}
-            aria-expanded={!collapsed}
-          >
-            {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
-          </Button>
+          {narrow ? (
+            <WorkspaceMark name={workspaceName} />
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggle}
+              aria-label={collapsed ? strings.nav.expand : strings.nav.collapse}
+              aria-expanded={!collapsed}
+            >
+              {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+            </Button>
+          )}
         </div>
 
         <nav aria-label={strings.nav.label} className="flex flex-col gap-0.5 px-2 py-1">
@@ -84,6 +94,17 @@ export function Sidebar({
         </div>
       </aside>
     </TooltipProvider>
+  );
+}
+
+function WorkspaceMark({ name }: { name: string }) {
+  return (
+    <span
+      aria-hidden
+      className="grid size-6 shrink-0 place-items-center rounded-sm bg-primary font-heading text-sm text-primary-foreground"
+    >
+      {name.charAt(0).toUpperCase()}
+    </span>
   );
 }
 
