@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
@@ -7,6 +8,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Theme } from '../../../generated/prisma/enums';
 
 export class LoginDto {
   @Transform(({ value }: { value: unknown }) =>
@@ -30,4 +32,6 @@ export class UserDto {
   id: string;
   email: string;
   name: string;
+  @ApiProperty({ enum: Theme, enumName: 'Theme' })
+  theme: Theme;
 }

@@ -15,8 +15,38 @@ export const strings = {
   home: {
     greeting: (name: string) => `Xin chào, ${name}`,
   },
+  nav: {
+    label: "Điều hướng chính",
+    home: "Trang chủ",
+    myTasks: "Việc của tôi",
+    inbox: "Hộp thư",
+    projects: "Dự án",
+    docs: "Tài liệu",
+    settings: "Cài đặt",
+    favorites: "Yêu thích",
+    favoritesEmpty: "Ghim dự án để mở nhanh.",
+    collapse: "Thu gọn thanh bên",
+    expand: "Mở rộng thanh bên",
+    account: "Tài khoản",
+  },
+  topbar: {
+    breadcrumb: "Vị trí hiện tại",
+    search: "Tìm việc, dự án, tài liệu, người…",
+    create: "Tạo mới",
+    notifications: "Thông báo",
+    theme: "Giao diện",
+    themes: { light: "Sáng", dark: "Tối", system: "Theo hệ thống" },
+  },
+  comingSoon: "Phần này đang được xây dựng.",
+  offline: "Đang mất kết nối",
+  notFound: {
+    title: "Không tìm thấy trang",
+    message: "Trang này không tồn tại hoặc đã bị chuyển đi.",
+    home: "Về Trang chủ",
+  },
   gateError: {
     title: "Không tải được trang",
+    message: "Đã có lỗi khi tải trang này. Bạn thử lại nhé.",
     retry: "Thử lại",
   },
 } as const;

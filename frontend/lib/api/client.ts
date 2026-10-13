@@ -2,6 +2,8 @@ import type { components } from "./schema";
 import { ApiError, readApiError } from "./error";
 
 export type User = components["schemas"]["UserDto"];
+export type Theme = components["schemas"]["Theme"];
+export type Workspace = components["schemas"]["WorkspaceDto"];
 
 // Browser-side API access (mutations and client-side fetches); the session cookie rides along.
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
