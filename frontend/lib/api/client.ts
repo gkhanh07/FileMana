@@ -30,6 +30,6 @@ export async function api<T = void>(
 }
 
 // The API serves avatars at a path; the browser loads them from the API's origin.
-export function avatarSrc(user: User): string | undefined {
+export function avatarSrc(user: { avatarUrl: string | null }): string | undefined {
   return user.avatarUrl ? `${BASE_URL}${user.avatarUrl}` : undefined;
 }

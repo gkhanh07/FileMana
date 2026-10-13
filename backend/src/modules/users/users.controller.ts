@@ -22,6 +22,7 @@ import {
   type AuthUser,
 } from '../../common/decorators/current-user.decorator';
 import { UserDto } from '../auth/dto/login.dto';
+import { PersonDto } from './dto/person.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { UsersService } from './users.service';
@@ -103,5 +104,16 @@ export class AvatarsController {
     res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
     res.setHeader('Cache-Control', 'private, max-age=31536000, immutable');
     res.sendFile(path);
+  }
+}
+
+// Everyone who can be an owner or member (FR-PRJ-09). ~10 people, so no paging.
+@Controller('users')
+export class PeopleController {
+  constructor(private readonly users: UsersService) {}
+
+  @Get()
+  list(): Promise<PersonDto[]> {
+    return this.users.people();
   }
 }

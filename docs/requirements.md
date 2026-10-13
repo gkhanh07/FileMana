@@ -39,7 +39,7 @@ There are no roles: every account has the same rights and sees every project. Wi
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-ROLE-01 | No roles: every account has the same rights. The workspace and its first account are created by the setup seed; everyone else joins by invitation | MVP |
+| FR-ROLE-01 | No roles: every account has the same rights. The workspace and its first account are created by the setup seed; everyone else signs up on their own (FR-AUTH-03) | MVP |
 | FR-ROLE-02 | Everyone can view and edit tasks, files and docs in every non-archived project; archived projects are read-only | MVP |
 | FR-ROLE-03 | Anyone can archive or delete a project | MVP |
 | FR-ROLE-04 | Anyone can delete a task, file or doc; deletes go to Trash for 30 days. Comments are the exception: only their author can edit or delete them (FR-CMT-04) | MVP |
@@ -52,11 +52,13 @@ Every page shares one shell: a sidebar on the left and a top bar. Every screen i
 
 ### Sign-in
 
+**No email (decided 2026-10-13):** the app sends no email in any phase: no invitations, no reset links, no digests (FR-INBOX-09).
+
 | ID | Requirement | Priority |
 |---|---|---|
 | FR-AUTH-01 | Sign in with email and password, with a "remember me" option | MVP |
-| FR-AUTH-02 | Forgot password: send a reset link by email | MVP |
-| FR-AUTH-03 | An invited person opens the email link, sets a name and password, and lands directly in the workspace | MVP |
+| FR-AUTH-02 | Forgot password: another member sets a temporary password for them in Settings → Members, which signs out all their sessions | MVP |
+| FR-AUTH-03 | Sign up: a sign-up page linked from sign-in; enter email, name and password and land directly in the workspace with the same rights as everyone | MVP |
 | FR-AUTH-04 | Sign in with the company Google account | Phase 2 |
 | FR-AUTH-05 | Two-factor authentication (2FA) | Later |
 
@@ -319,7 +321,7 @@ The Inbox only receives what needs the user's attention or action. Nobody is not
 | FR-INBOX-06 | The bell in the top bar shows the unread count and opens a list of the 10 newest notifications with an "Open Inbox" link | Phase 2 |
 | FR-INBOX-07 | New notifications appear without reloading the page | Phase 2 |
 | FR-INBOX-08 | Snooze a notification and get reminded later (this afternoon, tomorrow) | Phase 2 |
-| FR-INBOX-09 | Daily email digest of unread notifications | Phase 2 |
+| FR-INBOX-09 | Removed: no email (see Sign-in) | Removed |
 | FR-INBOX-10 | Browser push notifications | Phase 2 |
 | FR-INBOX-11 | Users turn each notification type and channel on or off | Phase 2 |
 | FR-INBOX-12 | Forward notifications to Slack, Zalo or Telegram | Later |
@@ -400,8 +402,8 @@ Settings has three groups: Personal, Members and Workspace. All of them are open
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-SET-06 | Member table: avatar, name, job title, email, open task count, status (Active, Invited, Deactivated) | MVP |
-| FR-SET-07 | Invite one or several emails at once; resend or cancel invitations | MVP |
+| FR-SET-06 | Member table: avatar, name, job title, email, open task count, status (Active, Deactivated); a "Reset password" action per member (FR-AUTH-02) | MVP |
+| FR-SET-07 | Removed: no invitations, people sign up themselves (see FR-AUTH-03) | Removed |
 | FR-SET-08 | Removed: there are no roles (see FR-ROLE-01) | Removed |
 | FR-SET-09 | Deactivate a member who leaves: they can no longer sign in, their data stays; if they have open tasks, require choosing who takes them over | MVP |
 | FR-SET-10 | Click a member to see their profile page: projects they belong to and open tasks | Phase 2 |
@@ -483,7 +485,7 @@ The MVP contains everything the team needs to drop their old tools and use the a
 | Projects and milestones | Activity page | Guest role |
 | List, Kanban, task panel | Real-time doc editing | Public share links |
 | Comments, @mentions | Google sign-in | Recurring, dependent tasks |
-| Basic files and docs | Email, push, settings | Time tracking |
+| Basic files and docs | Push, settings | Time tracking |
 | ⌘K search | Inbox, mobile layouts | Slack, Zalo integrations |
 | Members, Trash | Private projects | 2FA, English UI |
 

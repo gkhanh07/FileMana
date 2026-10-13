@@ -12,6 +12,11 @@
     "api:types": "npm --prefix ../backend run openapi && openapi-typescript ../backend/openapi.json -o lib/api/schema.d.ts"
   },
   "dependencies": {
+    "@blocknote/core": "^0.55.0",
+    "@blocknote/react": "^0.55.0",
+    "@blocknote/shadcn": "^0.55.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "@tanstack/react-query": "^5.104.2",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",

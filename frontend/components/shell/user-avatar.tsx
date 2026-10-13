@@ -1,8 +1,14 @@
-import { avatarSrc, type User } from "@/lib/api/client";
+import { avatarSrc } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
 // FR-SET-01: the photo if there is one, otherwise the name's first letter. Always round.
-export function UserAvatar({ user, className }: { user: User; className?: string }) {
+export function UserAvatar({
+  user,
+  className,
+}: {
+  user: { name: string; avatarUrl: string | null };
+  className?: string;
+}) {
   const src = avatarSrc(user);
   return (
     <span

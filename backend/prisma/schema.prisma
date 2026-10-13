@@ -32,17 +32,23 @@ model Workspace {
 }
 
 model User {
-  id           String     @id @default(uuid()) @db.Uuid
-  email        String     @unique // stored lower-case
-  name         String
-  jobTitle     String?
-  avatarFile   String? // file name inside UPLOAD_DIR/avatars; a new name on every upload
-  passwordHash String?
-  status       UserStatus @default(ACTIVE)
-  theme        Theme      @default(system)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  sessions     Session[]
+  id            String            @id @default(uuid()) @db.Uuid
+  email         String            @unique // stored lower-case
+  name          String
+  jobTitle      String?
+  avatarFile    String? // file name inside UPLOAD_DIR/avatars; a new name on every upload
+  passwordHash  String?
+  status        UserStatus        @default(ACTIVE)
+  theme         Theme             @default(system)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  sessions      Session[]
+  ownedProjects Project[]         @relation("ProjectOwner")
+  memberships   ProjectMember[]
+  favorites     FavoriteProject[]
+  activities    Activity[]
+  assignedTasks Task[]            @relation("TaskAssignee")
+  createdTasks  Task[]            @relation("TaskCreator")
 }
 
 model Session {
@@ -57,4 +63,144 @@ model Session {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+}
+
+// FR-PRJ-01..11. Archived and deleted are timestamps, not statuses: either can apply to any status.
+model Project {
+  id          String            @id @default(uuid()) @db.Uuid
+  key         String            @unique // 2–5 upper-case letters, fixed after creation (task links use it)
+  name        String            @db.VarChar(80)
+  description String?
+  color       String // a name from the frontend's preset palette
+  status      ProjectStatus     @default(PLANNING)
+  startDate   DateTime?         @db.Date
+  dueDate     DateTime?         @db.Date
+  ownerId     String            @db.Uuid
+  owner       User              @relation("ProjectOwner", fields: [ownerId], references: [id])
+  archivedAt  DateTime?
+  deletedAt   DateTime? // in Trash; purged after 30 days
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  taskCounter Int               @default(0) // last task number used; task keys are KEY-<number>
+  members     ProjectMember[]
+  favorites   FavoriteProject[]
+  activities  Activity[]
+  tasks       Task[]
+
+  @@index([ownerId])
+  @@index([deletedAt])
+}
+
+// The owner is always a member.
+model ProjectMember {
+  projectId String   @db.Uuid
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([projectId, userId])
+  @@index([userId])
+}
+
+// FR-SHELL-03: up to 5 per user, in the user's order.
+model FavoriteProject {
+  userId    String  @db.Uuid
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  position  Int
+
+  @@id([userId, projectId])
+  @@index([projectId])
+}
+
+// FR-ACT-01/02: who did what to which target, with the old and new value.
+model Activity {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String   @db.Uuid
+  actor      User     @relation(fields: [actorId], references: [id])
+  projectId  String   @db.Uuid
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  action     String // e.g. project.created, member.added
+  targetType String // project, member, task…
+  targetId   String   @db.Uuid
+  oldValue   Json?
+  newValue   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([projectId, createdAt])
+  @@index([actorId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum TaskPriority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// FR-TASK fields. The key (WEB-124) is the project key plus `number`.
+model Task {
+  id          String       @id @default(uuid()) @db.Uuid
+  projectId   String       @db.Uuid
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  number      Int
+  // FR-TASK-17: a subtask has a parent, one level deep; it shows only inside its parent.
+  parentId    String?      @db.Uuid
+  parent      Task?        @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks    Task[]       @relation("Subtasks")
+  title       String       @db.VarChar(200)
+  description Json? // FR-TASK-16: the editor's (BlockNote) block list
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  assigneeId  String?      @db.Uuid
+  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  creatorId   String       @db.Uuid
+  creator     User         @relation("TaskCreator", fields: [creatorId], references: [id])
+  dueDate     DateTime?    @db.Date // a calendar date in the workspace timezone
+  dueTime     String?      @db.VarChar(5) // HH:mm, only with a dueDate
+  completedAt DateTime? // set when the status becomes Done
+  deletedAt   DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  labels      TaskLabel[]
+
+  @@unique([projectId, number])
+  @@index([parentId])
+  @@index([assigneeId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+// Shared across the workspace (FR-SET-12 manages them in F19).
+model Label {
+  id    String      @id @default(uuid()) @db.Uuid
+  name  String      @unique @db.VarChar(40)
+  color String // a name from the frontend's preset palette
+  tasks TaskLabel[]
+}
+
+model TaskLabel {
+  taskId  String @db.Uuid
+  task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  labelId String @db.Uuid
+  label   Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+  @@index([labelId])
 }

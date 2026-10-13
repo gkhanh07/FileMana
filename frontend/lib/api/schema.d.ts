@@ -164,6 +164,294 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PeopleController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProjectsController_list"];
+        put?: never;
+        post: operations["ProjectsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProjectsController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["ProjectsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ProjectsController_update"];
+        trace?: never;
+    };
+    "/projects/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ProjectsController_archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ProjectsController_restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ProjectsController_addMember"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/members/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["ProjectsController_removeMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["FavoritesController_list"];
+        put: operations["FavoritesController_reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/favorites/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["FavoritesController_pin"];
+        post?: never;
+        delete: operations["FavoritesController_unpin"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_mine"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/tasks/done": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_listOlderDone"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TasksController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_activity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["TasksController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["TasksController_update"];
+        trace?: never;
+    };
+    "/tasks/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TasksController_restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/labels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksController_labels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -202,6 +490,209 @@ export interface components {
         ChangePasswordDto: {
             currentPassword: string;
             newPassword: string;
+        };
+        PersonDto: {
+            avatarUrl: string | null;
+            id: string;
+            name: string;
+        };
+        /** @enum {string} */
+        ProjectStatus: "PLANNING" | "ACTIVE" | "ON_HOLD" | "COMPLETED";
+        ProjectDto: {
+            description: string | null;
+            status: components["schemas"]["ProjectStatus"];
+            startDate: string | null;
+            dueDate: string | null;
+            /** Format: date-time */
+            archivedAt: string | null;
+            id: string;
+            key: string;
+            name: string;
+            color: string;
+            owner: components["schemas"]["PersonDto"];
+            members: components["schemas"]["PersonDto"][];
+            pinned: boolean;
+            taskCount: number;
+            doneCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateProjectDto: {
+            status?: components["schemas"]["ProjectStatus"];
+            startDate?: string | null;
+            dueDate?: string | null;
+            name: string;
+            key: string;
+            description?: string;
+            /** @enum {string} */
+            color?: "blue" | "teal" | "green" | "amber" | "red" | "pink" | "violet" | "slate";
+            /** Format: uuid */
+            ownerId?: string;
+        };
+        UpdateProjectDto: {
+            status?: components["schemas"]["ProjectStatus"];
+            startDate?: string | null;
+            dueDate?: string | null;
+            name?: string;
+            description?: string;
+            /** @enum {string} */
+            color?: "blue" | "teal" | "green" | "amber" | "red" | "pink" | "violet" | "slate";
+            /** Format: uuid */
+            ownerId?: string;
+        };
+        DeleteProjectDto: {
+            name: string;
+        };
+        AddMemberDto: {
+            /** Format: uuid */
+            userId: string;
+        };
+        FavoriteDto: {
+            /** Format: date-time */
+            archivedAt: string | null;
+            id: string;
+            key: string;
+            name: string;
+            color: string;
+        };
+        ReorderFavoritesDto: {
+            projectIds: string[];
+        };
+        /** @enum {string} */
+        TaskStatus: "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE";
+        /** @enum {string} */
+        TaskPriority: "URGENT" | "HIGH" | "MEDIUM" | "LOW";
+        LabelDto: {
+            id: string;
+            name: string;
+            color: string;
+        };
+        TaskDto: {
+            parentId: string | null;
+            status: components["schemas"]["TaskStatus"];
+            priority: components["schemas"]["TaskPriority"];
+            assignee: components["schemas"]["PersonDto"] | null;
+            dueDate: string | null;
+            dueTime: string | null;
+            /** Format: date-time */
+            completedAt: string | null;
+            id: string;
+            key: string;
+            number: number;
+            projectId: string;
+            title: string;
+            labels: components["schemas"]["LabelDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        MyTaskProjectDto: {
+            id: string;
+            key: string;
+            name: string;
+            color: string;
+        };
+        MyTaskDto: {
+            parentId: string | null;
+            status: components["schemas"]["TaskStatus"];
+            priority: components["schemas"]["TaskPriority"];
+            assignee: components["schemas"]["PersonDto"] | null;
+            dueDate: string | null;
+            dueTime: string | null;
+            /** Format: date-time */
+            completedAt: string | null;
+            id: string;
+            key: string;
+            number: number;
+            projectId: string;
+            title: string;
+            labels: components["schemas"]["LabelDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            project: components["schemas"]["MyTaskProjectDto"];
+        };
+        DoneTasksDto: {
+            items: components["schemas"]["TaskDto"][];
+            hasMore: boolean;
+        };
+        CreateTaskDto: {
+            status?: components["schemas"]["TaskStatus"];
+            priority?: components["schemas"]["TaskPriority"];
+            /** Format: uuid */
+            assigneeId?: string | null;
+            dueDate?: string | null;
+            dueTime?: string | null;
+            /** Format: uuid */
+            projectId: string;
+            title: string;
+            labelIds?: string[];
+            /** Format: uuid */
+            parentId?: string;
+        };
+        TaskRefDto: {
+            id: string;
+            key: string;
+            title: string;
+        };
+        TaskProjectDto: {
+            id: string;
+            key: string;
+            name: string;
+            archived: boolean;
+        };
+        TaskDetailDto: {
+            parentId: string | null;
+            status: components["schemas"]["TaskStatus"];
+            priority: components["schemas"]["TaskPriority"];
+            assignee: components["schemas"]["PersonDto"] | null;
+            dueDate: string | null;
+            dueTime: string | null;
+            /** Format: date-time */
+            completedAt: string | null;
+            description: Record<string, never>[] | null;
+            parent: components["schemas"]["TaskRefDto"] | null;
+            project: components["schemas"]["TaskProjectDto"];
+            creator: components["schemas"]["PersonDto"];
+            subtasks: components["schemas"]["TaskDto"][];
+            id: string;
+            key: string;
+            number: number;
+            projectId: string;
+            title: string;
+            labels: components["schemas"]["LabelDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ActivityDto: {
+            oldValue: Record<string, never> | null;
+            newValue: Record<string, never> | null;
+            id: string;
+            actor: components["schemas"]["PersonDto"];
+            action: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ActivityPageDto: {
+            items: components["schemas"]["ActivityDto"][];
+            hasMore: boolean;
+        };
+        UpdateTaskDto: {
+            /** Format: uuid */
+            assigneeId?: string | null;
+            dueDate?: string | null;
+            dueTime?: string | null;
+            labelIds?: string[];
+            title?: string;
+            status?: components["schemas"]["TaskStatus"];
+            priority?: components["schemas"]["TaskPriority"];
+            description?: Record<string, never>[] | null;
         };
     };
     responses: never;
@@ -443,6 +934,525 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    PeopleController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonDto"][];
+                };
+            };
+        };
+    };
+    ProjectsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"][];
+                };
+            };
+        };
+    };
+    ProjectsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProjectDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteProjectDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProjectsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProjectDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_archive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_restore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_addMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddMemberDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_removeMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    FavoritesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteDto"][];
+                };
+            };
+        };
+    };
+    FavoritesController_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderFavoritesDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteDto"][];
+                };
+            };
+        };
+    };
+    FavoritesController_pin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteDto"][];
+                };
+            };
+        };
+    };
+    FavoritesController_unpin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteDto"][];
+                };
+            };
+        };
+    };
+    TasksController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDto"][];
+                };
+            };
+        };
+    };
+    TasksController_mine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyTaskDto"][];
+                };
+            };
+        };
+    };
+    TasksController_listOlderDone: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoneTasksDto"];
+                };
+            };
+        };
+    };
+    TasksController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTaskDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDto"];
+                };
+            };
+        };
+    };
+    TasksController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDetailDto"];
+                };
+            };
+        };
+    };
+    TasksController_activity: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityPageDto"];
+                };
+            };
+        };
+    };
+    TasksController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TasksController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTaskDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDto"];
+                };
+            };
+        };
+    };
+    TasksController_restore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDto"];
+                };
+            };
+        };
+    };
+    TasksController_labels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelDto"][];
+                };
             };
         };
     };

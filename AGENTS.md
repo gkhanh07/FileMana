@@ -50,7 +50,7 @@ Run from the folder shown.
 | Task | `frontend/` | `backend/` |
 | --- | --- | --- |
 | Install | `npm install` | `npm install` |
-| Dev | `npm run dev` | `npm run start:dev` |
+| Dev | `npm run dev` | `npm run dev` |
 | Build | `npm run build` | `npm run build` |
 | Lint (check only) | `npx eslint .` | `npx eslint "{src,test}/**/*.ts"` |
 | Typecheck | `npx tsc --noEmit` | `npx tsc --noEmit` |

@@ -111,7 +111,7 @@ describe('Auth (e2e)', () => {
   it('ends an unticked session after 24 hours on the server', async () => {
     const cookie = cookieOf(await login('an@example.com', PASSWORD));
     await prisma.session.updateMany({
-      where: { remember: false },
+      where: { remember: false, user: { email: 'an@example.com' } },
       data: { expiresAt: new Date(Date.now() - 1000) },
     });
     await http().get('/me').set('Cookie', cookie).expect(401);

@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByLabel("Email").fill(EMAIL);
   await page.getByLabel("Mật khẩu").fill(PASSWORD);
   await page.getByRole("button", { name: "Đăng nhập" }).click();
-  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
 });
 
 test("sidebar links open their pages and show in the breadcrumb", async ({ page }) => {
@@ -62,5 +62,5 @@ test("unknown route shows the not-found page", async ({ page }) => {
   await page.goto("/xyz");
   await expect(page.getByRole("heading", { name: "Không tìm thấy trang" })).toBeVisible();
   await page.getByRole("link", { name: "Về Trang chủ" }).click();
-  await expect(page.getByRole("heading", { name: "Xin chào, E2E" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
 });

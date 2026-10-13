@@ -30,10 +30,10 @@ design/     reference mockups only (*.dc.html, _ds/); not a source of truth
 
 Approved libraries (installed):
 
-- Frontend: shadcn/ui (`radix-nova` style; brings `radix-ui`, `cn`, `class-variance-authority`, `tw-animate-css`), `lucide-react`, `sonner` (toasts), `next-themes` (theme), `@tanstack/react-query` (server state, optimistic updates), `openapi-typescript` (dev: API types), `vitest` (unit tests), `@playwright/test` (browser smoke tests)
+- Frontend: shadcn/ui (`radix-nova` style; brings `radix-ui`, `cn`, `class-variance-authority`, `tw-animate-css`), `lucide-react`, `sonner` (toasts), `next-themes` (theme), `@tanstack/react-query` (server state, optimistic updates), BlockNote (`@blocknote/core`, `@blocknote/react`, `@blocknote/shadcn`: the rich-text editor; MPL packages only, never the GPL `@blocknote/xl-*`), `openapi-typescript` (dev: API types), `vitest` (unit tests), `@playwright/test` (browser smoke tests)
 - Backend: `prisma` + `@prisma/client` + `@prisma/adapter-pg` + `pg`, `@nestjs/config`, `class-validator`, `class-transformer`, `helmet`, `cookie-parser`, `argon2`, `@nestjs/throttler`, `@nestjs/schedule`, `@nestjs/swagger` (v11, since v12 needs Nest 12; only used to generate `openapi.json`)
 
-Approved when the feature arrives: `cmdk` (via `shadcn add command`), `@dnd-kit/core` + `@dnd-kit/sortable`, `@tanstack/react-virtual` (only if NFR-03 fails). Still undecided: editor (Tiptap or BlockNote), email (`nodemailer` + provider).
+Approved when the feature arrives: `cmdk` (via `shadcn add command`), `@dnd-kit/core` + `@dnd-kit/sortable`, `@tanstack/react-virtual` (only if NFR-03 fails). No email in any phase (no `nodemailer`): people sign up themselves and members reset each other's passwords (FR-AUTH-02, 03).
 
 Use built-ins instead of: date libraries (`Intl.DateTimeFormat`, `Intl.RelativeTimeFormat`), logging libraries (Nest `ConsoleLogger` with `json: true`), `@nestjs/terminus` (plain `GET /health`), WebSockets/Redis (`@Sse()` + rxjs `Subject`), Passport/JWT (session table + guard).
 
@@ -50,7 +50,7 @@ Run from the folder shown.
 | Task | `frontend/` | `backend/` |
 | --- | --- | --- |
 | Install | `npm install` | `npm install` |
-| Dev | `npm run dev` | `npm run start:dev` |
+| Dev | `npm run dev` | `npm run dev` |
 | Build | `npm run build` | `npm run build` |
 | Lint (check only) | `npx eslint .` | `npx eslint "{src,test}/**/*.ts"` |
 | Typecheck | `npx tsc --noEmit` | `npx tsc --noEmit` |
