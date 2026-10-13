@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatDueDate } from "./format";
 import {
+  boardColumns,
   describeActivity,
   dueBucket,
   filterMyTasks,
@@ -10,6 +11,7 @@ import {
   NO_FILTERS,
   NO_MY_FILTERS,
   parseTasksView,
+  positionBetween,
   sortTasks,
   weekRange,
   type Activity,
@@ -88,16 +90,37 @@ describe("sortTasks and groupTasks", () => {
     expect(groupTasks([a, c, d], "assignee").map((g) => g.key)).toEqual(["y", "x", "none"]);
   });
   it("reads the view from the URL and ignores junk", () => {
-    expect(parseTasksView({ group: "assignee", sort: "priority", priority: "HIGH", due: "week" })).toEqual({
+    expect(
+      parseTasksView({ view: "board", group: "assignee", sort: "priority", priority: "HIGH", due: "week" }),
+    ).toEqual({
+      layout: "board",
       group: "assignee",
       sort: "priority",
       filters: { assignee: null, priority: "HIGH", label: null, due: "week" },
     });
-    expect(parseTasksView({ group: "x", sort: "y", priority: "z", due: "w" })).toEqual({
+    expect(parseTasksView({ view: "v", group: "x", sort: "y", priority: "z", due: "w" })).toEqual({
+      layout: "list",
       group: "status",
       sort: "due",
       filters: NO_FILTERS,
     });
+  });
+});
+
+describe("board", () => {
+  it("has all four columns, each in dragged order, ties by number", () => {
+    const a = task({ status: "REVIEW", position: 3 });
+    const b = task({ status: "REVIEW", position: 1 });
+    const c = task({ status: "REVIEW", position: 1 });
+    const cols = boardColumns([a, b, c]);
+    expect(cols.map((g) => g.key)).toEqual(["TODO", "IN_PROGRESS", "REVIEW", "DONE"]);
+    expect(nums(cols[2].tasks)).toEqual([b.number, c.number, a.number]);
+  });
+  it("places a dropped card between its neighbours", () => {
+    expect(positionBetween(1, 2)).toBe(1.5);
+    expect(positionBetween(undefined, 2)).toBe(1);
+    expect(positionBetween(5, undefined)).toBe(6);
+    expect(positionBetween()).toBe(1);
   });
 });
 

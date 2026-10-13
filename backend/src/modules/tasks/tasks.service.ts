@@ -67,6 +67,7 @@ function toDto(t: TaskRow): TaskDto {
     dueDate: fromDate(t.dueDate),
     dueTime: t.dueTime,
     completedAt: t.completedAt,
+    position: t.position,
     labels: t.labels.map((l) => l.label),
     createdAt: t.createdAt,
     updatedAt: t.updatedAt,
@@ -239,6 +240,11 @@ export class TasksService {
         data: { taskCounter: { increment: 1 } },
         select: { taskCounter: true },
       });
+      // FR-TASK-10: a new task goes to the bottom of its column.
+      const { _max } = await tx.task.aggregate({
+        where: { projectId: dto.projectId },
+        _max: { position: true },
+      });
       const t = await tx.task.create({
         data: {
           projectId: dto.projectId,
@@ -252,6 +258,7 @@ export class TasksService {
           dueDate: toDate(dto.dueDate),
           dueTime: dto.dueDate ? dto.dueTime : null,
           completedAt: status === 'DONE' ? new Date() : null,
+          position: (_max.position ?? 0) + 1,
           labels: dto.labelIds && {
             create: [...new Set(dto.labelIds)].map((labelId) => ({ labelId })),
           },
@@ -307,6 +314,8 @@ export class TasksService {
               ? new Date()
               : null
             : undefined,
+          // Reordering isn't in the activity log (FR-ACT-01); a status change made by the same drag is.
+          position: dto.position,
           labels: dto.labelIds && {
             deleteMany: {},
             create: [...new Set(dto.labelIds)].map((labelId) => ({ labelId })),

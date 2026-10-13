@@ -63,6 +63,22 @@ test("quick create, add rows, edit inline, filter and see progress", async ({ pa
   await page.getByRole("button", { name: "Xóa bộ lọc" }).click();
   await expect(rows).toHaveCount(3);
 
+  // FR-TASK-07/09: the board, and a keyboard drag into the next column.
+  await page.getByRole("combobox", { name: "Kiểu xem" }).click();
+  await page.getByRole("option", { name: "Bảng" }).click();
+  await expect(page).toHaveURL(/view=board/);
+  await expect(page.getByRole("region", { name: "Cần làm, 1 việc" })).toContainText("Thông báo đẩy");
+  const card = page.locator("#task-UDDD-2");
+  await card.focus();
+  await page.keyboard.press("Space");
+  await expect(card).toHaveAttribute("aria-pressed", "true");
+  // dnd-kit starts listening for arrow keys on the next tick after the pickup.
+  await page.waitForTimeout(100);
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("region", { name: "Đang làm, 2 việc" })).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(page.getByRole("region", { name: "Đang làm, 2 việc" })).toContainText("Thông báo đẩy");
+
   // The edits were saved: they survive a reload, and progress counts them.
   await page.reload();
   await expect(page.getByRole("region", { name: "Hoàn thành, 1 việc" })).toContainText("Màn hình đăng nhập");

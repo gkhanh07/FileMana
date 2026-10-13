@@ -6,7 +6,13 @@ import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { UserAvatar } from "@/components/shell/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { api } from "@/lib/api/client";
 import { strings } from "@/lib/strings";
 import {
@@ -22,10 +28,12 @@ import {
   type TaskGroupBy,
   type TaskSort,
   type TaskStatus,
+  type TasksLayout,
   type TasksView,
 } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 import { StatusIcon } from "./task-bits";
+import { TaskBoard } from "./task-board";
 import { refreshMyTasks, TaskPanel, useOpenTask } from "./task-detail";
 import { ROW_GRID, saveError, TaskRow, tasksKey } from "./task-row";
 
@@ -63,27 +71,40 @@ export function TaskList({
     const next = { ...view, ...patch };
     setView(next);
     const params = new URLSearchParams();
+    if (next.layout === "board") params.set("view", "board");
     if (next.group !== "status") params.set("group", next.group);
     if (next.sort !== "due") params.set("sort", next.sort);
     for (const [k, v] of Object.entries(next.filters)) if (v) params.set(k, v);
     if (openKey) params.set("task", openKey);
     const query = params.toString();
-    window.history.replaceState(null, "", query ? `?${query}` : location.pathname);
+    window.history.replaceState(
+      null,
+      "",
+      query ? `?${query}` : location.pathname,
+    );
   };
-  const setFilter = (patch: Partial<TaskFilters>) => update({ filters: { ...view.filters, ...patch } });
+  const setFilter = (patch: Partial<TaskFilters>) =>
+    update({ filters: { ...view.filters, ...patch } });
 
   const { openKey, openTask, closeTask } = useOpenTask();
   // A link or reload with ?task= scrolls its row into view once.
   const [firstKey] = useState(openKey);
   useEffect(() => {
-    if (firstKey) document.getElementById(`task-${firstKey}`)?.scrollIntoView({ block: "center" });
+    if (firstKey)
+      document
+        .getElementById(`task-${firstKey}`)
+        ?.scrollIntoView({ block: "center" });
   }, [firstKey]);
 
   const filtered = filterTasks(tasks, view.filters, timeZone, weekStartsOn);
   const groups = groupTasks(sortTasks(filtered, view.sort), view.group);
   const filtering = Object.values(view.filters).some(Boolean);
   // Everyone who has a task here, for the assignee filter.
-  const assignees = [...new Map(tasks.flatMap((x) => (x.assignee ? [[x.assignee.id, x.assignee]] : []))).values()];
+  const assignees = [
+    ...new Map(
+      tasks.flatMap((x) => (x.assignee ? [[x.assignee.id, x.assignee]] : [])),
+    ).values(),
+  ];
 
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2">
@@ -99,8 +120,13 @@ export function TaskList({
       <Choice
         label={t.fields.priority}
         value={view.filters.priority}
-        onChange={(priority) => setFilter({ priority: priority as TaskFilters["priority"] })}
-        options={TASK_PRIORITIES.map((p) => ({ value: p, text: t.priority[p] }))}
+        onChange={(priority) =>
+          setFilter({ priority: priority as TaskFilters["priority"] })
+        }
+        options={TASK_PRIORITIES.map((p) => ({
+          value: p,
+          text: t.priority[p],
+        }))}
       />
       {labels.length > 0 && (
         <Choice
@@ -120,37 +146,74 @@ export function TaskList({
         ]}
       />
       {filtering && (
-        <Button variant="ghost" size="sm" onClick={() => update({ filters: NO_FILTERS })}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => update({ filters: NO_FILTERS })}
+        >
           {t.filters.clear}
         </Button>
       )}
       <div className="ml-auto flex items-center gap-2">
-        <Select value={view.group} onValueChange={(group) => update({ group: group as TaskGroupBy })}>
-          <SelectTrigger size="sm" aria-label={t.groupBy.label}>
-            <span className="text-muted-foreground">{t.groupBy.label}:</span>
+        {/* FR-TASK-07 */}
+        <Select
+          value={view.layout}
+          onValueChange={(layout) => update({ layout: layout as TasksLayout })}
+        >
+          <SelectTrigger size="sm" aria-label={t.layout.label}>
+            <span className="text-muted-foreground">{t.layout.label}:</span>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="status">{t.groupBy.status}</SelectItem>
-            <SelectItem value="assignee">{t.groupBy.assignee}</SelectItem>
+            <SelectItem value="list">{t.layout.list}</SelectItem>
+            <SelectItem value="board">{t.layout.board}</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={view.sort} onValueChange={(sort) => update({ sort: sort as TaskSort })}>
-          <SelectTrigger size="sm" aria-label={t.sort.label}>
-            <span className="text-muted-foreground">{t.sort.label}:</span>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="due">{t.sort.due}</SelectItem>
-            <SelectItem value="priority">{t.sort.priority}</SelectItem>
-            <SelectItem value="created">{t.sort.created}</SelectItem>
-          </SelectContent>
-        </Select>
+        {view.layout === "list" && (
+          <>
+            <Select
+              value={view.group}
+              onValueChange={(group) => update({ group: group as TaskGroupBy })}
+            >
+              <SelectTrigger size="sm" aria-label={t.groupBy.label}>
+                <span className="text-muted-foreground">
+                  {t.groupBy.label}:
+                </span>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="status">{t.groupBy.status}</SelectItem>
+                <SelectItem value="assignee">{t.groupBy.assignee}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={view.sort}
+              onValueChange={(sort) => update({ sort: sort as TaskSort })}
+            >
+              <SelectTrigger size="sm" aria-label={t.sort.label}>
+                <span className="text-muted-foreground">{t.sort.label}:</span>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="due">{t.sort.due}</SelectItem>
+                <SelectItem value="priority">{t.sort.priority}</SelectItem>
+                <SelectItem value="created">{t.sort.created}</SelectItem>
+              </SelectContent>
+            </Select>
+          </>
+        )}
       </div>
     </div>
   );
 
-  const panel = openKey && <TaskPanel taskKey={openKey} timeZone={timeZone} onOpen={openTask} onClose={closeTask} />;
+  const panel = openKey && (
+    <TaskPanel
+      taskKey={openKey}
+      timeZone={timeZone}
+      onOpen={openTask}
+      onClose={closeTask}
+    />
+  );
 
   if (tasks.length === 0 && adding === null) {
     return (
@@ -160,7 +223,7 @@ export function TaskList({
         {!readOnly && (
           <Button
             onClick={() => {
-              update({ group: "status" });
+              if (view.layout === "list") update({ group: "status" });
               setAdding("TODO");
             }}
           >
@@ -179,15 +242,33 @@ export function TaskList({
       {filtering && filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <p className="text-sm text-muted-foreground">{t.noMatch}</p>
-          <Button variant="outline" onClick={() => update({ filters: NO_FILTERS })}>
+          <Button
+            variant="outline"
+            onClick={() => update({ filters: NO_FILTERS })}
+          >
             {t.filters.clear}
           </Button>
         </div>
+      ) : view.layout === "board" ? (
+        <TaskBoard
+          projectId={projectId}
+          tasks={filtered}
+          timeZone={timeZone}
+          readOnly={readOnly}
+          openKey={openKey}
+          onOpen={openTask}
+          adding={adding}
+          onAddingChange={setAdding}
+          showOlderDone={!filtering}
+        />
       ) : (
         <div className="border-t">
           <div
             aria-hidden
-            className={cn(ROW_GRID, "h-8 items-center border-b text-xs tracking-wide text-muted-foreground uppercase")}
+            className={cn(
+              ROW_GRID,
+              "h-8 items-center border-b text-xs tracking-wide text-muted-foreground uppercase",
+            )}
           >
             <span>{t.columns.key}</span>
             <span>{t.columns.title}</span>
@@ -216,12 +297,20 @@ export function TaskList({
                     className="flex h-7 items-center gap-2 rounded-sm px-1.5 text-sm font-medium hover:bg-muted"
                   >
                     {open ? (
-                      <ChevronDown aria-hidden className="size-4 text-muted-foreground" />
+                      <ChevronDown
+                        aria-hidden
+                        className="size-4 text-muted-foreground"
+                      />
                     ) : (
-                      <ChevronRight aria-hidden className="size-4 text-muted-foreground" />
+                      <ChevronRight
+                        aria-hidden
+                        className="size-4 text-muted-foreground"
+                      />
                     )}
                     <GroupTitle group={g} by={view.group} />
-                    <span className="text-xs font-normal text-muted-foreground tabular-nums">{g.tasks.length}</span>
+                    <span className="text-xs font-normal text-muted-foreground tabular-nums">
+                      {g.tasks.length}
+                    </span>
                   </button>
                   {!readOnly && (
                     <Button
@@ -262,7 +351,9 @@ export function TaskList({
                         onOpenChange={(o) => setAdding(o ? g.key : null)}
                       />
                     )}
-                    {view.group === "status" && g.key === "DONE" && !filtering && <OlderDone projectId={projectId} />}
+                    {view.group === "status" &&
+                      g.key === "DONE" &&
+                      !filtering && <OlderDone projectId={projectId} />}
                   </ul>
                 )}
               </section>
@@ -275,7 +366,9 @@ export function TaskList({
 }
 
 const groupName = (g: TaskGroup, by: TaskGroupBy) =>
-  by === "status" ? t.status[g.key as TaskStatus] : (g.tasks[0]?.assignee?.name ?? t.unassigned);
+  by === "status"
+    ? t.status[g.key as TaskStatus]
+    : (g.tasks[0]?.assignee?.name ?? t.unassigned);
 
 function GroupTitle({ group, by }: { group: TaskGroup; by: TaskGroupBy }) {
   if (by === "status") {
@@ -309,8 +402,15 @@ export function Choice({
   onChange: (value: string | null) => void;
 }) {
   return (
-    <Select value={value ?? ALL} onValueChange={(v) => onChange(v === ALL ? null : v)}>
-      <SelectTrigger size="sm" aria-label={label} className={cn(value && "border-primary")}>
+    <Select
+      value={value ?? ALL}
+      onValueChange={(v) => onChange(v === ALL ? null : v)}
+    >
+      <SelectTrigger
+        size="sm"
+        aria-label={label}
+        className={cn(value && "border-primary")}
+      >
         <span className="text-muted-foreground">{label}:</span>
         <SelectValue />
       </SelectTrigger>
@@ -327,24 +427,33 @@ export function Choice({
 }
 
 // FR-TASK-05: type a title, Enter creates and keeps the row open for the next one.
-function AddRow({
+export function AddRow({
   projectId,
   defaults,
   open,
   onOpenChange,
+  className,
 }: {
   projectId: string;
   defaults: { status?: TaskStatus; assigneeId?: string | null };
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  className?: string;
 }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const create = useMutation({
-    mutationFn: (title: string) => api<Task>("/tasks", { method: "POST", body: { projectId, title, ...defaults } }),
+    mutationFn: (title: string) =>
+      api<Task>("/tasks", {
+        method: "POST",
+        body: { projectId, title, ...defaults },
+      }),
     onSuccess: (task) => {
-      qc.setQueryData<Task[]>(tasksKey(projectId), (list) => [...(list ?? []), task]);
+      qc.setQueryData<Task[]>(tasksKey(projectId), (list) => [
+        ...(list ?? []),
+        task,
+      ]);
       void refreshMyTasks(qc);
       setTitle("");
       input.current?.focus();
@@ -354,7 +463,7 @@ function AddRow({
 
   if (!open) {
     return (
-      <li className="border-b">
+      <li className={cn("border-b", className)}>
         <Button
           variant="ghost"
           size="sm"
@@ -368,7 +477,7 @@ function AddRow({
     );
   }
   return (
-    <li className="border-b px-3 py-1">
+    <li className={cn("border-b px-3 py-1", className)}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -394,13 +503,21 @@ function AddRow({
 }
 
 // The Done group shows the last 14 days; older ones load here, 50 at a time, into the same list.
-function OlderDone({ projectId }: { projectId: string }) {
+export function OlderDone({
+  projectId,
+  className,
+}: {
+  projectId: string;
+  className?: string;
+}) {
   const qc = useQueryClient();
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const load = useMutation({
     mutationFn: () =>
-      api<{ items: Task[]; hasMore: boolean }>(`/projects/${projectId}/tasks/done?offset=${offset}&limit=50`),
+      api<{ items: Task[]; hasMore: boolean }>(
+        `/projects/${projectId}/tasks/done?offset=${offset}&limit=50`,
+      ),
     onSuccess: ({ items, hasMore }) => {
       qc.setQueryData<Task[]>(tasksKey(projectId), (list = []) => {
         const seen = new Set(list.map((x) => x.id));
@@ -413,7 +530,7 @@ function OlderDone({ projectId }: { projectId: string }) {
   });
   if (!hasMore) return null;
   return (
-    <li className="border-b">
+    <li className={cn("border-b", className)}>
       <Button
         variant="link"
         size="sm"

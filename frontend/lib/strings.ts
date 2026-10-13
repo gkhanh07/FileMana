@@ -158,6 +158,7 @@ export const strings = {
     fields: { status: "Trạng thái", priority: "Ưu tiên", assignee: "Người làm", due: "Hạn", label: "Nhãn" },
     unassigned: "Chưa giao",
     noDue: "Chưa có hạn",
+    layout: { label: "Kiểu xem", list: "Danh sách", board: "Bảng" },
     groupBy: { label: "Nhóm theo", status: "Trạng thái", assignee: "Người làm" },
     sort: { label: "Sắp xếp", due: "Hạn gần nhất", priority: "Ưu tiên cao nhất", created: "Mới tạo nhất" },
     filters: { all: "Tất cả", overdue: "Quá hạn", week: "Tuần này", clear: "Xóa bộ lọc" },

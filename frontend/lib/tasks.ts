@@ -30,11 +30,14 @@ export type TaskFilters = {
 };
 export const NO_FILTERS: TaskFilters = { assignee: null, priority: null, label: null, due: null };
 
-export type TasksView = { group: TaskGroupBy; sort: TaskSort; filters: TaskFilters };
+/** FR-TASK-07: the List or Kanban board. */
+export type TasksLayout = "list" | "board";
+export type TasksView = { layout: TasksLayout; group: TaskGroupBy; sort: TaskSort; filters: TaskFilters };
 
 /** Reads the view from the URL; anything unknown falls back to the default. */
 export function parseTasksView(p: Record<string, string | undefined>): TasksView {
   return {
+    layout: p.view === "board" ? "board" : "list",
     group: p.group === "assignee" ? "assignee" : "status",
     sort: p.sort === "priority" || p.sort === "created" ? p.sort : "due",
     filters: {
@@ -105,7 +108,19 @@ export function groupTasks(tasks: Task[], by: TaskGroupBy): TaskGroup[] {
     .map(({ key, tasks }) => ({ key, tasks }));
 }
 
-export type DueBucket = "overdue" | "today" | "week" | "later" | "none";
+/** FR-TASK-07: the four status columns, each in its dragged order (FR-TASK-09). */
+export function boardColumns(tasks: Task[]): TaskGroup[] {
+  return TASK_STATUSES.map((s) => ({
+    key: s,
+    tasks: tasks.filter((t) => t.status === s).sort((a, b) => a.position - b.position || a.number - b.number),
+  }));
+}
+
+/** FR-TASK-09: a position between the new neighbours; either one is missing at an end of the column. */
+export const positionBetween = (before?: number, after?: number) =>
+  before === undefined ? (after === undefined ? 1 : after - 1) : after === undefined ? before + 1 : (before + after) / 2;
+
+export type DueBucket ="overdue" | "today" | "week" | "later" | "none";
 export const DUE_BUCKETS: DueBucket[] = ["overdue", "today", "week", "later", "none"];
 
 /** FR-HOME-02, FR-MY-02: which due group a task falls in, by workspace "today". "week" is the next 7 days. */

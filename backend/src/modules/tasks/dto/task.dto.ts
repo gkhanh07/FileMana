@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsInt,
   IsISO8601,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
@@ -127,6 +128,12 @@ export class UpdateTaskDto extends PartialType(
   @ValidateIf((_, v) => v !== null && v !== undefined)
   @IsArray()
   description?: object[] | null;
+
+  // FR-TASK-09: where it sits in its Kanban column (lower is higher up).
+  @ApiProperty({ required: false })
+  @ValidateIf(defined)
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  position?: number;
 }
 
 // Offset paging for the lists that aren't task lists.
@@ -173,6 +180,7 @@ export class TaskDto {
   dueTime: string | null;
   @ApiProperty({ type: String, format: 'date-time', nullable: true })
   completedAt: Date | null;
+  position: number;
   labels: LabelDto[];
   createdAt: Date;
   updatedAt: Date;

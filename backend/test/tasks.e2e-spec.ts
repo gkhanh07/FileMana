@@ -22,6 +22,7 @@ type Task = {
   dueDate: string | null;
   dueTime: string | null;
   completedAt: string | null;
+  position: number;
   labels: { id: string; name: string }[];
 };
 
@@ -105,6 +106,25 @@ describe('Tasks (e2e)', () => {
     const numbers = tasks.map((t) => t.number).sort((x, y) => x - y);
     expect(new Set(numbers).size).toBe(5);
     expect(numbers[4] - numbers[0]).toBe(4);
+  });
+
+  // FR-TASK-09/10
+  it('puts new tasks at the bottom; a drag sets position and status, logging only the status', async () => {
+    const a = await newTask('Kéo A');
+    const b = await newTask('Kéo B');
+    expect(b.position).toBeGreaterThan(a.position);
+
+    const moved = await patch(b.id, {
+      status: 'IN_PROGRESS',
+      position: a.position - 1,
+    }).expect(200);
+    expect(moved.body).toMatchObject({
+      status: 'IN_PROGRESS',
+      position: a.position - 1,
+    });
+    expect((await taskLog(b.id)).map((l) => l.action)).toEqual(['task.status']);
+    await patch(b.id, { position: 'top' }).expect(400);
+    await patch(b.id, { position: null }).expect(400);
   });
 
   it('takes assignee null, a due date with time, and labels', async () => {

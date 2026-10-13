@@ -583,6 +583,7 @@ export interface components {
             number: number;
             projectId: string;
             title: string;
+            position: number;
             labels: components["schemas"]["LabelDto"][];
             /** Format: date-time */
             createdAt: string;
@@ -609,6 +610,7 @@ export interface components {
             number: number;
             projectId: string;
             title: string;
+            position: number;
             labels: components["schemas"]["LabelDto"][];
             /** Format: date-time */
             createdAt: string;
@@ -664,6 +666,7 @@ export interface components {
             number: number;
             projectId: string;
             title: string;
+            position: number;
             labels: components["schemas"]["LabelDto"][];
             /** Format: date-time */
             createdAt: string;
@@ -693,6 +696,7 @@ export interface components {
             status?: components["schemas"]["TaskStatus"];
             priority?: components["schemas"]["TaskPriority"];
             description?: Record<string, never>[] | null;
+            position?: number;
         };
     };
     responses: never;

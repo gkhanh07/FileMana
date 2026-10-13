@@ -175,6 +175,8 @@ model Task {
   dueDate     DateTime?    @db.Date // a calendar date in the workspace timezone
   dueTime     String?      @db.VarChar(5) // HH:mm, only with a dueDate
   completedAt DateTime? // set when the status becomes Done
+  // FR-TASK-09: order within a Kanban column; a move takes the midpoint of its new neighbours.
+  position    Float
   deletedAt   DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
