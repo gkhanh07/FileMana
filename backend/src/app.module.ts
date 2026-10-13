@@ -7,6 +7,7 @@ import { validateEnv } from './config/env';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthController } from './modules/health/health.controller';
 import { UsersModule } from './modules/users/users.module';
+import { WorkspaceController } from './modules/workspace/workspace.controller';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -22,7 +23,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     UsersModule,
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, WorkspaceController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}

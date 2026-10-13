@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { User } from "./client";
+import type { User, Workspace } from "./client";
 import { ApiError, readApiError } from "./error";
 
 // Server Components call the API directly (over the compose network) and forward the session cookie.
@@ -32,3 +32,5 @@ export const getMe = cache(async () => {
     throw e;
   }
 });
+
+export const getWorkspace = cache(() => serverApi<Workspace>("/workspace"));

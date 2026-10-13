@@ -122,4 +122,5 @@ const toAuthUser = (u: AuthUser): AuthUser => ({
   id: u.id,
   email: u.email,
   name: u.name,
+  theme: u.theme,
 });
