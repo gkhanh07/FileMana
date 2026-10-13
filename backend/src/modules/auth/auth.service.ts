@@ -5,6 +5,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import type { Response } from 'express';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { AuthUser } from '../../common/decorators/current-user.decorator';
+import type { User } from '../../generated/prisma/client';
 
 export const SESSION_COOKIE = 'sid';
 const HOUR = 3_600_000;
@@ -59,7 +60,7 @@ export class AuthService {
 
   async authenticate(
     token: string,
-  ): Promise<{ user: AuthUser; cookie?: Renewal } | null> {
+  ): Promise<{ user: AuthUser; sessionId: string; cookie?: Renewal } | null> {
     const session = await this.prisma.session.findUnique({
       where: { tokenHash: sha256(token) },
       include: { user: true },
@@ -86,7 +87,7 @@ export class AuthService {
       }
       cookie = { remember: true, expiresAt };
     }
-    return { user: toAuthUser(session.user), cookie };
+    return { user: toAuthUser(session.user), sessionId: session.id, cookie };
   }
 
   async logout(token: string | undefined) {
@@ -118,9 +119,16 @@ export class AuthService {
   }
 }
 
-const toAuthUser = (u: AuthUser): AuthUser => ({
+export type UserRow = Pick<
+  User,
+  'id' | 'email' | 'name' | 'theme' | 'jobTitle' | 'avatarFile'
+>;
+
+export const toAuthUser = (u: UserRow): AuthUser => ({
   id: u.id,
   email: u.email,
   name: u.name,
   theme: u.theme,
+  jobTitle: u.jobTitle,
+  avatarUrl: u.avatarFile ? `/avatars/${u.avatarFile}` : null,
 });

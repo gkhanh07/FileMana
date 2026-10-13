@@ -29,6 +29,10 @@ export class Env {
   )
   @IsBoolean()
   COOKIE_SECURE: boolean = false;
+
+  // Uploaded files live here (a Docker volume in production), never in the database.
+  @IsString()
+  UPLOAD_DIR: string = 'uploads';
 }
 
 export function validateEnv(raw: Record<string, unknown>): Env {

@@ -27,7 +27,9 @@ export class AuthGuard implements CanActivate {
       return true;
     }
     const http = ctx.switchToHttp();
-    const req = http.getRequest<Request & { user?: unknown }>();
+    const req = http.getRequest<
+      Request & { user?: unknown; sessionId?: string }
+    >();
     const token = (req.cookies as Record<string, string | undefined>)?.[
       SESSION_COOKIE
     ];
@@ -38,6 +40,7 @@ export class AuthGuard implements CanActivate {
         message: 'Not signed in',
       });
     req.user = found.user;
+    req.sessionId = found.sessionId;
     if (found.cookie)
       this.auth.setCookie(http.getResponse<Response>(), token!, found.cookie);
     return true;

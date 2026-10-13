@@ -7,9 +7,17 @@ export type AuthUser = {
   email: string;
   name: string;
   theme: Theme;
+  jobTitle: string | null;
+  avatarUrl: string | null;
 };
 
 export const CurrentUser = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): AuthUser =>
     ctx.switchToHttp().getRequest<Request & { user: AuthUser }>().user,
+);
+
+// The session making this request, so "sign out other devices" can keep it.
+export const CurrentSessionId = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext): string =>
+    ctx.switchToHttp().getRequest<Request & { sessionId: string }>().sessionId,
 );

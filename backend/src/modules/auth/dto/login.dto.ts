@@ -34,4 +34,9 @@ export class UserDto {
   name: string;
   @ApiProperty({ enum: Theme, enumName: 'Theme' })
   theme: Theme;
+  @ApiProperty({ type: String, nullable: true })
+  jobTitle: string | null;
+  // A path on this API (`/avatars/<file>`); it changes on every upload, so it can be cached.
+  @ApiProperty({ type: String, nullable: true })
+  avatarUrl: string | null;
 }

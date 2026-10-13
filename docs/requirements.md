@@ -388,7 +388,7 @@ Settings has three groups: Personal, Members and Workspace. All of them are open
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-SET-01 | Profile: avatar, full name, display name, job title | MVP |
+| FR-SET-01 | Profile: avatar, name, job title | MVP |
 | FR-SET-02 | Change password, sign out of all devices | MVP |
 | FR-SET-03 | Light / Dark / System theme | MVP |
 | FR-SET-04 | Notification settings by type and channel (see FR-INBOX-11) | Phase 2 |
