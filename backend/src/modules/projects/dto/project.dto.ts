@@ -14,6 +14,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ProjectStatus } from '../../../generated/prisma/enums';
+import { ActivityDto, TaskRefDto } from '../../tasks/dto/task.dto';
 import { PersonDto } from '../../users/dto/person.dto';
 
 // Names of the icon colors; the frontend maps each to a design token.
@@ -132,6 +133,28 @@ export class ProjectDto {
   doneCount: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// FR-PRJ-07: the Overview's stats row. Subtasks don't count (FR-PRJ-04).
+export class ProjectStatsDto {
+  taskCount: number;
+  todoCount: number;
+  inProgressCount: number;
+  reviewCount: number;
+  doneCount: number;
+  // Not Done and due before today in the workspace timezone.
+  overdueCount: number;
+}
+
+// FR-PRJ-07: an entry of the project's activity, with the task it is about.
+export class ProjectActivityDto extends ActivityDto {
+  @ApiProperty({ type: TaskRefDto, nullable: true })
+  task: TaskRefDto | null;
+}
+
+export class ProjectActivityPageDto {
+  items: ProjectActivityDto[];
+  hasMore: boolean;
 }
 
 export class FavoriteDto {

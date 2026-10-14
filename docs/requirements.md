@@ -57,7 +57,7 @@ Every page shares one shell: a sidebar on the left and a top bar. Every screen i
 | ID | Requirement | Priority |
 |---|---|---|
 | FR-AUTH-01 | Sign in with email and password, with a "remember me" option | MVP |
-| FR-AUTH-02 | Forgot password: another member sets a temporary password for them in Settings → Members, which signs out all their sessions | MVP |
+| FR-AUTH-02 | Forgot password: another member sets a temporary password for them on the Members page, which signs out all their sessions | MVP |
 | FR-AUTH-03 | Sign up: a sign-up page linked from sign-in; enter email, name and password and land directly in the workspace with the same rights as everyone | MVP |
 | FR-AUTH-04 | Sign in with the company Google account | Phase 2 |
 | FR-AUTH-05 | Two-factor authentication (2FA) | Later |
@@ -66,11 +66,11 @@ Every page shares one shell: a sidebar on the left and a top bar. Every screen i
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-SHELL-01 | 240px sidebar with: company logo and name; Home, My Tasks, Inbox (with unread count), Projects, Docs & Files; a Favorites section; Settings and the user avatar at the bottom | MVP |
+| FR-SHELL-01 | 240px sidebar with: company logo and name; Home, My Tasks, Inbox (with unread count), Projects, Docs & Files, Members (moved out of Settings, decided 2026-10-14); a Favorites section; Settings and the user avatar at the bottom | MVP |
 | FR-SHELL-02 | Collapse the sidebar into a 56px icon rail; remember the state for next time | MVP |
 | FR-SHELL-03 | Pin up to 5 projects to Favorites, drag to reorder | MVP |
 | FR-SHELL-04 | 52px top bar: breadcrumb on the left, search field in the center (showing a ⌘K hint), Create button, notification bell and theme toggle on the right | MVP |
-| FR-SHELL-05 | The Create button opens a menu: Task, Project, Doc, Upload file | MVP |
+| FR-SHELL-05 | The Create button opens a menu: Task, Project, Upload file (Doc waits with FR-DOC-01, decided 2026-10-14) | MVP |
 | FR-SHELL-06 | Light, Dark or System theme, saved per user | MVP |
 | FR-SHELL-07 | Every page, task, file and doc has its own URL so links can be shared | MVP |
 | FR-SHELL-08 | Add Calendar to the sidebar when the Calendar feature ships | Phase 2 |
@@ -245,20 +245,20 @@ Multiple assignees per task, recurring tasks, task dependencies (blocking/blocke
 
 ## 7. Docs and Files
 
-Uploaded files and docs written in the app live together in one "Docs & Files" area, so nobody has to guess where to look. Every project automatically has its own folder; a "General" folder holds company-wide material such as processes, policies and templates.
+Uploaded files and docs written in the app live together in one "Docs & Files" area, so nobody has to guess where to look. The Docs & Files page is a free space: anyone adds, renames, moves and deletes folders and files right at its top level. Every project also has its own folder, shown only in that project's Docs & Files tab (decided 2026-10-14). Docs written in the app (FR-DOC-01..05) moved to Later the same day; for now the area holds folders and uploaded files only.
 
 ### File and folder management
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-FILE-01 | The root page shows the General folder and one folder per project; a project's Docs & Files tab opens that project's folder directly | MVP |
+| FR-FILE-01 | The Docs & Files page lists its own folders and files directly, with no fixed folders. A project's Docs & Files tab opens that project's folder, which is not listed on the Docs & Files page | MVP |
 | FR-FILE-02 | Folder breadcrumb, e.g. Docs & Files / Marketing Q4 / Images | MVP |
-| FR-FILE-03 | Folders listed first, then docs and files; columns: type icon, name, creator, last updated, size | MVP |
-| FR-FILE-04 | Quick filters: All, Docs, Files, Favorites, Recent; search by name within the current folder | MVP |
+| FR-FILE-03 | Folders listed first, then files; columns: type icon, name, creator, last updated, size | MVP |
+| FR-FILE-04 | Quick filters: All, Files; search by name within the current folder. No Favorites or Recent filters (decided 2026-10-13) | MVP |
 | FR-FILE-05 | Upload via a button or by dragging multiple files onto the page; max 100 MB per file | MVP |
 | FR-FILE-06 | Upload progress panel in the bottom corner: % per file, cancel per file, clear error when a file is too large | MVP |
-| FR-FILE-07 | Create, rename, delete folders; nested subfolders | MVP |
-| FR-FILE-08 | "…" menu and right-click: preview, download, rename, move, copy link, add to favorites, delete | MVP |
+| FR-FILE-07 | Create, rename, delete folders; nested subfolders. Only a project's own folder cannot be renamed or deleted (it goes with the project) | MVP |
+| FR-FILE-08 | "…" menu and right-click: preview, download, rename, move, copy link, delete | MVP |
 | FR-FILE-09 | Drag files onto a folder to move them | Phase 2 |
 | FR-FILE-10 | Grid view with thumbnails | Phase 2 |
 | FR-FILE-11 | Upload a whole folder, keeping its structure | Phase 2 |
@@ -278,11 +278,11 @@ Uploaded files and docs written in the app live together in one "Docs & Files" a
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-DOC-01 | Create a doc in any folder; a new doc opens immediately with the cursor in the title | MVP |
-| FR-DOC-02 | Block editor; type "/" to insert: heading, paragraph, bulleted and numbered lists, checklist, table, image, file, link, code block, quote, divider | MVP |
-| FR-DOC-03 | Continuous autosave with a "Saving… / Saved" indicator | MVP |
-| FR-DOC-04 | When someone else has the same doc open, show their avatar and warn before overwriting | MVP |
-| FR-DOC-05 | @mentions (send a notification); links to tasks and projects rendered as chips with their status | MVP |
+| FR-DOC-01 | Create a doc in any folder; a new doc opens immediately with the cursor in the title | Later |
+| FR-DOC-02 | Block editor; type "/" to insert: heading, paragraph, bulleted and numbered lists, checklist, table, image, file, link, code block, quote, divider | Later |
+| FR-DOC-03 | Continuous autosave with a "Saving… / Saved" indicator | Later |
+| FR-DOC-04 | When someone else has the same doc open, show their avatar and warn before overwriting | Later |
+| FR-DOC-05 | @mentions (send a notification); links to tasks and projects rendered as chips with their status | Later |
 | FR-DOC-06 | Real-time collaborative editing | Phase 2 |
 | FR-DOC-07 | Select text to comment on it | Phase 2 |
 | FR-DOC-08 | Nested subpages inside a doc, with a page tree in the side bar | Phase 2 |
@@ -442,7 +442,7 @@ The interface is in Vietnamese; English meanings are given for reference.
 |---|---|---|---|
 | No tasks today | Bạn không có việc nào đến hạn hôm nay. | You have no tasks due today. | Tạo việc (Create task) |
 | New project with no tasks | Dự án này chưa có công việc nào. | This project has no tasks yet. | Thêm việc đầu tiên (Add the first task) |
-| Empty folder | Kéo tệp vào đây hoặc tạo tài liệu mới. | Drop files here or create a new doc. | Tải lên / Tạo tài liệu (Upload / Create doc) |
+| Empty folder | Kéo tệp vào đây để tải lên. | Drop files here to upload. | Tải lên (Upload) |
 | Empty Inbox | Bạn đã xem hết thông báo. | You're all caught up. | (none) |
 | No search results | Không tìm thấy kết quả cho "…". Thử từ khóa khác. | No results for "…". Try another keyword. | Tạo việc "…" (Create task "…") |
 | File too large | Tệp "…" vượt quá 100 MB nên chưa tải lên được. | "…" is over 100 MB and could not be uploaded. | Chọn tệp khác (Choose another file) |

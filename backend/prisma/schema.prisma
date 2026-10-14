@@ -49,6 +49,7 @@ model User {
   activities    Activity[]
   assignedTasks Task[]            @relation("TaskAssignee")
   createdTasks  Task[]            @relation("TaskCreator")
+  items         Item[]
 }
 
 model Session {
@@ -93,6 +94,8 @@ model Project {
   favorites   FavoriteProject[]
   activities  Activity[]
   tasks       Task[]
+  milestones  Milestone[]
+  folder      Item? // FR-FILE-01: created with the project
 
   @@index([ownerId])
   @@index([deletedAt])
@@ -127,8 +130,8 @@ model Activity {
   id         String   @id @default(uuid()) @db.Uuid
   actorId    String   @db.Uuid
   actor      User     @relation(fields: [actorId], references: [id])
-  projectId  String   @db.Uuid
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String?  @db.Uuid // null for files in the General folder
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   action     String // e.g. project.created, member.added
   targetType String // project, member, task…
   targetId   String   @db.Uuid
@@ -180,13 +183,33 @@ model Task {
   deletedAt   DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  milestoneId String?      @db.Uuid
+  milestone   Milestone?   @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
   labels      TaskLabel[]
+  attachments Item[] // FR-TASK-18
 
   @@unique([projectId, number])
   @@index([parentId])
+  @@index([milestoneId])
   @@index([assigneeId])
   @@index([dueDate])
   @@index([status])
+}
+
+// FR-PRJ-08. Progress is counted from its linked tasks, never stored. A deleted one keeps
+// its links, so restoring it brings them back.
+model Milestone {
+  id        String    @id @default(uuid()) @db.Uuid
+  projectId String    @db.Uuid
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String    @db.VarChar(80)
+  date      DateTime  @db.Date // a calendar date in the workspace timezone
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  tasks     Task[]
+
+  @@index([projectId])
 }
 
 // Shared across the workspace (FR-SET-12 manages them in F19).
@@ -205,4 +228,36 @@ model TaskLabel {
 
   @@id([taskId, labelId])
   @@index([labelId])
+}
+
+// The enum order is the list order (FR-FILE-03): folders, then files.
+enum ItemKind {
+  FOLDER
+  FILE
+}
+
+// FR-FILE: one tree for folders and uploaded files. The roots have no parent and are
+// locked (FR-FILE-07): General (no project) and one folder per project.
+model Item {
+  id        String    @id @default(uuid()) @db.Uuid // a file's name on disk: UPLOAD_DIR/files/<id>
+  kind      ItemKind
+  name      String    @db.VarChar(255) // COLLATE "vi-x-icu" (set in the migration) so names sort the Vietnamese way
+  parentId  String?   @db.Uuid
+  parent    Item?     @relation("ItemTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Item[]    @relation("ItemTree")
+  projectId String?   @unique @db.Uuid // only on a project's root folder
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // FR-TASK-18. ponytail: a file belongs to one task; a join table if one file must sit on several.
+  taskId    String?   @db.Uuid
+  task      Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  creatorId String?   @db.Uuid // null on the roots
+  creator   User?     @relation(fields: [creatorId], references: [id])
+  mimeType  String?   @db.VarChar(255) // files only
+  size      Int? // files only, in bytes
+  deletedAt DateTime? // in Trash; a folder's contents hide with it
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([parentId])
+  @@index([taskId])
 }

@@ -77,6 +77,12 @@ export class CreateTaskDto {
   @IsUUID('all', { each: true })
   labelIds?: string[];
 
+  // FR-PRJ-08: one of the project's milestones; null: none.
+  @ApiProperty({ type: String, nullable: true, required: false })
+  @ValidateIf((_, v) => v !== null && v !== undefined)
+  @IsUUID()
+  milestoneId?: string | null;
+
   // FR-TASK-17: makes it a subtask of this task (same project, one level deep).
   @IsOptional()
   @IsUUID()
@@ -118,7 +124,7 @@ export class UpdateTaskDto extends PartialType(
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
 
-  // FR-TASK-16: the editor's block list; null clears it. The body size limit (100 KB) caps it.
+  // FR-TASK-16: the editor's block list; null clears it. The body size limit (5 MB) caps it.
   @ApiProperty({
     type: 'array',
     items: { type: 'object' },
@@ -182,6 +188,11 @@ export class TaskDto {
   completedAt: Date | null;
   position: number;
   labels: LabelDto[];
+  // FR-PRJ-08. A milestone in Trash keeps the link, so match it against the project's milestone list.
+  @ApiProperty({ type: String, nullable: true })
+  milestoneId: string | null;
+  // FR-TASK-08
+  attachmentCount: number;
   createdAt: Date;
   updatedAt: Date;
 }

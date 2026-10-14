@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Flag, Plus } from "lucide-react";
+import { useMilestones } from "@/components/projects/milestones";
 import { UserAvatar } from "@/components/shell/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ import {
   sortTasks,
   TASK_PRIORITIES,
   type Label,
+  type Milestone,
   type Task,
   type TaskFilters,
   type TaskGroup,
@@ -46,6 +48,7 @@ export function TaskList({
   projectId,
   initialTasks,
   labels,
+  initialMilestones,
   timeZone,
   weekStartsOn,
   readOnly,
@@ -54,6 +57,7 @@ export function TaskList({
   projectId: string;
   initialTasks: Task[];
   labels: Label[];
+  initialMilestones: Milestone[];
   timeZone: string;
   weekStartsOn: number;
   readOnly: boolean;
@@ -64,6 +68,7 @@ export function TaskList({
     queryFn: () => api<Task[]>(`/projects/${projectId}/tasks`),
     initialData: initialTasks,
   });
+  const { data: milestones } = useMilestones(projectId, initialMilestones);
   const [view, setView] = useState(initial);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [adding, setAdding] = useState<string | null>(null);
@@ -101,7 +106,7 @@ export function TaskList({
   }, [firstKey]);
 
   const filtered = filterTasks(tasks, view.filters, timeZone, weekStartsOn);
-  const groups = groupTasks(sortTasks(filtered, view.sort), view.group);
+  const groups = groupTasks(sortTasks(filtered, view.sort), view.group, milestones);
   const filtering = Object.values(view.filters).some(Boolean);
   // Rows in screen order; a hidden task (filtered out, collapsed group) is never acted on.
   const shown = view.layout === "list" ? groups.flatMap((g) => (collapsed.has(g.key) ? [] : g.tasks)) : [];
@@ -204,6 +209,7 @@ export function TaskList({
               <SelectContent>
                 <SelectItem value="status">{t.groupBy.status}</SelectItem>
                 <SelectItem value="assignee">{t.groupBy.assignee}</SelectItem>
+                <SelectItem value="milestone">{t.groupBy.milestone}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -308,7 +314,7 @@ export function TaskList({
                 else next.add(g.key);
                 return next;
               });
-            const name = groupName(g, view.group);
+            const name = groupName(g, view.group, milestones);
             return (
               <section key={g.key} aria-label={t.group(name, g.tasks.length)}>
                 <div className="flex h-9 items-center gap-2 border-b bg-muted/40 pr-2 pl-2">
@@ -329,7 +335,7 @@ export function TaskList({
                         className="size-4 text-muted-foreground"
                       />
                     )}
-                    <GroupTitle group={g} by={view.group} />
+                    <GroupTitle group={g} by={view.group} name={name} />
                     <span className="text-xs font-normal text-muted-foreground tabular-nums">
                       {g.tasks.length}
                     </span>
@@ -369,7 +375,9 @@ export function TaskList({
                         defaults={
                           view.group === "status"
                             ? { status: g.key as TaskStatus }
-                            : { assigneeId: g.key === "none" ? null : g.key }
+                            : view.group === "milestone"
+                              ? { milestoneId: g.key === "none" ? null : g.key }
+                              : { assigneeId: g.key === "none" ? null : g.key }
                         }
                         open={adding === g.key}
                         onOpenChange={(o) => setAdding(o ? g.key : null)}
@@ -389,12 +397,22 @@ export function TaskList({
   );
 }
 
-const groupName = (g: TaskGroup, by: TaskGroupBy) =>
+const groupName = (g: TaskGroup, by: TaskGroupBy, milestones: Milestone[]) =>
   by === "status"
     ? t.status[g.key as TaskStatus]
-    : (g.tasks[0]?.assignee?.name ?? t.unassigned);
+    : by === "milestone"
+      ? (milestones.find((m) => m.id === g.key)?.name ?? t.noMilestone)
+      : (g.tasks[0]?.assignee?.name ?? t.unassigned);
 
-function GroupTitle({ group, by }: { group: TaskGroup; by: TaskGroupBy }) {
+function GroupTitle({ group, by, name }: { group: TaskGroup; by: TaskGroupBy; name: string }) {
+  if (by === "milestone") {
+    return (
+      <>
+        <Flag aria-hidden className="size-4 text-muted-foreground" />
+        <span className={cn(group.key === "none" && "text-muted-foreground")}>{name}</span>
+      </>
+    );
+  }
   if (by === "status") {
     return (
       <>
@@ -459,7 +477,7 @@ export function AddRow({
   className,
 }: {
   projectId: string;
-  defaults: { status?: TaskStatus; assigneeId?: string | null };
+  defaults: { status?: TaskStatus; assigneeId?: string | null; milestoneId?: string | null };
   open: boolean;
   onOpenChange: (open: boolean) => void;
   className?: string;

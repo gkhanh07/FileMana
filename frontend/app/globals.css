@@ -176,3 +176,9 @@
     @apply font-heading font-semibold;
   }
 }
+
+/* BlockNote paints its own editor colors; use the app's so editors sit on the page in both themes. */
+.bn-container.bn-root[data-color-scheme] {
+  --bn-colors-editor-background: var(--background);
+  --bn-colors-editor-text: var(--foreground);
+}

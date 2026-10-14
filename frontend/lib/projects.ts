@@ -9,6 +9,8 @@ export type ProjectColor = NonNullable<components["schemas"]["CreateProjectDto"]
 export const PROJECT_STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED"];
 export const PROJECT_COLORS: ProjectColor[] = ["blue", "teal", "green", "amber", "red", "pink", "violet", "slate"];
 export const MAX_FAVORITES = 5; // the API enforces the same limit
+/** FR-PRJ-07: recent activity loads this many at a time. */
+export const ACTIVITY_PAGE = 20;
 
 /** FR-PRJ-03: word initials without diacritics ("Thiết kế web" → TKW); one word → its first 3 letters. */
 export function suggestKey(name: string): string {

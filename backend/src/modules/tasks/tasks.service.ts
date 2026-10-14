@@ -27,6 +27,8 @@ const include = {
   project: { select: { key: true } },
   assignee: PERSON_SELECT,
   labels: { select: { label: true }, orderBy: { label: { name: 'asc' } } },
+  milestone: { select: { id: true, name: true, deletedAt: true } },
+  _count: { select: { attachments: { where: { deletedAt: null } } } },
 } satisfies Prisma.TaskInclude;
 
 type TaskRow = Prisma.TaskGetPayload<{ include: typeof include }>;
@@ -69,6 +71,8 @@ function toDto(t: TaskRow): TaskDto {
     completedAt: t.completedAt,
     position: t.position,
     labels: t.labels.map((l) => l.label),
+    milestoneId: t.milestoneId,
+    attachmentCount: t._count.attachments,
     createdAt: t.createdAt,
     updatedAt: t.updatedAt,
   };
@@ -80,6 +84,9 @@ const due = (t: { dueDate: Date | null; dueTime: string | null }): Value =>
   t.dueDate ? [fromDate(t.dueDate), t.dueTime].filter(Boolean).join(' ') : null;
 const person = (p: { id: string; name: string } | null): Value =>
   p ? { id: p.id, name: p.name } : null;
+// A milestone in Trash reads as none, as it does in the panel.
+const milestone = (m: TaskRow['milestone']): Value =>
+  m && !m.deletedAt ? person(m) : null;
 const same = (a: Value, b: Value) => JSON.stringify(a) === JSON.stringify(b);
 const json = (v: Value) => (v === null ? Prisma.JsonNull : v);
 
@@ -231,6 +238,9 @@ export class TasksService {
     if (dto.dueTime && !dto.dueDate) throw dueTimeWithoutDate();
     if (dto.labelIds) await this.assertLabels(dto.labelIds);
     if (dto.parentId) await this.assertParent(dto.parentId, dto.projectId);
+    if (dto.milestoneId) {
+      await this.assertMilestone(dto.milestoneId, dto.projectId);
+    }
     const status = dto.status ?? 'TODO';
 
     const task = await this.prisma.$transaction(async (tx) => {
@@ -259,6 +269,7 @@ export class TasksService {
           dueTime: dto.dueDate ? dto.dueTime : null,
           completedAt: status === 'DONE' ? new Date() : null,
           position: (_max.position ?? 0) + 1,
+          milestoneId: dto.milestoneId,
           labels: dto.labelIds && {
             create: [...new Set(dto.labelIds)].map((labelId) => ({ labelId })),
           },
@@ -289,6 +300,9 @@ export class TasksService {
     const before = await this.findWritable(id);
     if (dto.assigneeId) await this.assertUser(dto.assigneeId);
     if (dto.labelIds) await this.assertLabels(dto.labelIds);
+    if (dto.milestoneId) {
+      await this.assertMilestone(dto.milestoneId, before.projectId);
+    }
     const dueDate = toDate(dto.dueDate);
     const keepsDate =
       dueDate === undefined ? before.dueDate !== null : dueDate !== null;
@@ -306,6 +320,7 @@ export class TasksService {
           status: dto.status,
           priority: dto.priority,
           assigneeId: dto.assigneeId,
+          milestoneId: dto.milestoneId,
           dueDate,
           // Clearing the date clears its time.
           dueTime: dueDate === null ? null : dto.dueTime,
@@ -329,6 +344,7 @@ export class TasksService {
         ['task.priority', before.priority, t.priority],
         ['task.assignee', person(before.assignee), person(t.assignee)],
         ['task.dueDate', due(before), due(t)],
+        ['task.milestone', milestone(before.milestone), milestone(t.milestone)],
         [
           'task.labels',
           before.labels.map((l) => l.label.name),
@@ -493,6 +509,18 @@ export class TasksService {
       throw new BadRequestException({
         code: 'SUBTASK_DEPTH',
         message: 'A subtask cannot have subtasks',
+      });
+    }
+  }
+
+  private async assertMilestone(id: string, projectId: string) {
+    const count = await this.prisma.milestone.count({
+      where: { id, projectId, deletedAt: null },
+    });
+    if (!count) {
+      throw new NotFoundException({
+        code: 'MILESTONE_NOT_FOUND',
+        message: 'Milestone not found',
       });
     }
   }

@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
@@ -22,6 +23,7 @@ import {
   type AuthUser,
 } from '../../common/decorators/current-user.decorator';
 import { UserDto } from '../auth/dto/login.dto';
+import { MemberDto, ResetPasswordDto } from './dto/member.dto';
 import { PersonDto } from './dto/person.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
@@ -115,5 +117,26 @@ export class PeopleController {
   @Get()
   list(): Promise<PersonDto[]> {
     return this.users.people();
+  }
+}
+
+// FR-SET-06, FR-AUTH-02: any member may reset any other member's password (no roles).
+@Controller('members')
+export class MembersController {
+  constructor(private readonly users: UsersService) {}
+
+  @Get()
+  list(): Promise<MemberDto[]> {
+    return this.users.members();
+  }
+
+  @Post(':id/password')
+  @HttpCode(204)
+  resetPassword(
+    @CurrentUser() user: AuthUser,
+    @Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 })) id: string,
+    @Body() dto: ResetPasswordDto,
+  ): Promise<void> {
+    return this.users.resetPassword(user.id, id, dto.password);
   }
 }

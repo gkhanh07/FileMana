@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Paperclip } from "lucide-react";
 import {
   closestCorners,
   DndContext,
@@ -271,7 +272,7 @@ function SortableCard({
   );
 }
 
-// FR-TASK-08. ponytail: no comment/file counts until comments (F12) and attachments (F13) exist.
+// FR-TASK-08: comment counts wait for the comments feature.
 function Card({
   task,
   timeZone,
@@ -314,6 +315,7 @@ function Card({
         </span>
         <PriorityIcon priority={task.priority} />
         <TaskDue task={task} timeZone={timeZone} />
+        {task.attachmentCount > 0 && <span className="flex items-center gap-1" aria-label={strings.files.attachmentCount(task.attachmentCount)}><Paperclip aria-hidden className="size-3" />{task.attachmentCount}</span>}
         {task.assignee && (
           <UserAvatar
             user={task.assignee}

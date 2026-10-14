@@ -10,7 +10,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export async function api<T = void>(
   path: string,
-  options: { method?: string; body?: unknown } = {},
+  options: { method?: string; body?: unknown; keepalive?: boolean } = {},
 ): Promise<T> {
   const json = options.body !== undefined && !(options.body instanceof FormData);
   let res: Response;
@@ -18,6 +18,7 @@ export async function api<T = void>(
     res = await fetch(`${BASE_URL}${path}`, {
       method: options.method ?? "GET",
       credentials: "include",
+      keepalive: options.keepalive,
       // FormData (file uploads) sets its own multipart Content-Type.
       headers: json ? { "Content-Type": "application/json" } : undefined,
       body: json ? JSON.stringify(options.body) : (options.body as FormData | undefined),

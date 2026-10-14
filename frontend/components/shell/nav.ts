@@ -1,4 +1,4 @@
-import { Files, FolderKanban, House, Settings, SquareCheckBig, type LucideIcon } from "lucide-react";
+import { Files, FolderKanban, House, Settings, SquareCheckBig, Users, type LucideIcon } from "lucide-react";
 import { strings } from "@/lib/strings";
 
 // FR-SHELL-02: read by the server layout so the first paint already has the right width.
@@ -11,6 +11,7 @@ export const mainNav: NavItem[] = [
   { href: "/my-tasks", label: strings.nav.myTasks, icon: SquareCheckBig },
   { href: "/projects", label: strings.nav.projects, icon: FolderKanban },
   { href: "/docs", label: strings.nav.docs, icon: Files },
+  { href: "/members", label: strings.nav.members, icon: Users },
 ];
 
 export const settingsNav: NavItem = { href: "/settings", label: strings.nav.settings, icon: Settings };

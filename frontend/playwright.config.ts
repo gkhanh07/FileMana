@@ -18,7 +18,7 @@ export default defineConfig({
     },
     {
       command: "npx next build && npx next start -p 3100",
-      env: { NEXT_PUBLIC_API_URL: API, API_URL: API, NEXT_DIST_DIR: ".next-e2e" },
+      env: { NEXT_PUBLIC_API_URL: API, API_URL: API, NEXT_DIST_DIR: ".next/e2e" },
       url: `${WEB}/sign-in`,
       timeout: 300_000,
     },

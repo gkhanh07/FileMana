@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_signUp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/logout": {
         parameters: {
             query?: never;
@@ -180,6 +196,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MembersController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/members/{id}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MembersController_resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/projects": {
         parameters: {
             query?: never;
@@ -210,6 +258,38 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["ProjectsController_update"];
+        trace?: never;
+    };
+    "/projects/{id}/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProjectsController_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProjectsController_activity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/projects/{id}/archive": {
@@ -452,6 +532,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/items/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ItemsController_library"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/roots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ItemsController_roots"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ItemsController_detail"];
+        put?: never;
+        post?: never;
+        delete: operations["ItemsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ItemsController_update"];
+        trace?: never;
+    };
+    "/items/{id}/children": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ItemsController_children"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ItemsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ItemsController_upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ItemsController_restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{id}/raw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ItemsController_raw"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/folder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ItemsController_projectFolder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks/{id}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ItemsController_attachments"];
+        put?: never;
+        post: operations["ItemsController_attach"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/milestones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MilestonesController_list"];
+        put?: never;
+        post: operations["MilestonesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/milestones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["MilestonesController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["MilestonesController_update"];
+        trace?: never;
+    };
+    "/milestones/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MilestonesController_restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -482,6 +770,12 @@ export interface components {
             email: string;
             name: string;
         };
+        SignUpDto: {
+            /** Format: email */
+            email: string;
+            name: string;
+            password: string;
+        };
         UpdateMeDto: {
             theme?: components["schemas"]["Theme"];
             name?: string;
@@ -495,6 +789,20 @@ export interface components {
             avatarUrl: string | null;
             id: string;
             name: string;
+        };
+        /** @enum {string} */
+        UserStatus: "ACTIVE" | "INVITED" | "DEACTIVATED";
+        MemberDto: {
+            jobTitle: string | null;
+            avatarUrl: string | null;
+            status: components["schemas"]["UserStatus"];
+            id: string;
+            name: string;
+            email: string;
+            openTaskCount: number;
+        };
+        ResetPasswordDto: {
+            password: string;
         };
         /** @enum {string} */
         ProjectStatus: "PLANNING" | "ACTIVE" | "ON_HOLD" | "COMPLETED";
@@ -530,6 +838,33 @@ export interface components {
             color?: "blue" | "teal" | "green" | "amber" | "red" | "pink" | "violet" | "slate";
             /** Format: uuid */
             ownerId?: string;
+        };
+        ProjectStatsDto: {
+            taskCount: number;
+            todoCount: number;
+            inProgressCount: number;
+            reviewCount: number;
+            doneCount: number;
+            overdueCount: number;
+        };
+        TaskRefDto: {
+            id: string;
+            key: string;
+            title: string;
+        };
+        ProjectActivityDto: {
+            oldValue: Record<string, never> | null;
+            newValue: Record<string, never> | null;
+            task: components["schemas"]["TaskRefDto"] | null;
+            id: string;
+            actor: components["schemas"]["PersonDto"];
+            action: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ProjectActivityPageDto: {
+            items: components["schemas"]["ProjectActivityDto"][];
+            hasMore: boolean;
         };
         UpdateProjectDto: {
             status?: components["schemas"]["ProjectStatus"];
@@ -578,6 +913,7 @@ export interface components {
             dueTime: string | null;
             /** Format: date-time */
             completedAt: string | null;
+            milestoneId: string | null;
             id: string;
             key: string;
             number: number;
@@ -585,6 +921,7 @@ export interface components {
             title: string;
             position: number;
             labels: components["schemas"]["LabelDto"][];
+            attachmentCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -605,6 +942,7 @@ export interface components {
             dueTime: string | null;
             /** Format: date-time */
             completedAt: string | null;
+            milestoneId: string | null;
             id: string;
             key: string;
             number: number;
@@ -612,6 +950,7 @@ export interface components {
             title: string;
             position: number;
             labels: components["schemas"]["LabelDto"][];
+            attachmentCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -630,16 +969,13 @@ export interface components {
             dueDate?: string | null;
             dueTime?: string | null;
             /** Format: uuid */
+            milestoneId?: string | null;
+            /** Format: uuid */
             projectId: string;
             title: string;
             labelIds?: string[];
             /** Format: uuid */
             parentId?: string;
-        };
-        TaskRefDto: {
-            id: string;
-            key: string;
-            title: string;
         };
         TaskProjectDto: {
             id: string;
@@ -656,6 +992,7 @@ export interface components {
             dueTime: string | null;
             /** Format: date-time */
             completedAt: string | null;
+            milestoneId: string | null;
             description: Record<string, never>[] | null;
             parent: components["schemas"]["TaskRefDto"] | null;
             project: components["schemas"]["TaskProjectDto"];
@@ -668,6 +1005,7 @@ export interface components {
             title: string;
             position: number;
             labels: components["schemas"]["LabelDto"][];
+            attachmentCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -691,12 +1029,111 @@ export interface components {
             assigneeId?: string | null;
             dueDate?: string | null;
             dueTime?: string | null;
+            /** Format: uuid */
+            milestoneId?: string | null;
             labelIds?: string[];
             title?: string;
             status?: components["schemas"]["TaskStatus"];
             priority?: components["schemas"]["TaskPriority"];
             description?: Record<string, never>[] | null;
             position?: number;
+        };
+        /** @enum {string} */
+        ItemKind: "FOLDER" | "FILE";
+        ItemProjectDto: {
+            id: string;
+            key: string;
+            name: string;
+            color: string;
+            archived: boolean;
+        };
+        ItemRefDto: {
+            id: string;
+            name: string;
+        };
+        ItemTaskDto: {
+            status: components["schemas"]["TaskStatus"];
+            id: string;
+            key: string;
+            title: string;
+        };
+        ItemDetailDto: {
+            kind: components["schemas"]["ItemKind"];
+            creator: components["schemas"]["PersonDto"] | null;
+            size: number | null;
+            url: string | null;
+            project: components["schemas"]["ItemProjectDto"] | null;
+            mimeType: string | null;
+            path: components["schemas"]["ItemRefDto"][];
+            readOnly: boolean;
+            tasks: components["schemas"]["ItemTaskDto"][];
+            id: string;
+            name: string;
+            childCount: number;
+            locked: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        RootDto: {
+            kind: components["schemas"]["ItemKind"];
+            creator: components["schemas"]["PersonDto"] | null;
+            size: number | null;
+            url: string | null;
+            project: components["schemas"]["ItemProjectDto"] | null;
+            id: string;
+            name: string;
+            childCount: number;
+            locked: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ItemDto: {
+            kind: components["schemas"]["ItemKind"];
+            creator: components["schemas"]["PersonDto"] | null;
+            size: number | null;
+            url: string | null;
+            id: string;
+            name: string;
+            childCount: number;
+            locked: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ItemsPageDto: {
+            items: components["schemas"]["ItemDto"][];
+            hasMore: boolean;
+        };
+        CreateItemDto: {
+            /** Format: uuid */
+            parentId?: string;
+            name?: string;
+        };
+        UpdateItemDto: {
+            name?: string;
+            /** Format: uuid */
+            parentId?: string;
+        };
+        MilestoneDto: {
+            id: string;
+            projectId: string;
+            name: string;
+            date: string;
+            taskCount: number;
+            doneCount: number;
+        };
+        CreateMilestoneDto: {
+            name: string;
+            date: string;
+        };
+        UpdateMilestoneDto: {
+            name?: string;
+            date?: string;
         };
     };
     responses: never;
@@ -778,6 +1215,29 @@ export interface operations {
         };
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserDto"];
+                };
+            };
+        };
+    };
+    AuthController_signUp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignUpDto"];
+            };
+        };
+        responses: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -960,6 +1420,48 @@ export interface operations {
             };
         };
     };
+    MembersController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"][];
+                };
+            };
+        };
+    };
+    MembersController_resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     ProjectsController_list: {
         parameters: {
             query?: never;
@@ -1067,6 +1569,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProjectDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectStatsDto"];
+                };
+            };
+        };
+    };
+    ProjectsController_activity: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectActivityPageDto"];
                 };
             };
         };
@@ -1456,6 +2003,397 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LabelDto"][];
+                };
+            };
+        };
+    };
+    ItemsController_library: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+        };
+    };
+    ItemsController_roots: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RootDto"][];
+                };
+            };
+        };
+    };
+    ItemsController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+        };
+    };
+    ItemsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ItemsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateItemDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+        };
+    };
+    ItemsController_children: {
+        parameters: {
+            query?: {
+                type?: "all" | "files";
+                q?: string;
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemsPageDto"];
+                };
+            };
+        };
+    };
+    ItemsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDto"];
+                };
+            };
+        };
+    };
+    ItemsController_upload: {
+        parameters: {
+            query?: {
+                parentId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDto"];
+                };
+            };
+        };
+    };
+    ItemsController_restore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDto"];
+                };
+            };
+        };
+    };
+    ItemsController_raw: {
+        parameters: {
+            query: {
+                exp: string;
+                sig: string;
+                dl?: "1";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ItemsController_projectFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+        };
+    };
+    ItemsController_attachments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDto"][];
+                };
+            };
+        };
+    };
+    ItemsController_attach: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDto"];
+                };
+            };
+        };
+    };
+    MilestonesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneDto"][];
+                };
+            };
+        };
+    };
+    MilestonesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMilestoneDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneDto"];
+                };
+            };
+        };
+    };
+    MilestonesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MilestonesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMilestoneDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneDto"];
+                };
+            };
+        };
+    };
+    MilestonesController_restore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneDto"];
                 };
             };
         };

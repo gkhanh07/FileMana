@@ -12,6 +12,7 @@ import { join, resolve } from 'node:path';
 import { PrismaService } from '../../prisma/prisma.service';
 import { toAuthUser } from '../auth/auth.service';
 import { UserDto } from '../auth/dto/login.dto';
+import { MemberDto } from './dto/member.dto';
 import { PERSON_SELECT, PersonDto, toPerson } from './dto/person.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 
@@ -39,7 +40,7 @@ function imageExtension(b: Buffer): string | null {
   return null;
 }
 
-// Every method acts on your own account: the id comes from the session, never the client.
+// Methods act on your own account (the id comes from the session), except the member list and reset.
 @Injectable()
 export class UsersService {
   private readonly avatarDir: string;
@@ -61,6 +62,64 @@ export class UsersService {
       ...PERSON_SELECT,
     });
     return users.map(toPerson);
+  }
+
+  async members(): Promise<MemberDto[]> {
+    const users = await this.prisma.user.findMany({
+      orderBy: { name: 'asc' },
+      select: {
+        ...USER_SELECT,
+        status: true,
+        _count: {
+          select: {
+            assignedTasks: {
+              where: {
+                status: { not: 'DONE' },
+                deletedAt: null,
+                project: { deletedAt: null },
+              },
+            },
+          },
+        },
+      },
+    });
+    return users.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      jobTitle: u.jobTitle,
+      avatarUrl: u.avatarFile ? `/avatars/${u.avatarFile}` : null,
+      status: u.status,
+      openTaskCount: u._count.assignedTasks,
+    }));
+  }
+
+  // FR-AUTH-02: signs the member out everywhere. Your own password is changed with the current one.
+  async resetPassword(
+    actorId: string,
+    userId: string,
+    password: string,
+  ): Promise<void> {
+    if (actorId === userId) {
+      throw new BadRequestException({
+        code: 'CANNOT_RESET_SELF',
+        message: 'Change your own password in personal settings',
+      });
+    }
+    const passwordHash = await argon2.hash(password);
+    const [{ count }] = await this.prisma.$transaction([
+      this.prisma.user.updateMany({
+        where: { id: userId },
+        data: { passwordHash },
+      }),
+      this.prisma.session.deleteMany({ where: { userId } }),
+    ]);
+    if (!count) {
+      throw new NotFoundException({
+        code: 'MEMBER_NOT_FOUND',
+        message: 'Member not found',
+      });
+    }
   }
 
   async updateMe(userId: string, dto: UpdateMeDto): Promise<UserDto> {

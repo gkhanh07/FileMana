@@ -8,6 +8,7 @@ export type MyTask = components["schemas"]["MyTaskDto"];
 export type TaskStatus = components["schemas"]["TaskStatus"];
 export type TaskPriority = components["schemas"]["TaskPriority"];
 export type Label = components["schemas"]["LabelDto"];
+export type Milestone = components["schemas"]["MilestoneDto"];
 export type TaskPatch = Omit<components["schemas"]["UpdateTaskDto"], "description"> & { description?: unknown[] | null };
 // JSON columns come through OpenAPI as empty objects; these are the real shapes.
 export type TaskDetail = Omit<components["schemas"]["TaskDetailDto"], "description"> & { description: unknown[] | null };
@@ -19,7 +20,7 @@ export type Activity = Omit<components["schemas"]["ActivityDto"], "oldValue" | "
 export const TASK_STATUSES: TaskStatus[] = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
 export const TASK_PRIORITIES: TaskPriority[] = ["URGENT", "HIGH", "MEDIUM", "LOW"];
 
-export type TaskGroupBy = "status" | "assignee";
+export type TaskGroupBy = "status" | "assignee" | "milestone";
 export type TaskSort = "due" | "priority" | "created";
 /** "none" means unassigned. */
 export type TaskFilters = {
@@ -38,7 +39,7 @@ export type TasksView = { layout: TasksLayout; group: TaskGroupBy; sort: TaskSor
 export function parseTasksView(p: Record<string, string | undefined>): TasksView {
   return {
     layout: p.view === "board" ? "board" : "list",
-    group: p.group === "assignee" ? "assignee" : "status",
+    group: p.group === "assignee" || p.group === "milestone" ? p.group : "status",
     sort: p.sort === "priority" || p.sort === "created" ? p.sort : "due",
     filters: {
       assignee: p.assignee ?? null,
@@ -93,9 +94,17 @@ export function sortTasks<T extends Task>(tasks: T[], sort: TaskSort): T[] {
 
 export type TaskGroup = { key: string; tasks: Task[] };
 
-/** FR-TASK-02. By status: all four, even empty, so each has its "+ Add task" row. By assignee: A–Z, unassigned last. */
-export function groupTasks(tasks: Task[], by: TaskGroupBy): TaskGroup[] {
+/**
+ * FR-TASK-02. By status: all four, even empty, so each has its "+ Add task" row. By assignee: A–Z, unassigned last.
+ * By milestone: every milestone in date order (`milestones` comes sorted), then "none"; a deleted one's tasks land there.
+ */
+export function groupTasks(tasks: Task[], by: TaskGroupBy, milestones: Milestone[] = []): TaskGroup[] {
   if (by === "status") return TASK_STATUSES.map((s) => ({ key: s, tasks: tasks.filter((t) => t.status === s) }));
+  if (by === "milestone") {
+    const ids = new Set(milestones.map((m) => m.id));
+    const of = (t: Task) => (t.milestoneId && ids.has(t.milestoneId) ? t.milestoneId : "none");
+    return [...milestones.map((m) => m.id), "none"].map((key) => ({ key, tasks: tasks.filter((t) => of(t) === key) }));
+  }
   const groups = new Map<string, TaskGroup & { name: string }>();
   for (const t of tasks) {
     const key = t.assignee?.id ?? "none";
@@ -166,6 +175,7 @@ export function groupMyTasks(
 }
 
 const a = strings.tasks.activity;
+const p = strings.projects.overview.projectActivity;
 const dueText = (v: unknown) => {
   if (typeof v !== "string") return strings.tasks.noDue;
   const [date, time] = v.split(" ");
@@ -176,6 +186,10 @@ const dueText = (v: unknown) => {
 export function describeActivity({ action, oldValue, newValue }: Activity): string {
   const t = strings.tasks;
   switch (action) {
+    case "task.attachment":
+      return strings.files.activity.attachment((newValue as { name: string }).name);
+    case "file.uploaded":
+      return strings.files.activity.uploaded((newValue as { name: string }).name);
     case "task.created":
       return a.created;
     case "task.title":
@@ -188,6 +202,18 @@ export function describeActivity({ action, oldValue, newValue }: Activity): stri
       return newValue ? a.assigned((newValue as { name: string }).name) : a.unassigned;
     case "task.dueDate":
       return a.changed(t.fields.due, dueText(oldValue), dueText(newValue));
+    case "task.milestone":
+      return newValue ? a.milestone((newValue as { name: string }).name) : a.noMilestone;
+    case "project.created":
+      return p.created;
+    case "project.archived":
+      return p.archived;
+    case "project.restored":
+      return p.restored;
+    case "member.added":
+      return p.memberAdded((newValue as { name: string }).name);
+    case "member.removed":
+      return p.memberRemoved;
     case "task.labels":
       return a.labels((newValue as string[]).join(", ") || a.noLabels);
     case "task.description":

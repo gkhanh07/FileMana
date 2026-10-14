@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   CurrentUser,
@@ -19,10 +20,13 @@ import {
   CreateProjectDto,
   DeleteProjectDto,
   FavoriteDto,
+  ProjectActivityPageDto,
   ProjectDto,
+  ProjectStatsDto,
   ReorderFavoritesDto,
   UpdateProjectDto,
 } from './dto/project.dto';
+import { PageQuery } from '../tasks/dto/task.dto';
 import { ProjectsService } from './projects.service';
 
 // A malformed id is just a project that doesn't exist.
@@ -51,6 +55,24 @@ export class ProjectsController {
   @Get(':id')
   get(@CurrentUser() user: AuthUser, @Id() id: string): Promise<ProjectDto> {
     return this.projects.get(user.id, id);
+  }
+
+  // FR-PRJ-07: the Overview tab.
+  @Get(':id/stats')
+  stats(
+    @CurrentUser() user: AuthUser,
+    @Id() id: string,
+  ): Promise<ProjectStatsDto> {
+    return this.projects.stats(user.id, id);
+  }
+
+  @Get(':id/activity')
+  activity(
+    @CurrentUser() user: AuthUser,
+    @Id() id: string,
+    @Query() query: PageQuery,
+  ): Promise<ProjectActivityPageDto> {
+    return this.projects.activity(user.id, id, query.offset, query.limit);
   }
 
   @Patch(':id')

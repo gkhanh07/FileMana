@@ -5,9 +5,11 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
-import { CornerLeftUp, Ellipsis, Link2, Maximize2, Plus, Trash2, X } from "lucide-react";
+import { CornerLeftUp, Ellipsis, Flag, Link2, Maximize2, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/shell/user-avatar";
+import { Attachments } from "@/components/files/attachments";
+import { milestonesKey } from "@/components/projects/milestones";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -29,6 +31,7 @@ import {
   TASK_STATUSES,
   type Activity,
   type Label,
+  type Milestone,
   type MyTask,
   type Task,
   type TaskDetail as Detail,
@@ -271,6 +274,9 @@ function Loaded({
           <Prop name={t.fields.label}>
             <LabelsPick task={task} disabled={readOnly} onChange={(labels) => edit({ labelIds: labels.map((l) => l.id) }, { labels })} />
           </Prop>
+          <Prop name={t.fields.milestone}>
+            <MilestonePick task={task} disabled={readOnly} onChange={(milestoneId) => edit({ milestoneId })} />
+          </Prop>
           <Prop name={d.project}>
             <Link href={`/projects/${task.projectId}/tasks`} className="truncate py-1 hover:underline">
               {task.project.name}
@@ -290,10 +296,37 @@ function Loaded({
         </dl>
 
         <Description task={task} readOnly={readOnly} />
+        <Attachments taskId={task.id} readOnly={readOnly} />
         {!task.parentId && <Subtasks task={task} timeZone={timeZone} readOnly={readOnly} onOpen={onOpen} />}
         <ActivityList task={task} timeZone={timeZone} />
       </div>
     </>
+  );
+}
+
+// A deleted milestone shows as none.
+function MilestonePick({
+  task,
+  disabled,
+  onChange,
+}: {
+  task: Task;
+  disabled: boolean;
+  onChange: (milestoneId: string | null) => void;
+}) {
+  const { data = [] } = useQuery({
+    queryKey: milestonesKey(task.projectId),
+    queryFn: () => api<Milestone[]>(`/projects/${task.projectId}/milestones`),
+  });
+  const icon = <Flag aria-hidden className="text-muted-foreground" />;
+  return (
+    <Pick
+      label={t.fields.milestone}
+      disabled={disabled}
+      value={data.find((m) => m.id === task.milestoneId)?.id ?? "none"}
+      options={[{ value: "none", text: t.noMilestone, icon }, ...data.map((m) => ({ value: m.id, text: m.name, icon }))]}
+      onChange={(v) => onChange(v === "none" ? null : v)}
+    />
   );
 }
 

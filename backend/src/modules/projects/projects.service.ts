@@ -12,7 +12,9 @@ import {
   CreateProjectDto,
   FavoriteDto,
   PROJECT_COLORS,
+  ProjectActivityPageDto,
   ProjectDto,
+  ProjectStatsDto,
   UpdateProjectDto,
 } from './dto/project.dto';
 
@@ -84,6 +86,87 @@ export class ProjectsService {
     return this.toDto(await this.find(userId, id));
   }
 
+  // FR-PRJ-07
+  async stats(userId: string, id: string): Promise<ProjectStatsDto> {
+    await this.find(userId, id);
+    const { timezone } = await this.prisma.workspace.findFirstOrThrow({
+      select: { timezone: true },
+    });
+    // en-CA formats as YYYY-MM-DD.
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: timezone });
+    const where = { projectId: id, deletedAt: null, parentId: null };
+    const [counts, overdueCount] = await Promise.all([
+      this.prisma.task.groupBy({ by: ['status'], where, _count: true }),
+      this.prisma.task.count({
+        where: {
+          ...where,
+          status: { not: 'DONE' },
+          dueDate: { lt: new Date(`${today.format(new Date())}T00:00:00Z`) },
+        },
+      }),
+    ]);
+    const count = (s: string) =>
+      counts.find((c) => c.status === s)?._count ?? 0;
+    return {
+      taskCount: counts.reduce((n, c) => n + c._count, 0),
+      todoCount: count('TODO'),
+      inProgressCount: count('IN_PROGRESS'),
+      reviewCount: count('REVIEW'),
+      doneCount: count('DONE'),
+      overdueCount,
+    };
+  }
+
+  // FR-PRJ-07: newest first. Entries about a task carry its key and title so the feed can link it.
+  async activity(
+    userId: string,
+    id: string,
+    offset = 0,
+    limit = 20,
+  ): Promise<ProjectActivityPageDto> {
+    await this.find(userId, id);
+    const rows = await this.prisma.activity.findMany({
+      where: { projectId: id },
+      include: { actor: PERSON_SELECT },
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit + 1,
+    });
+    const page = rows.slice(0, limit);
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        id: {
+          in: page
+            .filter((a) => a.targetType === 'task')
+            .map((a) => a.targetId),
+        },
+      },
+      select: {
+        id: true,
+        number: true,
+        title: true,
+        project: { select: { key: true } },
+      },
+    });
+    return {
+      items: page.map((a) => {
+        const t = tasks.find((t) => t.id === a.targetId);
+        return {
+          id: a.id,
+          actor: toPerson(a.actor),
+          action: a.action,
+          oldValue: a.oldValue,
+          newValue: a.newValue,
+          createdAt: a.createdAt,
+          task: t
+            ? { id: t.id, key: `${t.project.key}-${t.number}`, title: t.title }
+            : null,
+        };
+      }),
+      hasMore: rows.length > limit,
+    };
+  }
+
   async create(userId: string, dto: CreateProjectDto): Promise<ProjectDto> {
     const ownerId = dto.ownerId ?? userId;
     await this.assertUser(ownerId);
@@ -109,6 +192,10 @@ export class ProjectsService {
             },
           },
           include: include(userId),
+        });
+        // FR-FILE-01: its Docs & Files folder.
+        await tx.item.create({
+          data: { kind: 'FOLDER', name: p.name, projectId: p.id },
         });
         await this.log(tx, userId, {
           projectId: p.id,

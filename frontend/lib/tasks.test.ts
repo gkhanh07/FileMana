@@ -15,6 +15,7 @@ import {
   sortTasks,
   weekRange,
   type Activity,
+  type Milestone,
   type MyTask,
   type Task,
 } from "./tasks";
@@ -89,6 +90,17 @@ describe("sortTasks and groupTasks", () => {
     ]);
     expect(groupTasks([a, c, d], "assignee").map((g) => g.key)).toEqual(["y", "x", "none"]);
   });
+  it("groups by milestone in the given order, empty ones too, unknown ones under none", () => {
+    const ms = [{ id: "m1" }, { id: "m2" }] as Milestone[];
+    const x = task({ milestoneId: "m2" });
+    const y = task({ milestoneId: "gone" });
+    const z = task({ milestoneId: null });
+    expect(groupTasks([x, y, z], "milestone", ms).map((g) => [g.key, nums(g.tasks)])).toEqual([
+      ["m1", []],
+      ["m2", [x.number]],
+      ["none", [y.number, z.number]],
+    ]);
+  });
   it("reads the view from the URL and ignores junk", () => {
     expect(
       parseTasksView({ view: "board", group: "assignee", sort: "priority", priority: "HIGH", due: "week" }),
@@ -129,6 +141,9 @@ describe("describeActivity", () => {
     describeActivity({ action, oldValue, newValue } as Activity);
   it("says what changed, in Vietnamese", () => {
     expect(say("task.status", "TODO", "IN_PROGRESS")).toBe("đã đổi trạng thái từ Cần làm sang Đang làm");
+    expect(say("task.milestone", null, { id: "m", name: "Ra mắt" })).toBe("đã chuyển vào cột mốc Ra mắt");
+    expect(say("task.milestone", { id: "m", name: "Ra mắt" }, null)).toBe("đã bỏ cột mốc");
+    expect(say("member.added", null, { name: "Lan" })).toBe("đã thêm Lan vào dự án");
     expect(say("task.dueDate", null, "2026-10-15 14:30")).toBe(
       `đã đổi hạn từ Chưa có hạn sang ${formatDueDate("2026-10-15", "14:30")}`,
     );

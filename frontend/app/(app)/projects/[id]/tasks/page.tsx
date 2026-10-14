@@ -1,6 +1,6 @@
 import { TaskList } from "@/components/tasks/task-list";
 import { getProject, getWorkspace, serverApi } from "@/lib/api/server";
-import { parseTasksView, type Label, type Task } from "@/lib/tasks";
+import { parseTasksView, type Label, type Milestone, type Task } from "@/lib/tasks";
 
 // FR-TASK-01..05
 export default async function ProjectTasksPage({
@@ -11,10 +11,11 @@ export default async function ProjectTasksPage({
   searchParams: Promise<Record<string, string>>;
 }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
-  const [project, tasks, labels, workspace] = await Promise.all([
+  const [project, tasks, labels, milestones, workspace] = await Promise.all([
     getProject(id),
     serverApi<Task[]>(`/projects/${id}/tasks`),
     serverApi<Label[]>("/labels"),
+    serverApi<Milestone[]>(`/projects/${id}/milestones`),
     getWorkspace(),
   ]);
   return (
@@ -24,6 +25,7 @@ export default async function ProjectTasksPage({
       projectId={id}
       initialTasks={tasks}
       labels={labels}
+      initialMilestones={milestones}
       timeZone={workspace.timezone}
       weekStartsOn={workspace.weekStartsOn}
       readOnly={!!project.archivedAt}

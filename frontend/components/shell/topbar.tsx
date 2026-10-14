@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { FileText, FolderKanban, Plus, Search, SquareCheckBig, Upload } from "lucide-react";
+import { FolderKanban, Plus, Search, SquareCheckBig, Upload } from "lucide-react";
 import { ProjectFormDialog } from "@/components/projects/project-form-dialog";
 import { QuickCreateDialog } from "@/components/tasks/quick-create-dialog";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,13 @@ import type { Person } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import { isActive, mainNav, settingsNav } from "./nav";
 import { ThemeMenu } from "./theme-menu";
+import { useUploads } from "@/components/files/upload-provider";
 
 // FR-SHELL-04. Search (⌘K) is a placeholder until it ships; the bell waits for the Inbox (Phase 2).
-// FR-SHELL-05: Create offers Task and Project now; Doc and Upload light up with their features.
+// FR-SHELL-05: uploads go to the current folder, otherwise the Docs & Files page.
 export function Topbar({ me }: { me: Person }) {
   const pathname = usePathname();
+  const { currentFolder, pick } = useUploads();
   const [creating, setCreating] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
 
@@ -66,11 +68,7 @@ export function Topbar({ me }: { me: Person }) {
               <FolderKanban />
               {strings.topbar.createProject}
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>
-              <FileText />
-              {strings.topbar.createDoc}
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled>
+            <DropdownMenuItem disabled={currentFolder?.readOnly} onSelect={() => pick(currentFolder ? { parentId: currentFolder.id } : {})}>
               <Upload />
               {strings.topbar.createUpload}
             </DropdownMenuItem>
