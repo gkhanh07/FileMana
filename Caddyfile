@@ -1,0 +1,14 @@
+# One origin for everything: the web app at /, the API at /api (prefix stripped).
+# SITE_ADDRESS ":80" serves plain HTTP on the server's IP; a domain name (app.example.com)
+# makes Caddy fetch and renew an HTTPS certificate by itself (NFR-04).
+{$SITE_ADDRESS::80} {
+	encode gzip
+
+	handle_path /api/* {
+		reverse_proxy api:3001
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}
