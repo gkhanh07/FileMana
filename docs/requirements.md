@@ -39,7 +39,7 @@ There are no roles: every account has the same rights and sees every project. Wi
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-ROLE-01 | No roles: every account has the same rights. The workspace and its first account are created by the setup seed; everyone else joins by invitation | MVP |
+| FR-ROLE-01 | No roles: every account has the same rights. The workspace and its first account are created by the setup seed; everyone else signs up on their own (FR-AUTH-03) | MVP |
 | FR-ROLE-02 | Everyone can view and edit tasks, files and docs in every non-archived project; archived projects are read-only | MVP |
 | FR-ROLE-03 | Anyone can archive or delete a project | MVP |
 | FR-ROLE-04 | Anyone can delete a task, file or doc; deletes go to Trash for 30 days. Comments are the exception: only their author can edit or delete them (FR-CMT-04) | MVP |
@@ -52,11 +52,13 @@ Every page shares one shell: a sidebar on the left and a top bar. Every screen i
 
 ### Sign-in
 
+**No email (decided 2026-10-13):** the app sends no email in any phase: no invitations, no reset links, no digests (FR-INBOX-09).
+
 | ID | Requirement | Priority |
 |---|---|---|
 | FR-AUTH-01 | Sign in with email and password, with a "remember me" option | MVP |
-| FR-AUTH-02 | Forgot password: send a reset link by email | MVP |
-| FR-AUTH-03 | An invited person opens the email link, sets a name and password, and lands directly in the workspace | MVP |
+| FR-AUTH-02 | Forgot password: another member sets a temporary password for them on the Members page, which signs out all their sessions | MVP |
+| FR-AUTH-03 | Sign up: a sign-up page linked from sign-in; enter email, name and password and land directly in the workspace with the same rights as everyone | MVP |
 | FR-AUTH-04 | Sign in with the company Google account | Phase 2 |
 | FR-AUTH-05 | Two-factor authentication (2FA) | Later |
 
@@ -64,11 +66,11 @@ Every page shares one shell: a sidebar on the left and a top bar. Every screen i
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-SHELL-01 | 240px sidebar with: company logo and name; Home, My Tasks, Inbox (with unread count), Projects, Docs & Files; a Favorites section; Settings and the user avatar at the bottom | MVP |
+| FR-SHELL-01 | 240px sidebar with: company logo and name; Home, My Tasks, Inbox (with unread count), Projects, Docs & Files, Members (moved out of Settings, decided 2026-10-14); a Favorites section; Settings and the user avatar at the bottom | MVP |
 | FR-SHELL-02 | Collapse the sidebar into a 56px icon rail; remember the state for next time | MVP |
 | FR-SHELL-03 | Pin up to 5 projects to Favorites, drag to reorder | MVP |
 | FR-SHELL-04 | 52px top bar: breadcrumb on the left, search field in the center (showing a ⌘K hint), Create button, notification bell and theme toggle on the right | MVP |
-| FR-SHELL-05 | The Create button opens a menu: Task, Project, Doc, Upload file | MVP |
+| FR-SHELL-05 | The Create button opens a menu: Task, Project, Upload file (Doc waits with FR-DOC-01, decided 2026-10-14) | MVP |
 | FR-SHELL-06 | Light, Dark or System theme, saved per user | MVP |
 | FR-SHELL-07 | Every page, task, file and doc has its own URL so links can be shared | MVP |
 | FR-SHELL-08 | Add Calendar to the sidebar when the Calendar feature ships | Phase 2 |
@@ -100,7 +102,7 @@ Home answers one question: what do I need to do today. So the task list always s
 | FR-HOME-05 | Ticking the checkbox moves the task to Done and shows a small toast with Undo | MVP |
 | FR-HOME-06 | Clicking a row opens the task detail panel on the same page | MVP |
 | FR-HOME-07 | Right column "Active projects": up to 5 projects I belong to, with name, progress bar, %, due date | MVP |
-| FR-HOME-08 | Right column "Recent activity": the 5 newest items relevant to me, with a link to Inbox | MVP |
+| FR-HOME-08 | Right column "Recent activity": the 5 newest items relevant to me, with a link to Inbox | Phase 2 |
 | FR-HOME-09 | "Coming up" block: milestones and project deadlines in the next 14 days | Phase 2 |
 
 ### My Tasks
@@ -243,20 +245,20 @@ Multiple assignees per task, recurring tasks, task dependencies (blocking/blocke
 
 ## 7. Docs and Files
 
-Uploaded files and docs written in the app live together in one "Docs & Files" area, so nobody has to guess where to look. Every project automatically has its own folder; a "General" folder holds company-wide material such as processes, policies and templates.
+Uploaded files and docs written in the app live together in one "Docs & Files" area, so nobody has to guess where to look. The Docs & Files page is a free space: anyone adds, renames, moves and deletes folders and files right at its top level. Every project also has its own folder, shown only in that project's Docs & Files tab (decided 2026-10-14). Docs written in the app (FR-DOC-01..05) moved to Later the same day; for now the area holds folders and uploaded files only.
 
 ### File and folder management
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-FILE-01 | The root page shows the General folder and one folder per project; a project's Docs & Files tab opens that project's folder directly | MVP |
+| FR-FILE-01 | The Docs & Files page lists its own folders and files directly, with no fixed folders. A project's Docs & Files tab opens that project's folder, which is not listed on the Docs & Files page | MVP |
 | FR-FILE-02 | Folder breadcrumb, e.g. Docs & Files / Marketing Q4 / Images | MVP |
-| FR-FILE-03 | Folders listed first, then docs and files; columns: type icon, name, creator, last updated, size | MVP |
-| FR-FILE-04 | Quick filters: All, Docs, Files, Favorites, Recent; search by name within the current folder | MVP |
+| FR-FILE-03 | Folders listed first, then files; columns: type icon, name, creator, last updated, size | MVP |
+| FR-FILE-04 | Quick filters: All, Files; search by name within the current folder. No Favorites or Recent filters (decided 2026-10-13) | MVP |
 | FR-FILE-05 | Upload via a button or by dragging multiple files onto the page; max 100 MB per file | MVP |
 | FR-FILE-06 | Upload progress panel in the bottom corner: % per file, cancel per file, clear error when a file is too large | MVP |
-| FR-FILE-07 | Create, rename, delete folders; nested subfolders | MVP |
-| FR-FILE-08 | "…" menu and right-click: preview, download, rename, move, copy link, add to favorites, delete | MVP |
+| FR-FILE-07 | Create, rename, delete folders; nested subfolders. Only a project's own folder cannot be renamed or deleted (it goes with the project) | MVP |
+| FR-FILE-08 | "…" menu and right-click: preview, download, rename, move, copy link, delete | MVP |
 | FR-FILE-09 | Drag files onto a folder to move them | Phase 2 |
 | FR-FILE-10 | Grid view with thumbnails | Phase 2 |
 | FR-FILE-11 | Upload a whole folder, keeping its structure | Phase 2 |
@@ -276,11 +278,11 @@ Uploaded files and docs written in the app live together in one "Docs & Files" a
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-DOC-01 | Create a doc in any folder; a new doc opens immediately with the cursor in the title | MVP |
-| FR-DOC-02 | Block editor; type "/" to insert: heading, paragraph, bulleted and numbered lists, checklist, table, image, file, link, code block, quote, divider | MVP |
-| FR-DOC-03 | Continuous autosave with a "Saving… / Saved" indicator | MVP |
-| FR-DOC-04 | When someone else has the same doc open, show their avatar and warn before overwriting | MVP |
-| FR-DOC-05 | @mentions (send a notification); links to tasks and projects rendered as chips with their status | MVP |
+| FR-DOC-01 | Create a doc in any folder; a new doc opens immediately with the cursor in the title | Later |
+| FR-DOC-02 | Block editor; type "/" to insert: heading, paragraph, bulleted and numbered lists, checklist, table, image, file, link, code block, quote, divider | Later |
+| FR-DOC-03 | Continuous autosave with a "Saving… / Saved" indicator | Later |
+| FR-DOC-04 | When someone else has the same doc open, show their avatar and warn before overwriting | Later |
+| FR-DOC-05 | @mentions (send a notification); links to tasks and projects rendered as chips with their status | Later |
 | FR-DOC-06 | Real-time collaborative editing | Phase 2 |
 | FR-DOC-07 | Select text to comment on it | Phase 2 |
 | FR-DOC-08 | Nested subpages inside a doc, with a page tree in the side bar | Phase 2 |
@@ -293,31 +295,33 @@ All content is internal only: "Copy link" works only for signed-in users. Public
 
 The Inbox only receives what needs the user's attention or action. Nobody is notified about their own actions.
 
+**On hold (decided 2026-10-13):** the whole Inbox and every notification, not built in any phase until the product owner asks for it. The notification parts of other MVP requirements wait with it: the unread count in FR-SHELL-01, the bell in FR-SHELL-04, FR-HOME-08, the notification in FR-CMT-02 and FR-DOC-05 (the @mention itself stays MVP), and "Go to Inbox" in FR-SEARCH-04.
+
 ### Events that create a notification
 
 | Event | Recipient | Priority |
 |---|---|---|
-| Assigned a task | The assignee | MVP |
-| Mentioned with @ in a comment or doc | The mentioned person | MVP |
-| New comment on a task | Task followers | MVP |
-| Task status, due date or assignee changed | Task followers | MVP |
-| Task due in 1 day, or just became overdue | The assignee | MVP |
-| Added to a project | The person added | MVP |
+| Assigned a task | The assignee | Phase 2 |
+| Mentioned with @ in a comment or doc | The mentioned person | Phase 2 |
+| New comment on a task | Task followers | Phase 2 |
+| Task status, due date or assignee changed | Task followers | Phase 2 |
+| Task due in 1 day, or just became overdue | The assignee | Phase 2 |
+| Added to a project | The person added | Phase 2 |
 | Project status or due date changed | Project members | Phase 2 |
 
 ### Requirements
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-INBOX-01 | Two panes: notification list on the left, the related task/doc on the right (editable in place) | MVP |
-| FR-INBOX-02 | Each item: actor avatar, a description ("Minh đã nhắc bạn trong 'Thiết kế trang chủ'"), project, relative time, unread dot | MVP |
-| FR-INBOX-03 | Filters: All, Mentions, Assigned to me, Unread | MVP |
-| FR-INBOX-04 | Several events on the same task are grouped into one item showing the latest event | MVP |
-| FR-INBOX-05 | Opening an item marks it read; mark unread, mark all as read, archive | MVP |
-| FR-INBOX-06 | The bell in the top bar shows the unread count and opens a list of the 10 newest notifications with an "Open Inbox" link | MVP |
-| FR-INBOX-07 | New notifications appear without reloading the page | MVP |
+| FR-INBOX-01 | Two panes: notification list on the left, the related task/doc on the right (editable in place) | Phase 2 |
+| FR-INBOX-02 | Each item: actor avatar, a description ("Minh đã nhắc bạn trong 'Thiết kế trang chủ'"), project, relative time, unread dot | Phase 2 |
+| FR-INBOX-03 | Filters: All, Mentions, Assigned to me, Unread | Phase 2 |
+| FR-INBOX-04 | Several events on the same task are grouped into one item showing the latest event | Phase 2 |
+| FR-INBOX-05 | Opening an item marks it read; mark unread, mark all as read, archive | Phase 2 |
+| FR-INBOX-06 | The bell in the top bar shows the unread count and opens a list of the 10 newest notifications with an "Open Inbox" link | Phase 2 |
+| FR-INBOX-07 | New notifications appear without reloading the page | Phase 2 |
 | FR-INBOX-08 | Snooze a notification and get reminded later (this afternoon, tomorrow) | Phase 2 |
-| FR-INBOX-09 | Daily email digest of unread notifications | Phase 2 |
+| FR-INBOX-09 | Removed: no email (see Sign-in) | Removed |
 | FR-INBOX-10 | Browser push notifications | Phase 2 |
 | FR-INBOX-11 | Users turn each notification type and channel on or off | Phase 2 |
 | FR-INBOX-12 | Forward notifications to Slack, Zalo or Telegram | Later |
@@ -388,7 +392,7 @@ Settings has three groups: Personal, Members and Workspace. All of them are open
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-SET-01 | Profile: avatar, full name, display name, job title | MVP |
+| FR-SET-01 | Profile: avatar, name, job title | MVP |
 | FR-SET-02 | Change password, sign out of all devices | MVP |
 | FR-SET-03 | Light / Dark / System theme | MVP |
 | FR-SET-04 | Notification settings by type and channel (see FR-INBOX-11) | Phase 2 |
@@ -398,8 +402,8 @@ Settings has three groups: Personal, Members and Workspace. All of them are open
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-SET-06 | Member table: avatar, name, job title, email, open task count, status (Active, Invited, Deactivated) | MVP |
-| FR-SET-07 | Invite one or several emails at once; resend or cancel invitations | MVP |
+| FR-SET-06 | Member table: avatar, name, job title, email, open task count, status (Active, Deactivated); a "Reset password" action per member (FR-AUTH-02). Any member can also add an account (with a temporary password), edit a member's name, email and job title, and delete an account that has no projects, tasks, comments or activity (otherwise use FR-SET-09) | MVP |
+| FR-SET-07 | Removed: no invitations, people sign up themselves (see FR-AUTH-03) | Removed |
 | FR-SET-08 | Removed: there are no roles (see FR-ROLE-01) | Removed |
 | FR-SET-09 | Deactivate a member who leaves: they can no longer sign in, their data stays; if they have open tasks, require choosing who takes them over | MVP |
 | FR-SET-10 | Click a member to see their profile page: projects they belong to and open tasks | Phase 2 |
@@ -438,7 +442,7 @@ The interface is in Vietnamese; English meanings are given for reference.
 |---|---|---|---|
 | No tasks today | Bạn không có việc nào đến hạn hôm nay. | You have no tasks due today. | Tạo việc (Create task) |
 | New project with no tasks | Dự án này chưa có công việc nào. | This project has no tasks yet. | Thêm việc đầu tiên (Add the first task) |
-| Empty folder | Kéo tệp vào đây hoặc tạo tài liệu mới. | Drop files here or create a new doc. | Tải lên / Tạo tài liệu (Upload / Create doc) |
+| Empty folder | Kéo tệp vào đây để tải lên. | Drop files here to upload. | Tải lên (Upload) |
 | Empty Inbox | Bạn đã xem hết thông báo. | You're all caught up. | (none) |
 | No search results | Không tìm thấy kết quả cho "…". Thử từ khóa khác. | No results for "…". Try another keyword. | Tạo việc "…" (Create task "…") |
 | File too large | Tệp "…" vượt quá 100 MB nên chưa tải lên được. | "…" is over 100 MB and could not be uploaded. | Chọn tệp khác (Choose another file) |
@@ -481,8 +485,8 @@ The MVP contains everything the team needs to drop their old tools and use the a
 | Projects and milestones | Activity page | Guest role |
 | List, Kanban, task panel | Real-time doc editing | Public share links |
 | Comments, @mentions | Google sign-in | Recurring, dependent tasks |
-| Basic files and docs | Email, push, settings | Time tracking |
-| Inbox, ⌘K search | Mobile layouts | Slack, Zalo integrations |
+| Basic files and docs | Push, settings | Time tracking |
+| ⌘K search | Inbox, mobile layouts | Slack, Zalo integrations |
 | Members, Trash | Private projects | 2FA, English UI |
 
 Gates: MVP → Phase 2 when the team uses the MVP reliably; Phase 2 → Later when a real need appears.

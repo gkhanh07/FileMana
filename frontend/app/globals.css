@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@source "../node_modules/@blocknote/shadcn";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -39,8 +40,23 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --color-status-gray: var(--status-gray);
+  --color-status-blue: var(--status-blue);
+  --color-status-amber: var(--status-amber);
+  --color-status-green: var(--status-green);
+  --color-status-red: var(--status-red);
+  --color-project-blue: var(--project-blue);
+  --color-project-teal: var(--project-teal);
+  --color-project-green: var(--project-green);
+  --color-project-amber: var(--project-amber);
+  --color-project-red: var(--project-red);
+  --color-project-pink: var(--project-pink);
+  --color-project-violet: var(--project-violet);
+  --color-project-slate: var(--project-slate);
+  --color-project-foreground: var(--project-foreground);
+  /* Small radii from design/_ds: 2 / 4 / 7px. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
@@ -49,77 +65,106 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* D5: steel-blue brand and cool neutrals, after design/_ds. Brand is its 700 step:
+     the 600 step (#597ea3) gives white text only 4.2:1, under WCAG AA (NFR-12). */
+  --radius: 7px;
+  --background: #ffffff;
+  --foreground: #1d1f20;
+  --card: #ffffff;
+  --card-foreground: #1d1f20;
+  --popover: #ffffff;
+  --popover-foreground: #1d1f20;
+  --primary: #416180;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f3;
+  --secondary-foreground: #1d1f20;
+  --muted: #f2f2f3;
+  --muted-foreground: #5d5d60;
+  --accent: #e9e9ea;
+  --accent-foreground: #1d1f20;
+  --destructive: #dc2626;
+  --border: #e7e7ea;
+  --input: #d4d4d7;
+  --ring: #597ea3;
+  --chart-1: #2c455d;
+  --chart-2: #416180;
+  --chart-3: #597ea3;
+  --chart-4: #94bce3;
+  --chart-5: #b7b7ba;
+  --sidebar: #f1f4f8;
+  --sidebar-foreground: #1d1f20;
+  --sidebar-primary: #416180;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e3e9f0;
+  --sidebar-accent-foreground: #1d1f20;
+  --sidebar-border: #e7e7ea;
+  --sidebar-ring: #597ea3;
+  /* Status colors (CLAUDE.md, Product Rules): always a dot or badge next to a text label.
+     Each passes 4.5:1 as text on the background. */
+  --status-gray: #6b7280;
+  --status-blue: #2563eb;
+  --status-amber: #b45309;
+  --status-green: #15803d;
+  --status-red: #dc2626;
+  /* Project icon squares (FR-PRJ-01), after design/Projects. Decoration only, not status;
+     white letters on every one, in both themes. */
+  --project-blue: oklch(0.55 0.11 255);
+  --project-teal: oklch(0.55 0.09 190);
+  --project-green: oklch(0.55 0.1 145);
+  --project-amber: oklch(0.6 0.12 65);
+  --project-red: oklch(0.55 0.13 25);
+  --project-pink: oklch(0.55 0.12 350);
+  --project-violet: oklch(0.52 0.11 295);
+  --project-slate: oklch(0.52 0.03 250);
+  --project-foreground: #ffffff;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #1b1b1d;
+  --foreground: #f5f5f8;
+  --card: #232325;
+  --card-foreground: #f5f5f8;
+  --popover: #2b2b2d;
+  --popover-foreground: #f5f5f8;
+  --primary: #94bce3;
+  --primary-foreground: #1d2d3d;
+  --secondary: #2b2b2d;
+  --secondary-foreground: #f5f5f8;
+  --muted: #2b2b2d;
+  --muted-foreground: #b7b7ba;
+  --accent: #333336;
+  --accent-foreground: #f5f5f8;
+  --destructive: #f87171;
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #94bce3;
+  --chart-1: #d6ebff;
+  --chart-2: #b5d9fd;
+  --chart-3: #94bce3;
+  --chart-4: #597ea3;
+  --chart-5: #5d5d60;
+  --sidebar: #1e2126;
+  --sidebar-foreground: #f5f5f8;
+  --sidebar-primary: #94bce3;
+  --sidebar-primary-foreground: #1d2d3d;
+  --sidebar-accent: #283039;
+  --sidebar-accent-foreground: #f5f5f8;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #94bce3;
+  --status-gray: #9ca3af;
+  --status-blue: #60a5fa;
+  --status-amber: #fbbf24;
+  --status-green: #4ade80;
+  --status-red: #f87171;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
+  }
+  /* FR-UI-08: anything focusable without its own ring still shows one. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2;
   }
   body {
     @apply bg-background text-foreground;
@@ -130,4 +175,10 @@
   h1, h2, h3, h4 {
     @apply font-heading font-semibold;
   }
+}
+
+/* BlockNote paints its own editor colors; use the app's so editors sit on the page in both themes. */
+.bn-container.bn-root[data-color-scheme] {
+  --bn-colors-editor-background: var(--background);
+  --bn-colors-editor-text: var(--foreground);
 }

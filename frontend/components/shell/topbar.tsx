@@ -1,0 +1,99 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { FolderKanban, Plus, Search, SquareCheckBig, Upload } from "lucide-react";
+import { ProjectFormDialog } from "@/components/projects/project-form-dialog";
+import { QuickCreateDialog } from "@/components/tasks/quick-create-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { Person } from "@/lib/projects";
+import { strings } from "@/lib/strings";
+import { isActive, mainNav, settingsNav } from "./nav";
+import { SearchPalette } from "./search-palette";
+import { ThemeMenu } from "./theme-menu";
+import { useUploads } from "@/components/files/upload-provider";
+
+// FR-SHELL-04. The bell waits for the Inbox (on hold).
+// FR-SHELL-05: uploads go to the current folder, otherwise the Docs & Files page.
+export function Topbar({ me, timeZone }: { me: Person; timeZone: string }) {
+  const pathname = usePathname();
+  const { currentFolder, pick } = useUploads();
+  const [creating, setCreating] = useState(false);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [searching, setSearching] = useState(false);
+
+  // FR-TASK-21: C opens quick create, unless the user is typing or another dialog is open.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // FR-SEARCH-01: Ctrl/⌘+K works everywhere, even while typing.
+      if (e.key.toLowerCase() === "k" && (e.ctrlKey || e.metaKey) && !e.altKey) {
+        e.preventDefault();
+        setSearching((open) => !open);
+        return;
+      }
+      if (e.key.toLowerCase() !== "c" || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+      const el = e.target as HTMLElement;
+      if (el.isContentEditable || el.closest("input, textarea, select, [role=dialog], [role=menu]")) return;
+      if (document.querySelector("[role=dialog], [role=alertdialog]")) return;
+      e.preventDefault();
+      setCreatingTask(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+  const current = [...mainNav, settingsNav].find((item) => isActive(item.href, pathname));
+
+  return (
+    <header className="sticky top-0 z-10 flex h-13 shrink-0 items-center gap-4 border-b bg-background pr-4 pl-6">
+      <nav aria-label={strings.topbar.breadcrumb} className="min-w-0 flex-1 truncate text-sm font-medium">
+        {current && <span aria-current="page">{current.label}</span>}
+      </nav>
+      <Button variant="outline" onClick={() => setSearching(true)} className="w-96 justify-start font-normal text-muted-foreground">
+        <Search />
+        <span className="flex-1 text-left">{strings.topbar.search}</span>
+        <kbd className="rounded-sm border bg-background px-1.5 font-sans text-xs">⌘K</kbd>
+      </Button>
+      <div className="flex flex-1 items-center justify-end gap-1">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="mr-2">
+              <Plus />
+              {strings.topbar.create}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem onSelect={() => setCreatingTask(true)}>
+              <SquareCheckBig />
+              {strings.topbar.createTask}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setCreating(true)}>
+              <FolderKanban />
+              {strings.topbar.createProject}
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={currentFolder?.readOnly} onSelect={() => pick(currentFolder ? { parentId: currentFolder.id } : {})}>
+              <Upload />
+              {strings.topbar.createUpload}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {searching && (
+          <SearchPalette
+            onClose={() => setSearching(false)}
+            onCreateTask={() => setCreatingTask(true)}
+            onCreateProject={() => setCreating(true)}
+            timeZone={timeZone}
+          />
+        )}
+        <ProjectFormDialog open={creating} onOpenChange={setCreating} />
+        <QuickCreateDialog open={creatingTask} onOpenChange={setCreatingTask} me={me} />
+        <ThemeMenu />
+      </div>
+    </header>
+  );
+}

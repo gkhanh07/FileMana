@@ -29,6 +29,15 @@ export class Env {
   )
   @IsBoolean()
   COOKIE_SECURE: boolean = false;
+
+  // Uploaded files live here (a Docker volume in production), never in the database.
+  @IsString()
+  UPLOAD_DIR: string = 'uploads';
+
+  // NFR-04: sign-in and sign-up tries per minute per IP. Only the Playwright API raises it.
+  @IsInt()
+  @Min(1)
+  THROTTLE_LIMIT: number = 20;
 }
 
 export function validateEnv(raw: Record<string, unknown>): Env {

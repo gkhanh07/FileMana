@@ -74,6 +74,9 @@ describe('Auth (e2e)', () => {
       id: expect.any(String) as string,
       email: 'an@example.com',
       name: 'An',
+      theme: 'system',
+      jobTitle: null,
+      avatarUrl: null,
     });
     const cookie = cookieOf(res);
     expect(cookie).toMatch(/^sid=/);
@@ -108,7 +111,7 @@ describe('Auth (e2e)', () => {
   it('ends an unticked session after 24 hours on the server', async () => {
     const cookie = cookieOf(await login('an@example.com', PASSWORD));
     await prisma.session.updateMany({
-      where: { remember: false },
+      where: { remember: false, user: { email: 'an@example.com' } },
       data: { expiresAt: new Date(Date.now() - 1000) },
     });
     await http().get('/me').set('Cookie', cookie).expect(401);
@@ -137,6 +140,85 @@ describe('Auth (e2e)', () => {
   it('signing out with no or an expired session still succeeds and clears the cookie', async () => {
     const res = await http().post('/auth/logout').expect(204);
     expect(String(res.headers['set-cookie'])).toMatch(/sid=;/);
+  });
+
+  // FR-AUTH-03
+  it('signs up into the workspace with a session; the email must be free', async () => {
+    const signUp = (body: object) => http().post('/auth/signup').send(body);
+    const res = await signUp({
+      email: ' Moi@Example.com',
+      name: '  Mới  ',
+      password: 'new-password-1',
+    }).expect(201);
+    expect(res.body).toMatchObject({ email: 'moi@example.com', name: 'Mới' });
+    expect(JSON.stringify(res.body)).not.toMatch(/password/i);
+    await http().get('/me').set('Cookie', cookieOf(res)).expect(200);
+    await login('moi@example.com', 'new-password-1').expect(200);
+
+    const taken = await signUp({
+      email: 'an@example.com',
+      name: 'X',
+      password: 'new-password-1',
+    }).expect(409);
+    expect(taken.body).toMatchObject({ code: 'EMAIL_TAKEN' });
+    await signUp({
+      email: 'x@example.com',
+      name: ' ',
+      password: 'short',
+    }).expect(400);
+    await signUp({
+      email: 'x@example.com',
+      name: 'X',
+      password: 'new-password-1',
+      role: 'ADMIN',
+    }).expect(400);
+  });
+
+  // FR-SET-06, FR-AUTH-02
+  it('lists members; another member resets a password and signs them out everywhere', async () => {
+    const passwordHash = await argon2.hash(PASSWORD);
+    const quen = await prisma.user.create({
+      data: { email: 'quen@example.com', name: 'Quên', passwordHash },
+    });
+    const helper = cookieOf(await login('an@example.com', PASSWORD));
+    const before = cookieOf(await login('quen@example.com', PASSWORD, true));
+
+    const list = await http().get('/members').set('Cookie', helper).expect(200);
+    const row = (list.body as { email: string }[]).find(
+      (m) => m.email === 'quen@example.com',
+    );
+    expect(row).toEqual({
+      id: quen.id,
+      name: 'Quên',
+      email: 'quen@example.com',
+      jobTitle: null,
+      avatarUrl: null,
+      status: 'ACTIVE',
+      openTaskCount: 0,
+    });
+    await http().get('/members').expect(401);
+
+    const reset = (id: string, password: string) =>
+      http()
+        .post(`/members/${id}/password`)
+        .set('Cookie', helper)
+        .send({ password });
+    await reset(quen.id, 'short').expect(400);
+    await reset(quen.id, 'temporary-123').expect(204);
+    await http().get('/me').set('Cookie', before).expect(401);
+    await login('quen@example.com', PASSWORD).expect(401);
+    await login('quen@example.com', 'temporary-123').expect(200);
+
+    const self = await http().get('/me').set('Cookie', helper);
+    const own = await reset((self.body as { id: string }).id, 'temporary-123');
+    expect(own.status).toBe(400);
+    expect(own.body).toMatchObject({ code: 'CANNOT_RESET_SELF' });
+    await reset('abc', 'temporary-123').expect(404);
+    const missing = await reset(
+      '00000000-0000-4000-8000-000000000000',
+      'temporary-123',
+    ).expect(404);
+    expect(missing.body).toMatchObject({ code: 'MEMBER_NOT_FOUND' });
   });
 
   it('rate-limits sign-in per IP (last: it exhausts the limiter)', async () => {

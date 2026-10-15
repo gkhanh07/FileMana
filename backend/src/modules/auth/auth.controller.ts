@@ -11,7 +11,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
 import { AuthService, SESSION_COOKIE } from './auth.service';
-import { LoginDto, UserDto } from './dto/login.dto';
+import { LoginDto, SignUpDto, UserDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +30,23 @@ export class AuthController {
       dto.email,
       dto.password,
       dto.remember ?? false,
+    );
+    this.auth.setCookie(res, token, renewal);
+    return user;
+  }
+
+  // FR-AUTH-03: rate-limited like sign-in.
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Post('signup')
+  async signUp(
+    @Body() dto: SignUpDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<UserDto> {
+    const { token, renewal, user } = await this.auth.signUp(
+      dto.email,
+      dto.name,
+      dto.password,
     );
     this.auth.setCookie(res, token, renewal);
     return user;

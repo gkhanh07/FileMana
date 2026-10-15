@@ -1,7 +1,8 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import type { User } from "./client";
+import { notFound, redirect } from "next/navigation";
+import type { Project } from "@/lib/projects";
+import type { User, Workspace } from "./client";
 import { ApiError, readApiError } from "./error";
 
 // Server Components call the API directly (over the compose network) and forward the session cookie.
@@ -29,6 +30,18 @@ export const getMe = cache(async () => {
     return await serverApi<User>("/me");
   } catch (e) {
     if (e instanceof ApiError && e.statusCode === 401) redirect("/sign-in");
+    throw e;
+  }
+});
+
+export const getWorkspace = cache(() => serverApi<Workspace>("/workspace"));
+
+// The project layout and its tabs share one call; a missing project is a 404 page.
+export const getProject = cache(async (id: string) => {
+  try {
+    return await serverApi<Project>(`/projects/${id}`);
+  } catch (e) {
+    if (e instanceof ApiError && e.statusCode === 404) notFound();
     throw e;
   }
 });

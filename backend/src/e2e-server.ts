@@ -8,6 +8,8 @@ async function main() {
     SEED_EMAIL: 'e2e@filemana.test',
     SEED_NAME: 'E2E',
     SEED_PASSWORD: 'e2e-password-123',
+    // Every spec signs in on its own; the real limit would trip the suite.
+    THROTTLE_LIMIT: '1000',
   });
   execSync('node dist/seed.js', { env: process.env, stdio: 'inherit' });
   await import('./main.js');
