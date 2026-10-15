@@ -1,0 +1,59 @@
+# Lint, typecheck and tests for every PR; deploy.yml runs it again before shipping main.
+name: CI
+
+on:
+  pull_request:
+  workflow_call:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    services:
+      db:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: filemana
+          POSTGRES_PASSWORD: filemana
+          POSTGRES_DB: filemana
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U filemana -d filemana"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      # A throwaway CI database; the tests rebuild filemana_test inside it.
+      DATABASE_URL: postgresql://filemana:filemana@localhost:5432/filemana
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Backend
+        working-directory: backend
+        run: |
+          npm ci
+          npx prisma generate
+          npx eslint "{src,test}/**/*.ts"
+          npx tsc --noEmit
+          npm test
+          npm run test:e2e
+
+      - name: Frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npx eslint .
+          npx tsc --noEmit
+          npm test
+
+      - name: Browser smoke tests
+        working-directory: frontend
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
