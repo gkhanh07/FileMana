@@ -1,5 +1,5 @@
 # main → CI → images on GHCR tagged with the commit → the VPS pulls and restarts.
-# Rollback: on the VPS, IMAGE_TAG=<older sha> docker compose -f docker-compose.prod.yml up -d
+# Rollback: on the VPS, set IMAGE_TAG=<older sha> in .env, then docker compose -f docker-compose.prod.yml up -d
 # (a release that changed the database also needs the backup from before it).
 name: Deploy
 
@@ -93,7 +93,7 @@ jobs:
             set -e
             cd /opt/filemana
             echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin
-            export IMAGE_TAG=${{ github.sha }} REGISTRY=ghcr.io/${{ github.repository_owner }}
+            sed -i '/^IMAGE_TAG=/d' .env && echo 'IMAGE_TAG=${{ github.sha }}' >> .env
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             docker logout ghcr.io
