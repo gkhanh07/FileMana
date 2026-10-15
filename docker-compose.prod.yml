@@ -1,6 +1,6 @@
-# Production on the VPS (/opt/filemana): images built by .github/workflows/deploy.yml, Caddy in front.
+# Production on the VPS: /opt/filemana is a clone of the repo, built there by each deploy
+# (.github/workflows/deploy.yml checks out the commit and runs up -d --build). Caddy in front.
 # Only Caddy publishes a port; db, api and web are reachable only inside the compose network.
-# IMAGE_TAG (a commit sha) is written into .env by each deploy; change it there to roll back.
 
 services:
   db:
@@ -19,7 +19,9 @@ services:
 
   # Runs on every deploy: pending migrations, then the seed (which changes nothing that exists).
   migrate:
-    image: ghcr.io/gkhanh07/filemana-migrate:${IMAGE_TAG:?IMAGE_TAG missing from .env}
+    build:
+      context: ./backend
+      target: build
     command: sh -c "npx prisma migrate deploy && node dist/seed.js"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
@@ -32,7 +34,9 @@ services:
         condition: service_healthy
 
   api:
-    image: ghcr.io/gkhanh07/filemana-api:${IMAGE_TAG:?IMAGE_TAG missing from .env}
+    build:
+      context: ./backend
+      target: runtime
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
@@ -48,7 +52,11 @@ services:
         condition: service_completed_successfully
 
   web:
-    image: ghcr.io/gkhanh07/filemana-web:${IMAGE_TAG:?IMAGE_TAG missing from .env}
+    build:
+      context: ./frontend
+      args:
+        # Public, baked into the browser bundle at build time.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL missing from .env}
     restart: unless-stopped
     environment:
       API_URL: http://api:3001
