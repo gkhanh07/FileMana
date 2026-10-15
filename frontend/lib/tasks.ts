@@ -222,6 +222,8 @@ export function describeActivity({ action, oldValue, newValue }: Activity): stri
       return a.deleted;
     case "task.restored":
       return a.restored;
+    case "task.commented":
+      return a.commented;
     default:
       return action;
   }

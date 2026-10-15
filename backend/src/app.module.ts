@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthGuard } from './common/guards/auth.guard';
 import { validateEnv } from './config/env';
@@ -9,6 +10,9 @@ import { ClientErrorsController } from './modules/client-errors/client-errors.co
 import { HealthController } from './modules/health/health.controller';
 import { ItemsModule } from './modules/items/items.module';
 import { MilestonesModule } from './modules/milestones/milestones.module';
+import { CommentsModule } from './modules/comments/comments.module';
+import { SearchModule } from './modules/search/search.module';
+import { TrashModule } from './modules/trash/trash.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { UsersModule } from './modules/users/users.module';
@@ -29,6 +33,8 @@ import { PrismaModule } from './prisma/prisma.module';
         { ttl: 60_000, limit: config.get<number>('THROTTLE_LIMIT', 20) },
       ],
     }),
+    // NFR-08: the daily Trash purge.
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -36,6 +42,9 @@ import { PrismaModule } from './prisma/prisma.module';
     TasksModule,
     ItemsModule,
     MilestonesModule,
+    CommentsModule,
+    SearchModule,
+    TrashModule,
   ],
   controllers: [HealthController, WorkspaceController, ClientErrorsController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],

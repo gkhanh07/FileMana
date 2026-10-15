@@ -15,20 +15,28 @@ import {
 import type { Person } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import { isActive, mainNav, settingsNav } from "./nav";
+import { SearchPalette } from "./search-palette";
 import { ThemeMenu } from "./theme-menu";
 import { useUploads } from "@/components/files/upload-provider";
 
-// FR-SHELL-04. Search (⌘K) is a placeholder until it ships; the bell waits for the Inbox (Phase 2).
+// FR-SHELL-04. The bell waits for the Inbox (on hold).
 // FR-SHELL-05: uploads go to the current folder, otherwise the Docs & Files page.
-export function Topbar({ me }: { me: Person }) {
+export function Topbar({ me, timeZone }: { me: Person; timeZone: string }) {
   const pathname = usePathname();
   const { currentFolder, pick } = useUploads();
   const [creating, setCreating] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
+  const [searching, setSearching] = useState(false);
 
   // FR-TASK-21: C opens quick create, unless the user is typing or another dialog is open.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // FR-SEARCH-01: Ctrl/⌘+K works everywhere, even while typing.
+      if (e.key.toLowerCase() === "k" && (e.ctrlKey || e.metaKey) && !e.altKey) {
+        e.preventDefault();
+        setSearching((open) => !open);
+        return;
+      }
       if (e.key.toLowerCase() !== "c" || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
       const el = e.target as HTMLElement;
       if (el.isContentEditable || el.closest("input, textarea, select, [role=dialog], [role=menu]")) return;
@@ -46,7 +54,7 @@ export function Topbar({ me }: { me: Person }) {
       <nav aria-label={strings.topbar.breadcrumb} className="min-w-0 flex-1 truncate text-sm font-medium">
         {current && <span aria-current="page">{current.label}</span>}
       </nav>
-      <Button variant="outline" disabled className="w-96 justify-start font-normal text-muted-foreground">
+      <Button variant="outline" onClick={() => setSearching(true)} className="w-96 justify-start font-normal text-muted-foreground">
         <Search />
         <span className="flex-1 text-left">{strings.topbar.search}</span>
         <kbd className="rounded-sm border bg-background px-1.5 font-sans text-xs">⌘K</kbd>
@@ -74,6 +82,14 @@ export function Topbar({ me }: { me: Person }) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {searching && (
+          <SearchPalette
+            onClose={() => setSearching(false)}
+            onCreateTask={() => setCreatingTask(true)}
+            onCreateProject={() => setCreating(true)}
+            timeZone={timeZone}
+          />
+        )}
         <ProjectFormDialog open={creating} onOpenChange={setCreating} />
         <QuickCreateDialog open={creatingTask} onOpenChange={setCreatingTask} me={me} />
         <ThemeMenu />

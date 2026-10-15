@@ -402,7 +402,7 @@ Settings has three groups: Personal, Members and Workspace. All of them are open
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-SET-06 | Member table: avatar, name, job title, email, open task count, status (Active, Deactivated); a "Reset password" action per member (FR-AUTH-02) | MVP |
+| FR-SET-06 | Member table: avatar, name, job title, email, open task count, status (Active, Deactivated); a "Reset password" action per member (FR-AUTH-02). Any member can also add an account (with a temporary password), edit a member's name, email and job title, and delete an account that has no projects, tasks, comments or activity (otherwise use FR-SET-09) | MVP |
 | FR-SET-07 | Removed: no invitations, people sign up themselves (see FR-AUTH-03) | Removed |
 | FR-SET-08 | Removed: there are no roles (see FR-ROLE-01) | Removed |
 | FR-SET-09 | Deactivate a member who leaves: they can no longer sign in, their data stays; if they have open tasks, require choosing who takes them over | MVP |

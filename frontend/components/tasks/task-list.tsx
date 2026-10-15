@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, Flag, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Flag, MessageSquare, Paperclip, Plus } from "lucide-react";
 import { useMilestones } from "@/components/projects/milestones";
 import { UserAvatar } from "@/components/shell/user-avatar";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,6 @@ import { ROW_GRID, saveError, TaskRow, tasksKey } from "./task-row";
 const t = strings.tasks;
 const ALL = "all";
 // FR-TASK-01..05. All tasks come in one request; grouping, filters and sort run here.
-// ponytail: no checkbox column until bulk actions (F9); no comment/attachment counts until F12/F13.
 export function TaskList({
   projectId,
   initialTasks,
@@ -304,6 +303,8 @@ export function TaskList({
             <span>{t.fields.priority}</span>
             <span>{t.fields.assignee}</span>
             <span>{t.fields.due}</span>
+            <MessageSquare aria-label={strings.comments.tab} className="size-3.5" />
+            <Paperclip aria-label={strings.files.attachments} className="size-3.5" />
           </div>
           {groups.map((g) => {
             const open = !collapsed.has(g.key);

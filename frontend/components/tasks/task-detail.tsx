@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/error";
 import { formatDate, formatRelative, formatTime } from "@/lib/format";
@@ -38,6 +39,7 @@ import {
 } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 import { LabelChip, PriorityIcon, StatusIcon } from "./task-bits";
+import { CommentComposer, CommentList } from "./task-comments";
 import {
   activityKey,
   AssigneePick,
@@ -178,6 +180,7 @@ function Loaded({
   onClose?: () => void;
 }) {
   const router = useRouter();
+  const [tab, setTab] = useState("comments");
   const readOnly = task.project.archived;
   const edit = useEditTask(task);
   const remove = useDelete(task, () => (onClose ? onClose() : router.push(`/projects/${task.projectId}/tasks`)));
@@ -298,8 +301,28 @@ function Loaded({
         <Description task={task} readOnly={readOnly} />
         <Attachments taskId={task.id} readOnly={readOnly} />
         {!task.parentId && <Subtasks task={task} timeZone={timeZone} readOnly={readOnly} onOpen={onOpen} />}
-        <ActivityList task={task} timeZone={timeZone} />
+        {/* FR-TASK-19 */}
+        <Tabs value={tab} onValueChange={setTab} className="gap-3 border-t pt-4">
+          <TabsList variant="line">
+            <TabsTrigger value="comments">
+              {strings.comments.tab}
+              {task.commentCount > 0 && <span className="text-xs font-normal text-muted-foreground tabular-nums">{task.commentCount}</span>}
+            </TabsTrigger>
+            <TabsTrigger value="activity">{d.activity}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="comments">
+            <CommentList task={task} timeZone={timeZone} readOnly={readOnly} />
+          </TabsContent>
+          <TabsContent value="activity">
+            <ActivityList task={task} timeZone={timeZone} />
+          </TabsContent>
+        </Tabs>
       </div>
+      {readOnly ? (
+        <p className="shrink-0 border-t px-6 py-3 text-sm text-muted-foreground">{strings.comments.readOnly}</p>
+      ) : (
+        <CommentComposer task={task} onSent={() => setTab("comments")} />
+      )}
     </>
   );
 }
@@ -596,7 +619,7 @@ function Subtask({ task, timeZone, readOnly, onOpen }: { task: Task; timeZone: s
   );
 }
 
-// FR-TASK-19: Activity tab; Comments join it in F13.
+// FR-TASK-19: the Activity tab.
 function ActivityList({ task, timeZone }: { task: Task; timeZone: string }) {
   const PAGE = 20;
   const query = useInfiniteQuery({
@@ -609,8 +632,7 @@ function ActivityList({ task, timeZone }: { task: Task; timeZone: string }) {
   const items = query.data?.pages.flatMap((p) => p.items) ?? [];
 
   return (
-    <section aria-label={d.activity} className="flex flex-col gap-2 border-t pt-4">
-      <h3 className="text-sm font-medium">{d.activity}</h3>
+    <section aria-label={d.activity} className="flex flex-col gap-2">
       {query.isPending ? (
         <Skeleton className="h-16 w-full" />
       ) : query.isError ? (

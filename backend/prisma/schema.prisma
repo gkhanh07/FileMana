@@ -50,6 +50,7 @@ model User {
   assignedTasks Task[]            @relation("TaskAssignee")
   createdTasks  Task[]            @relation("TaskCreator")
   items         Item[]
+  comments      Comment[]
 }
 
 model Session {
@@ -187,6 +188,7 @@ model Task {
   milestone   Milestone?   @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
   labels      TaskLabel[]
   attachments Item[] // FR-TASK-18
+  comments    Comment[]
 
   @@unique([projectId, number])
   @@index([parentId])
@@ -250,6 +252,9 @@ model Item {
   // FR-TASK-18. ponytail: a file belongs to one task; a join table if one file must sit on several.
   taskId    String?   @db.Uuid
   task      Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  // FR-CMT-03: a task attachment sent with a comment. It stays on the task if the comment goes.
+  commentId String?   @db.Uuid
+  comment   Comment?  @relation(fields: [commentId], references: [id], onDelete: SetNull)
   creatorId String?   @db.Uuid // null on the roots
   creator   User?     @relation(fields: [creatorId], references: [id])
   mimeType  String?   @db.VarChar(255) // files only
@@ -260,4 +265,23 @@ model Item {
 
   @@index([parentId])
   @@index([taskId])
+  @@index([commentId])
+}
+
+// FR-CMT. Plain text; the people picked from the @ list are kept so their names can be
+// highlighted (and, once Inbox ships, notified). Only the author edits or deletes (FR-ROLE-04).
+model Comment {
+  id          String    @id @default(uuid()) @db.Uuid
+  taskId      String    @db.Uuid
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  authorId    String    @db.Uuid
+  author      User      @relation(fields: [authorId], references: [id])
+  body        String    @db.VarChar(10000)
+  mentionIds  String[]  @db.Uuid
+  attachments Item[]
+  editedAt    DateTime? // FR-CMT-04: the "edited" label
+  deletedAt   DateTime? // the toast's Undo brings it back
+  createdAt   DateTime  @default(now())
+
+  @@index([taskId, createdAt])
 }

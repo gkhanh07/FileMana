@@ -1,6 +1,7 @@
-import { Circle, CircleCheck, CircleDot, CircleEllipsis, OctagonAlert, SignalHigh, SignalLow, SignalMedium } from "lucide-react";
+import { Circle, CircleCheck, CircleDot, CircleEllipsis, MessageSquare, OctagonAlert, Paperclip, SignalHigh, SignalLow, SignalMedium } from "lucide-react";
 import { projectColorClass } from "@/components/projects/project-bits";
 import { dueTone, formatDueDate } from "@/lib/format";
+import { strings } from "@/lib/strings";
 import type { Label, Task, TaskPriority, TaskStatus } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,27 @@ export function PriorityIcon({ priority }: { priority: TaskPriority }) {
 }
 
 // Due soon amber, overdue red; a Done task's date is just a date.
+// FR-TASK-01/08: shown only when above zero.
+export function CommentCount({ count }: { count: number }) {
+  if (!count) return null;
+  return (
+    <span className="flex items-center gap-1 tabular-nums" aria-label={strings.comments.count(count)}>
+      <MessageSquare aria-hidden className="size-3" />
+      {count}
+    </span>
+  );
+}
+
+export function AttachmentCount({ count }: { count: number }) {
+  if (!count) return null;
+  return (
+    <span className="flex items-center gap-1 tabular-nums" aria-label={strings.files.attachmentCount(count)}>
+      <Paperclip aria-hidden className="size-3" />
+      {count}
+    </span>
+  );
+}
+
 export function TaskDue({ task, timeZone }: { task: Pick<Task, "dueDate" | "dueTime" | "status">; timeZone: string }) {
   if (!task.dueDate) return null;
   const tone = task.status === "DONE" ? null : dueTone(task.dueDate, timeZone);

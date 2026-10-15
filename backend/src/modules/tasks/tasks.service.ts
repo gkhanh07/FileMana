@@ -28,14 +28,27 @@ const include = {
   assignee: PERSON_SELECT,
   labels: { select: { label: true }, orderBy: { label: { name: 'asc' } } },
   milestone: { select: { id: true, name: true, deletedAt: true } },
-  _count: { select: { attachments: { where: { deletedAt: null } } } },
+  _count: {
+    select: {
+      attachments: { where: { deletedAt: null } },
+      comments: { where: { deletedAt: null } },
+    },
+  },
 } satisfies Prisma.TaskInclude;
 
 type TaskRow = Prisma.TaskGetPayload<{ include: typeof include }>;
 
 const detailInclude = {
   ...include,
-  project: { select: { id: true, key: true, name: true, archivedAt: true } },
+  project: {
+    select: {
+      id: true,
+      key: true,
+      name: true,
+      archivedAt: true,
+      members: { select: { userId: true } },
+    },
+  },
   creator: PERSON_SELECT,
   parent: { select: { id: true, number: true, title: true } },
   subtasks: { where: { deletedAt: null }, include, orderBy: { number: 'asc' } },
@@ -73,6 +86,7 @@ function toDto(t: TaskRow): TaskDto {
     labels: t.labels.map((l) => l.label),
     milestoneId: t.milestoneId,
     attachmentCount: t._count.attachments,
+    commentCount: t._count.comments,
     createdAt: t.createdAt,
     updatedAt: t.updatedAt,
   };
@@ -190,6 +204,7 @@ export class TasksService {
         key: t.project.key,
         name: t.project.name,
         archived: !!t.project.archivedAt,
+        memberIds: t.project.members.map((m) => m.userId),
       },
       creator: toPerson(t.creator),
       parent: t.parent && {

@@ -116,7 +116,7 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
       className={cn(
         "relative flex h-8 items-center gap-2.5 rounded-md px-2 text-sm outline-none hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring",
         collapsed && "w-9 justify-center px-0",
-        active && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+        active && "bg-primary/10 font-medium text-primary",
       )}
     >
       {active && <span aria-hidden className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-sidebar-primary" />}

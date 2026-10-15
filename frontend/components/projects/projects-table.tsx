@@ -17,7 +17,7 @@ import {
 } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
-import { MemberStack, ProjectDue, ProjectIcon, ProjectStatusBadge } from "./project-bits";
+import { MemberStack, ProjectDue, ProjectIcon, ProjectStatusBadge, projectColorClass } from "./project-bits";
 import { ProjectMenu } from "./project-menu";
 
 const t = strings.projects;
@@ -142,7 +142,7 @@ export function ProjectsTable({
                   <span className="flex items-center gap-2">
                     <span aria-hidden className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
                       <span
-                        className="block h-full bg-primary"
+                        className={cn("block h-full", projectColorClass(p.color))}
                         style={{ width: `${p.taskCount ? (p.doneCount / p.taskCount) * 100 : 0}%` }}
                       />
                     </span>

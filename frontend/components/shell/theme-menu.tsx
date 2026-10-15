@@ -32,9 +32,10 @@ export function ThemeSync({ theme }: { theme: Theme }) {
   return null;
 }
 
-export function ThemeMenu() {
+// Applies the theme at once and saves it; rolls back on failure. Also used by ⌘K (FR-SEARCH-04).
+export function useSaveTheme() {
   const { theme, setTheme } = useTheme();
-  const save = useMutation({
+  return useMutation({
     mutationFn: (next: Theme) => api<User>("/me", { method: "PATCH", body: { theme: next } }),
     onMutate: (next) => {
       const previous = theme;
@@ -46,6 +47,11 @@ export function ThemeMenu() {
       toast.error(errorMessage(e instanceof ApiError ? e.code : undefined));
     },
   });
+}
+
+export function ThemeMenu() {
+  const { theme } = useTheme();
+  const save = useSaveTheme();
 
   return (
     <DropdownMenu>

@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ProjectDue, ProjectIcon } from "@/components/projects/project-bits";
+import { ProjectDue, ProjectIcon, projectBorderClass, projectColorClass } from "@/components/projects/project-bits";
 import { HomeTasks } from "@/components/tasks/my-tasks";
 import { getMe, getWorkspace, serverApi } from "@/lib/api/server";
 import { dayKey, formatLongDate, hourIn } from "@/lib/format";
 import { runningProjects, type Project } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import type { MyTask } from "@/lib/tasks";
+import { cn } from "@/lib/utils";
 
 const h = strings.home;
 
@@ -41,7 +42,10 @@ export default async function Home() {
               <li key={p.id}>
                 <Link
                   href={`/projects/${p.id}`}
-                  className="flex flex-col gap-2 rounded-lg border p-3 hover:bg-muted/50"
+                  className={cn(
+                    "flex flex-col gap-2 rounded-lg border border-l-3 p-3 hover:bg-muted/50",
+                    projectBorderClass(p.color),
+                  )}
                 >
                   <span className="flex items-center gap-2">
                     <ProjectIcon project={p} />
@@ -50,7 +54,7 @@ export default async function Home() {
                   <span className="flex items-center gap-2">
                     <span aria-hidden className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                       <span
-                        className="block h-full bg-primary"
+                        className={cn("block h-full", projectColorClass(p.color))}
                         style={{ width: `${p.taskCount ? (p.doneCount / p.taskCount) * 100 : 0}%` }}
                       />
                     </span>

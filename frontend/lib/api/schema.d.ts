@@ -205,11 +205,27 @@ export interface paths {
         };
         get: operations["MembersController_list"];
         put?: never;
-        post?: never;
+        post: operations["MembersController_create"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/members/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["MembersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["MembersController_update"];
         trace?: never;
     };
     "/members/{id}/password": {
@@ -740,6 +756,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tasks/{id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CommentsController_list"];
+        put?: never;
+        post: operations["CommentsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/comments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CommentsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["CommentsController_update"];
+        trace?: never;
+    };
+    "/comments/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CommentsController_restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SearchController_find"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trash": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TrashController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trash/{type}/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TrashController_restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trash/{type}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["TrashController_purge"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -800,6 +928,19 @@ export interface components {
             name: string;
             email: string;
             openTaskCount: number;
+        };
+        CreateMemberDto: {
+            /** Format: email */
+            email: string;
+            name: string;
+            jobTitle?: string;
+            password: string;
+        };
+        UpdateMemberDto: {
+            /** Format: email */
+            email?: string;
+            name?: string;
+            jobTitle?: string;
         };
         ResetPasswordDto: {
             password: string;
@@ -922,6 +1063,7 @@ export interface components {
             position: number;
             labels: components["schemas"]["LabelDto"][];
             attachmentCount: number;
+            commentCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -951,6 +1093,7 @@ export interface components {
             position: number;
             labels: components["schemas"]["LabelDto"][];
             attachmentCount: number;
+            commentCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -982,6 +1125,7 @@ export interface components {
             key: string;
             name: string;
             archived: boolean;
+            memberIds: string[];
         };
         TaskDetailDto: {
             parentId: string | null;
@@ -1006,6 +1150,7 @@ export interface components {
             position: number;
             labels: components["schemas"]["LabelDto"][];
             attachmentCount: number;
+            commentCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -1134,6 +1279,79 @@ export interface components {
         UpdateMilestoneDto: {
             name?: string;
             date?: string;
+        };
+        CommentDto: {
+            /** Format: date-time */
+            editedAt: string | null;
+            id: string;
+            taskId: string;
+            author: components["schemas"]["PersonDto"];
+            body: string;
+            mentions: components["schemas"]["PersonDto"][];
+            attachments: components["schemas"]["ItemDto"][];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CommentsPageDto: {
+            items: components["schemas"]["CommentDto"][];
+            hasMore: boolean;
+        };
+        CreateCommentDto: {
+            body: string;
+            mentionIds?: string[];
+            attachmentIds?: string[];
+        };
+        UpdateCommentDto: {
+            body: string;
+            mentionIds?: string[];
+        };
+        SearchTaskDto: {
+            status: components["schemas"]["TaskStatus"];
+            id: string;
+            key: string;
+            title: string;
+            project: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SearchProjectDto: {
+            status: components["schemas"]["ProjectStatus"];
+            id: string;
+            name: string;
+            color: string;
+            archived: boolean;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SearchItemDto: {
+            kind: components["schemas"]["ItemKind"];
+            mimeType: string | null;
+            id: string;
+            name: string;
+            location: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SearchResultDto: {
+            tasks: components["schemas"]["SearchTaskDto"][];
+            projects: components["schemas"]["SearchProjectDto"][];
+            items: components["schemas"]["SearchItemDto"][];
+            members: components["schemas"]["PersonDto"][];
+        };
+        /** @enum {string} */
+        TrashType: "task" | "project" | "item";
+        TrashEntryDto: {
+            type: components["schemas"]["TrashType"];
+            kind: components["schemas"]["ItemKind"] | null;
+            location: string | null;
+            id: string;
+            name: string;
+            /** Format: date-time */
+            deletedAt: string;
+        };
+        TrashPageDto: {
+            items: components["schemas"]["TrashEntryDto"][];
+            hasMore: boolean;
         };
     };
     responses: never;
@@ -1435,6 +1653,73 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberDto"][];
+                };
+            };
+        };
+    };
+    MembersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMemberDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"];
+                };
+            };
+        };
+    };
+    MembersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MembersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMemberDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"];
                 };
             };
         };
@@ -2395,6 +2680,203 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MilestoneDto"];
                 };
+            };
+        };
+    };
+    CommentsController_list: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentsPageDto"];
+                };
+            };
+        };
+    };
+    CommentsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCommentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentDto"];
+                };
+            };
+        };
+    };
+    CommentsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CommentsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCommentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentDto"];
+                };
+            };
+        };
+    };
+    CommentsController_restore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentDto"];
+                };
+            };
+        };
+    };
+    SearchController_find: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResultDto"];
+                };
+            };
+        };
+    };
+    TrashController_list: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrashPageDto"];
+                };
+            };
+        };
+    };
+    TrashController_restore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TrashController_purge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

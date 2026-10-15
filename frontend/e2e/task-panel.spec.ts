@@ -58,6 +58,7 @@ test("open a task in the panel, edit it, add subtasks, delete and undo", async (
   await expect(panel.getByText("Đã lưu")).toBeVisible();
   await page.reload();
   await expect(panel.getByText("Ghi chú cho thiết kế")).toBeVisible();
+  await panel.getByRole("tab", { name: "Hoạt động" }).click();
   await expect(panel.getByRole("region", { name: "Hoạt động" })).toContainText("đã sửa mô tả");
 
   // Esc closes.
@@ -76,4 +77,50 @@ test("open a task in the panel, edit it, add subtasks, delete and undo", async (
   await expect(row).toHaveCount(0);
   await page.getByRole("button", { name: "Hoàn tác" }).click();
   await expect(row).toHaveCount(1);
+});
+
+// FR-CMT-01, 02, 04, FR-TASK-01, 19
+test("comment with a mention, edit it, delete and undo", async ({ page }) => {
+  await page.getByRole("button", { name: "Tạo mới" }).click();
+  await page.getByRole("menuitem", { name: "Dự án" }).click();
+  await page.getByRole("dialog").getByLabel("Tên dự án").fill("Góp ý giao diện");
+  await page.getByRole("dialog").getByRole("button", { name: "Tạo dự án" }).click();
+  await expect(page.getByRole("heading", { name: "Góp ý giao diện" })).toBeVisible();
+  await page.getByRole("link", { name: "Công việc" }).click();
+  await page.getByRole("button", { name: "Thêm việc đầu tiên" }).click();
+  const add = page.getByRole("textbox", { name: "Thêm việc" });
+  await add.fill("Màu nút chính");
+  await add.press("Enter");
+  await add.press("Escape");
+  const row = page.locator("main li[id^=task-]");
+  await row.getByRole("button", { name: "Màu nút chính" }).click();
+  const panel = page.getByRole("complementary", { name: /^Chi tiết / });
+  await expect(panel.getByText("Chưa có bình luận nào.")).toBeVisible();
+
+  // @ suggests people; Enter picks one, Ctrl+Enter sends.
+  const box = panel.getByRole("combobox", { name: "Viết bình luận" });
+  await box.pressSequentially("@e2");
+  await expect(panel.getByRole("option", { name: "E2E" })).toBeVisible();
+  await box.press("Enter");
+  await box.pressSequentially("xem giúp màu này");
+  await box.press("Control+Enter");
+  const list = panel.getByRole("tabpanel", { name: "Bình luận" });
+  await expect(list.getByRole("listitem")).toContainText("@E2E xem giúp màu này");
+  await expect(box).toHaveValue("");
+  await expect(row.getByLabel("1 bình luận")).toBeVisible();
+
+  // Edit shows the label.
+  await list.getByRole("button", { name: "Thao tác bình luận" }).click();
+  await page.getByRole("menuitem", { name: "Sửa" }).click();
+  await list.getByRole("combobox", { name: "Sửa" }).fill("Dùng màu xanh");
+  await list.getByRole("button", { name: "Lưu" }).click();
+  await expect(list).toContainText("Dùng màu xanh");
+  await expect(list).toContainText("(đã sửa)");
+
+  // Delete, then Undo.
+  await list.getByRole("button", { name: "Thao tác bình luận" }).click();
+  await page.getByRole("menuitem", { name: "Xóa" }).click();
+  await expect(list.getByText("Chưa có bình luận nào.")).toBeVisible();
+  await page.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect(list).toContainText("Dùng màu xanh");
 });

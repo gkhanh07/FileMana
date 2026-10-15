@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Paperclip } from "lucide-react";
 import {
   closestCorners,
   DndContext,
@@ -33,7 +32,7 @@ import {
   type TaskStatus,
 } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
-import { LabelChip, PriorityIcon, StatusIcon, TaskDue } from "./task-bits";
+import { AttachmentCount, CommentCount, LabelChip, PriorityIcon, StatusIcon, TaskDue } from "./task-bits";
 import { AddRow, OlderDone } from "./task-list";
 import { statusShown, useUpdateTask } from "./task-row";
 
@@ -193,6 +192,13 @@ export function TaskBoard({
   );
 }
 
+const columnBorder = {
+  TODO: "border-t-status-gray",
+  IN_PROGRESS: "border-t-status-blue",
+  REVIEW: "border-t-status-blue",
+  DONE: "border-t-status-green",
+} satisfies Record<TaskStatus, string>;
+
 function Column({
   status,
   count,
@@ -207,7 +213,7 @@ function Column({
   return (
     <section
       aria-label={t.group(t.status[status], count)}
-      className="flex min-w-0 flex-col rounded-md border bg-muted/40"
+      className={cn("flex min-w-0 flex-col rounded-md border border-t-2 bg-muted/40", columnBorder[status])}
     >
       <h2 className="flex h-9 items-center gap-2 px-3 text-sm font-medium">
         <StatusIcon status={status} />
@@ -272,7 +278,7 @@ function SortableCard({
   );
 }
 
-// FR-TASK-08: comment counts wait for the comments feature.
+// FR-TASK-08
 function Card({
   task,
   timeZone,
@@ -315,7 +321,8 @@ function Card({
         </span>
         <PriorityIcon priority={task.priority} />
         <TaskDue task={task} timeZone={timeZone} />
-        {task.attachmentCount > 0 && <span className="flex items-center gap-1" aria-label={strings.files.attachmentCount(task.attachmentCount)}><Paperclip aria-hidden className="size-3" />{task.attachmentCount}</span>}
+        <CommentCount count={task.commentCount} />
+        <AttachmentCount count={task.attachmentCount} />
         {task.assignee && (
           <UserAvatar
             user={task.assignee}

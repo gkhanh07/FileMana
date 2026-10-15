@@ -23,7 +23,12 @@ import {
   type AuthUser,
 } from '../../common/decorators/current-user.decorator';
 import { UserDto } from '../auth/dto/login.dto';
-import { MemberDto, ResetPasswordDto } from './dto/member.dto';
+import {
+  CreateMemberDto,
+  MemberDto,
+  ResetPasswordDto,
+  UpdateMemberDto,
+} from './dto/member.dto';
 import { PersonDto } from './dto/person.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
@@ -121,6 +126,7 @@ export class PeopleController {
 }
 
 // FR-SET-06, FR-AUTH-02: any member may reset any other member's password (no roles).
+// Any member may also add, edit and delete accounts.
 @Controller('members')
 export class MembersController {
   constructor(private readonly users: UsersService) {}
@@ -128,6 +134,28 @@ export class MembersController {
   @Get()
   list(): Promise<MemberDto[]> {
     return this.users.members();
+  }
+
+  @Post()
+  create(@Body() dto: CreateMemberDto): Promise<MemberDto> {
+    return this.users.createMember(dto);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 })) id: string,
+    @Body() dto: UpdateMemberDto,
+  ): Promise<MemberDto> {
+    return this.users.updateMember(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  remove(
+    @CurrentUser() user: AuthUser,
+    @Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 })) id: string,
+  ): Promise<void> {
+    return this.users.deleteMember(user.id, id);
   }
 
   @Post(':id/password')

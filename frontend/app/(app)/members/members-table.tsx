@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
+import { Ellipsis, KeyRound, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserAvatar } from "@/components/shell/user-avatar";
@@ -21,22 +29,60 @@ import type { components } from "@/lib/api/schema";
 import { errorMessage, strings } from "@/lib/strings";
 
 type Member = components["schemas"]["MemberDto"];
+type Open =
+  | { kind: "add" }
+  | { kind: "edit" | "reset" | "delete"; member: Member }
+  | null;
 const t = strings.settings.members;
 
-// FR-SET-06, FR-AUTH-02. Your own row has no reset: you change your password above.
+// FR-SET-06, FR-AUTH-02, plus add / edit / delete. Your own row has no reset or delete: you use personal settings.
 export function MembersTable({ members, meId }: { members: Member[]; meId: string }) {
-  const [target, setTarget] = useState<Member | null>(null);
-  const reset = useMutation({
-    mutationFn: ({ id, password }: { id: string; password: string }) =>
-      api(`/members/${id}/password`, { method: "POST", body: { password } }),
-    onSuccess: () => {
-      toast.success(t.resetDone(target!.name));
-      setTarget(null);
+  const router = useRouter();
+  const [open, setOpen] = useState<Open>(null);
+  const save = useMutation({
+    mutationFn: async (form: FormData) => {
+      const field = (k: string) => String(form.get(k) ?? "");
+      if (open?.kind === "add") {
+        const body = { email: field("email"), name: field("name"), jobTitle: field("jobTitle"), password: field("password") };
+        await api("/members", { method: "POST", body });
+        return t.added(body.name);
+      }
+      if (open?.kind === "edit") {
+        const body = { email: field("email"), name: field("name"), jobTitle: field("jobTitle") };
+        await api(`/members/${open.member.id}`, { method: "PATCH", body });
+        return t.saved(body.name);
+      }
+      if (open?.kind === "reset") {
+        await api(`/members/${open.member.id}/password`, { method: "POST", body: { password: field("password") } });
+        return t.resetDone(open.member.name);
+      }
+      if (open?.kind === "delete") {
+        await api(`/members/${open.member.id}`, { method: "DELETE" });
+        return t.deleted(open.member.name);
+      }
+      return "";
+    },
+    onSuccess: (message) => {
+      toast.success(message);
+      setOpen(null);
+      router.refresh();
     },
   });
+  const show = (next: Open) => {
+    save.reset();
+    setOpen(next);
+  };
+  const member = open && open.kind !== "add" ? open.member : null;
+  const title = open && { add: t.add, edit: t.edit, reset: t.reset, delete: t.delete }[open.kind];
 
   return (
     <section className="flex flex-col gap-4">
+      <div>
+        <Button size="sm" onClick={() => show({ kind: "add" })}>
+          <Plus />
+          {t.add}
+        </Button>
+      </div>
       <div className="overflow-x-auto rounded-md border">
         <table className="w-full text-left text-sm">
           <thead className="border-b bg-muted/40 text-muted-foreground">
@@ -66,19 +112,31 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
                 <td className="px-3 text-right tabular-nums">{m.openTaskCount}</td>
                 <td className="whitespace-nowrap px-3">{t.statuses[m.status]}</td>
                 <td className="whitespace-nowrap px-3 text-right">
-                  {m.id !== meId && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`${t.reset} ${m.name}`}
-                      onClick={() => {
-                        reset.reset();
-                        setTarget(m);
-                      }}
-                    >
-                      {t.reset}
-                    </Button>
-                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon-sm" aria-label={t.memberActions(m.name)}>
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => show({ kind: "edit", member: m })}>
+                        <Pencil />
+                        {t.edit}
+                      </DropdownMenuItem>
+                      {m.id !== meId && (
+                        <>
+                          <DropdownMenuItem onSelect={() => show({ kind: "reset", member: m })}>
+                            <KeyRound />
+                            {t.reset}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem variant="destructive" onSelect={() => show({ kind: "delete", member: m })}>
+                            <Trash2 />
+                            {t.delete}
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))}
@@ -86,53 +144,70 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
         </table>
       </div>
       <Dialog
-        open={target !== null}
-        onOpenChange={(open) => {
-          if (!open && !reset.isPending) setTarget(null);
+        open={open !== null}
+        onOpenChange={(o) => {
+          if (!o && !save.isPending) setOpen(null);
         }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t.reset}</DialogTitle>
-            <DialogDescription>{target && t.resetBody(target.name)}</DialogDescription>
+            <DialogTitle>{title}</DialogTitle>
+            {open?.kind === "reset" && <DialogDescription>{t.resetBody(open.member.name)}</DialogDescription>}
+            {open?.kind === "delete" && <DialogDescription>{t.deleteBody(open.member.name)}</DialogDescription>}
+            {open?.kind === "add" && <DialogDescription>{t.addBody}</DialogDescription>}
           </DialogHeader>
           <form
             className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              const password = String(new FormData(e.currentTarget).get("tempPassword"));
-              if (target && !reset.isPending) reset.mutate({ id: target.id, password });
+              if (!save.isPending) save.mutate(new FormData(e.currentTarget));
             }}
           >
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="tempPassword">{t.tempPassword}</Label>
-              <Input
-                id="tempPassword"
-                name="tempPassword"
+            {(open?.kind === "add" || open?.kind === "edit") && (
+              <>
+                <Field id="name" label={t.name} defaultValue={member?.name} required maxLength={100} autoFocus />
+                <Field id="email" label={t.email} type="email" defaultValue={member?.email} required maxLength={254} />
+                <Field id="jobTitle" label={t.jobTitle} defaultValue={member?.jobTitle ?? ""} maxLength={100} />
+              </>
+            )}
+            {(open?.kind === "add" || open?.kind === "reset") && (
+              <Field
+                id="password"
+                label={t.tempPassword}
+                hint={strings.signUp.passwordHint}
                 autoComplete="off"
                 required
                 minLength={8}
                 maxLength={200}
-                autoFocus
+                autoFocus={open.kind === "reset"}
               />
-              <p className="text-xs text-muted-foreground">{strings.signUp.passwordHint}</p>
-            </div>
-            {reset.error && (
+            )}
+            {save.error && (
               <p role="alert" className="text-sm text-destructive">
-                {errorMessage(reset.error instanceof ApiError ? reset.error.code : undefined)}
+                {errorMessage(save.error instanceof ApiError ? save.error.code : undefined)}
               </p>
             )}
             <DialogFooter>
-              <Button variant="outline" type="button" disabled={reset.isPending} onClick={() => setTarget(null)}>
+              <Button variant="outline" type="button" disabled={save.isPending} onClick={() => setOpen(null)}>
                 {strings.files.cancel}
               </Button>
-              <Button type="submit" disabled={reset.isPending}>
-                {t.resetSubmit}
+              <Button type="submit" variant={open?.kind === "delete" ? "destructive" : "default"} disabled={save.isPending}>
+                {open && { add: t.addSubmit, edit: t.save, reset: t.resetSubmit, delete: t.delete }[open.kind]}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
     </section>
+  );
+}
+
+function Field({ id, label, hint, ...props }: { id: string; label: string; hint?: string } & React.ComponentProps<"input">) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} name={id} {...props} />
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+    </div>
   );
 }

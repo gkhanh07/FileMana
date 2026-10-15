@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,7 +13,9 @@ import { join, resolve } from 'node:path';
 import { PrismaService } from '../../prisma/prisma.service';
 import { toAuthUser } from '../auth/auth.service';
 import { UserDto } from '../auth/dto/login.dto';
-import { MemberDto } from './dto/member.dto';
+import { Prisma } from '../../generated/prisma/client';
+import { UserStatus } from '../../generated/prisma/enums';
+import { CreateMemberDto, MemberDto, UpdateMemberDto } from './dto/member.dto';
 import { PERSON_SELECT, PersonDto, toPerson } from './dto/person.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 
@@ -24,6 +27,57 @@ const USER_SELECT = {
   jobTitle: true,
   avatarFile: true,
 } as const;
+
+const MEMBER_SELECT = {
+  ...USER_SELECT,
+  status: true,
+  _count: {
+    select: {
+      assignedTasks: {
+        where: {
+          status: { not: 'DONE' },
+          deletedAt: null,
+          project: { deletedAt: null },
+        },
+      },
+    },
+  },
+} as const;
+
+const toMember = (u: {
+  id: string;
+  name: string;
+  email: string;
+  jobTitle: string | null;
+  avatarFile: string | null;
+  status: UserStatus;
+  _count: { assignedTasks: number };
+}): MemberDto => ({
+  id: u.id,
+  name: u.name,
+  email: u.email,
+  jobTitle: u.jobTitle,
+  avatarUrl: u.avatarFile ? `/avatars/${u.avatarFile}` : null,
+  status: u.status,
+  openTaskCount: u._count.assignedTasks,
+});
+
+async function uniqueEmail<T>(query: Promise<T>): Promise<T> {
+  try {
+    return await query;
+  } catch (e) {
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === 'P2002'
+    ) {
+      throw new ConflictException({
+        code: 'MEMBER_EMAIL_TAKEN',
+        message: 'An account with this email already exists',
+      });
+    }
+    throw e;
+  }
+}
 
 const AVATAR_FILE = /^[0-9a-f-]{36}\.(jpg|png|webp)$/;
 
@@ -40,7 +94,7 @@ function imageExtension(b: Buffer): string | null {
   return null;
 }
 
-// Methods act on your own account (the id comes from the session), except the member list and reset.
+// Methods act on your own account (the id comes from the session), except the member ones.
 @Injectable()
 export class UsersService {
   private readonly avatarDir: string;
@@ -67,31 +121,82 @@ export class UsersService {
   async members(): Promise<MemberDto[]> {
     const users = await this.prisma.user.findMany({
       orderBy: { name: 'asc' },
-      select: {
-        ...USER_SELECT,
-        status: true,
-        _count: {
-          select: {
-            assignedTasks: {
-              where: {
-                status: { not: 'DONE' },
-                deletedAt: null,
-                project: { deletedAt: null },
-              },
-            },
-          },
-        },
-      },
+      select: MEMBER_SELECT,
     });
-    return users.map((u) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      jobTitle: u.jobTitle,
-      avatarUrl: u.avatarFile ? `/avatars/${u.avatarFile}` : null,
-      status: u.status,
-      openTaskCount: u._count.assignedTasks,
-    }));
+    return users.map(toMember);
+  }
+
+  async createMember(dto: CreateMemberDto): Promise<MemberDto> {
+    const user = await uniqueEmail(
+      this.prisma.user.create({
+        data: {
+          email: dto.email,
+          name: dto.name,
+          jobTitle: dto.jobTitle || null,
+          passwordHash: await argon2.hash(dto.password),
+        },
+        select: MEMBER_SELECT,
+      }),
+    );
+    return toMember(user);
+  }
+
+  async updateMember(id: string, dto: UpdateMemberDto): Promise<MemberDto> {
+    await this.findMember(id);
+    const user = await uniqueEmail(
+      this.prisma.user.update({
+        where: { id },
+        data: {
+          email: dto.email,
+          name: dto.name,
+          jobTitle:
+            dto.jobTitle === undefined ? undefined : dto.jobTitle || null,
+        },
+        select: MEMBER_SELECT,
+      }),
+    );
+    return toMember(user);
+  }
+
+  // Only an account with no work behind it (projects owned, tasks created, comments, activity)
+  // can be removed; their sessions, memberships and favorites go with it, assigned tasks are unassigned.
+  async deleteMember(actorId: string, id: string): Promise<void> {
+    if (actorId === id) {
+      throw new BadRequestException({
+        code: 'CANNOT_DELETE_SELF',
+        message: 'You cannot delete your own account',
+      });
+    }
+    const { avatarFile } = await this.findMember(id);
+    try {
+      await this.prisma.user.delete({ where: { id } });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2003'
+      ) {
+        throw new ConflictException({
+          code: 'MEMBER_HAS_HISTORY',
+          message: 'This member has projects, tasks, comments or activity',
+        });
+      }
+      throw e;
+    }
+    if (avatarFile) await rm(join(this.avatarDir, avatarFile), { force: true });
+  }
+
+  private async findMember(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { avatarFile: true },
+    });
+    if (!user) {
+      throw new NotFoundException({
+        code: 'MEMBER_NOT_FOUND',
+        message: 'Member not found',
+      });
+    }
+    return user;
   }
 
   // FR-AUTH-02: signs the member out everywhere. Your own password is changed with the current one.

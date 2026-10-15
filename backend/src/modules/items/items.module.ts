@@ -20,5 +20,6 @@ import { fileStorage, filesDir, MAX_FILE_BYTES } from './upload';
   ],
   controllers: [ItemsController],
   providers: [ItemsService],
+  exports: [ItemsService],
 })
 export class ItemsModule {}

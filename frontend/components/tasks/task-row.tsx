@@ -22,7 +22,7 @@ import type { Person } from "@/lib/projects";
 import { errorMessage, strings } from "@/lib/strings";
 import { TASK_PRIORITIES, TASK_STATUSES, type MyTask, type Task, type TaskDetail, type TaskPatch } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
-import { LabelChip, PriorityIcon, StatusIcon, TaskDue } from "./task-bits";
+import { AttachmentCount, CommentCount, LabelChip, PriorityIcon, StatusIcon, TaskDue } from "./task-bits";
 
 const t = strings.tasks;
 export const tasksKey = (projectId: string) => ["tasks", projectId];
@@ -31,7 +31,7 @@ export const activityKey = (id: string) => ["activity", id];
 /** Home and My Tasks (FR-HOME-02, FR-MY-01). */
 export const myTasksKey = ["my-tasks"];
 /** Shared by the rows and the column header so they line up. */
-export const ROW_GRID = "grid grid-cols-[1rem_4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem] gap-3 px-4";
+export const ROW_GRID = "grid grid-cols-[1rem_4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem_2.5rem_2.5rem] gap-3 px-4";
 
 /** A server error has its own text; anything else (offline, timeout) gets the FR-UI-05 "not saved" text. */
 export const saveError = (e: unknown) =>
@@ -118,7 +118,7 @@ export function TaskRow({
         ROW_GRID,
         "h-9 items-center border-b text-sm [contain-intrinsic-size:auto_36px] [content-visibility:auto] hover:bg-muted/50",
         highlight && "bg-accent",
-        selected && "bg-muted",
+        selected && "bg-primary/10 hover:bg-primary/15",
       )}
     >
       {readOnly ? (
@@ -163,6 +163,12 @@ export function TaskRow({
       />
       <AssigneePick task={task} disabled={readOnly} onChange={(a) => edit({ assigneeId: a?.id ?? null }, { assignee: a })} />
       <DuePick task={task} timeZone={timeZone} disabled={readOnly} onChange={(due) => edit(due)} />
+      <span className="text-xs text-muted-foreground">
+        <CommentCount count={task.commentCount} />
+      </span>
+      <span className="text-xs text-muted-foreground">
+        <AttachmentCount count={task.attachmentCount} />
+      </span>
     </li>
   );
 }

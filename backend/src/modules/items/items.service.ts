@@ -6,10 +6,13 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { stat } from 'node:fs/promises';
+import { stat, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
+import { fold } from '../../common/fold';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import type { SearchItemDto } from '../search/search.dto';
+import { TrashType, type TrashEntryDto } from '../trash/trash.dto';
 import { PERSON_SELECT, toPerson } from '../users/dto/person.dto';
 import {
   ChildrenQuery,
@@ -363,6 +366,22 @@ export class ItemsService {
       .map(toDto);
   }
 
+  // FR-CMT-03: each comment's files, oldest first. A file in Trash drops out of its comment.
+  async forComments(commentIds: string[]): Promise<Map<string, ItemDto[]>> {
+    const rows = await this.prisma.item.findMany({
+      where: { commentId: { in: commentIds }, deletedAt: null },
+      include,
+      orderBy: { createdAt: 'asc' },
+    });
+    const files = new Map<string, ItemDto[]>();
+    for (const r of rows) {
+      const list = files.get(r.commentId!) ?? [];
+      list.push(toDto(r));
+      files.set(r.commentId!, list);
+    }
+    return files;
+  }
+
   // Rename or move (FR-FILE-07/08).
   async update(id: string, dto: UpdateItemDto): Promise<ItemDetailDto> {
     const { item, project } = await this.find(id);
@@ -419,6 +438,99 @@ export class ItemsService {
         include,
       }),
     );
+  }
+
+  // FR-SEARCH-02: `q` is already folded. ponytail: every name scanned in memory, newest first;
+  // fine for a few thousand items, unaccent + pg_trgm beyond that.
+  async search(q: string, take: number): Promise<SearchItemDto[]> {
+    const [rows, parents] = await Promise.all([
+      this.prisma.item.findMany({
+        where: { deletedAt: null, parentId: { not: null } },
+        select: {
+          id: true,
+          kind: true,
+          name: true,
+          mimeType: true,
+          parentId: true,
+          updatedAt: true,
+        },
+        orderBy: { updatedAt: 'desc' },
+      }),
+      this.parents(this.prisma),
+    ]);
+    const hits: SearchItemDto[] = [];
+    for (const { parentId, ...r } of rows) {
+      if (hits.length === take) break;
+      const path = fold(r.name).includes(q) && chain(parents, parentId!);
+      if (path) hits.push({ ...r, location: displayName(path[0]) });
+    }
+    return hits;
+  }
+
+  // FR-SET-13: items in Trash whose folders are not; an item inside a trashed folder comes back
+  // with that folder.
+  async trashed(): Promise<TrashEntryDto[]> {
+    const [rows, parents] = await Promise.all([
+      this.prisma.item.findMany({
+        where: { deletedAt: { not: null } },
+        select: {
+          id: true,
+          kind: true,
+          name: true,
+          parentId: true,
+          deletedAt: true,
+        },
+      }),
+      this.parents(this.prisma),
+    ]);
+    return rows.flatMap((r) => {
+      const path = r.parentId && chain(parents, r.parentId);
+      return path
+        ? [
+            {
+              type: TrashType.item,
+              id: r.id,
+              name: r.name,
+              kind: r.kind,
+              location: displayName(path[0]),
+              deletedAt: r.deletedAt!,
+            },
+          ]
+        : [];
+    });
+  }
+
+  // FR-SET-13: deletes the matching items for good, with everything inside them and their files
+  // on disk. Returns how many matched.
+  async purge(where: Prisma.ItemWhereInput): Promise<number> {
+    const [roots, all] = await Promise.all([
+      this.prisma.item.findMany({ where, select: { id: true } }),
+      this.prisma.item.findMany({
+        select: { id: true, parentId: true, kind: true },
+      }),
+    ]);
+    if (!roots.length) return 0;
+    const children = new Map<string | null, typeof all>();
+    for (const i of all) {
+      const list = children.get(i.parentId);
+      if (list) list.push(i);
+      else children.set(i.parentId, [i]);
+    }
+    const files: string[] = [];
+    const walk = (i: { id: string; kind: string }) => {
+      if (i.kind === 'FILE') files.push(i.id);
+      children.get(i.id)?.forEach(walk);
+    };
+    const ids = new Set(roots.map((r) => r.id));
+    all.filter((i) => ids.has(i.id)).forEach(walk);
+    // The tree's foreign keys cascade to everything inside.
+    await this.prisma.item.deleteMany({
+      where: { id: { in: [...ids] } },
+    });
+    await Promise.all(
+      files.map((id) => unlink(join(this.filesDir, id)).catch(() => undefined)),
+    );
+    return roots.length;
   }
 
   // NFR-05: only through a signed, unexpired link, and only while the file can still be seen.

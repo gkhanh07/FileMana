@@ -193,6 +193,8 @@ export class TaskDto {
   milestoneId: string | null;
   // FR-TASK-08
   attachmentCount: number;
+  // FR-TASK-01/08
+  commentCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -225,6 +227,8 @@ export class TaskProjectDto {
   key: string;
   name: string;
   archived: boolean;
+  // FR-CMT-02: suggested first in the @ list.
+  memberIds: string[];
 }
 
 // FR-TASK-13..17: everything the panel and the full page show.

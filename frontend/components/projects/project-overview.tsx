@@ -46,10 +46,15 @@ export function ProjectOverview({
   // ponytail: Review counts as in progress here; the four numbers the spec names.
   const items = [
     { label: o.progress, value: `${pct}%` },
-    { label: s.DONE, value: stats.doneCount },
-    { label: s.IN_PROGRESS, value: stats.inProgressCount + stats.reviewCount },
-    { label: s.TODO, value: stats.todoCount },
-    { label: o.overdue, value: stats.overdueCount, danger: stats.overdueCount > 0 },
+    { label: s.DONE, value: stats.doneCount, dot: "bg-status-green" },
+    { label: s.IN_PROGRESS, value: stats.inProgressCount + stats.reviewCount, dot: "bg-status-blue" },
+    { label: s.TODO, value: stats.todoCount, dot: "bg-status-gray" },
+    {
+      label: o.overdue,
+      value: stats.overdueCount,
+      danger: stats.overdueCount > 0,
+      dot: stats.overdueCount > 0 ? "bg-destructive" : undefined,
+    },
   ];
 
   return (
@@ -58,7 +63,7 @@ export function ProjectOverview({
         {items.map((x) => (
           <div key={x.label} className="flex flex-col gap-1 px-4 py-3">
             <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              {x.danger && <span aria-hidden className="size-1.5 rounded-full bg-destructive" />}
+              {x.dot && <span aria-hidden className={cn("size-1.5 rounded-full", x.dot)} />}
               {x.label}
             </dt>
             <dd className={cn("text-xl font-semibold tabular-nums", x.danger && "text-destructive")}>{x.value}</dd>

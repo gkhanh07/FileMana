@@ -19,6 +19,18 @@ const colorClass: Record<string, string> = {
 };
 export const projectColorClass = (color: string) => colorClass[color] ?? colorClass.slate;
 
+const borderClass: Record<string, string> = {
+  blue: "border-l-project-blue",
+  teal: "border-l-project-teal",
+  green: "border-l-project-green",
+  amber: "border-l-project-amber",
+  red: "border-l-project-red",
+  pink: "border-l-project-pink",
+  violet: "border-l-project-violet",
+  slate: "border-l-project-slate",
+};
+export const projectBorderClass = (color: string) => borderClass[color] ?? borderClass.slate;
+
 // FR-PRJ-01: a colored square with the name's first letter.
 export function ProjectIcon({
   project,
@@ -48,11 +60,23 @@ const statusDot: Record<ProjectStatus, string> = {
   COMPLETED: "bg-status-green",
 };
 
-// Product rules: a small dot with a text label; Archived is gray.
+const statusTint: Record<ProjectStatus, string> = {
+  PLANNING: "bg-status-gray/12",
+  ACTIVE: "bg-status-blue/12",
+  ON_HOLD: "bg-status-amber/12",
+  COMPLETED: "bg-status-green/12",
+};
+
+// Product rules: a badge with a dot and a text label; Archived is gray.
 export function ProjectStatusBadge({ project }: { project: Pick<Project, "status" | "archivedAt"> }) {
   const archived = project.archivedAt !== null;
   return (
-    <span className="inline-flex items-center gap-1.5 text-sm whitespace-nowrap">
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 text-sm whitespace-nowrap",
+        archived ? statusTint.PLANNING : statusTint[project.status],
+      )}
+    >
       <span
         aria-hidden
         className={cn("size-1.5 shrink-0 rounded-full", archived ? "bg-status-gray" : statusDot[project.status])}

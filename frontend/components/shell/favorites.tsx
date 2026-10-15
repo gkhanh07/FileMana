@@ -116,7 +116,7 @@ function FavoriteRow({ favorite, active }: { favorite: Favorite; active: boolean
       <Link
         href={`/projects/${favorite.id}`}
         aria-current={active ? "page" : undefined}
-        className={cn(rowClass, "pr-7", active && "bg-sidebar-accent font-medium text-sidebar-accent-foreground")}
+        className={cn(rowClass, "pr-7", active && "bg-primary/10 font-medium text-primary")}
       >
         <ProjectIcon project={favorite} />
         <span className={cn("truncate", favorite.archivedAt && "text-muted-foreground")}>{favorite.name}</span>
