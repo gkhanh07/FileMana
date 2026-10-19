@@ -60,10 +60,8 @@ const TaskEditor = dynamic(() => import("./task-editor"), {
   loading: () => <Skeleton className="h-24 w-full" />,
 });
 
-/** How a task link opens: in the panel (`onOpen`) or as its own page. */
 type Open = ((key: string) => void) | undefined;
 
-// FR-TASK-13: the open task lives in the URL (?task=KEY), so a reload or a shared link reopens it.
 export function useOpenTask() {
   const openKey = useSearchParams().get("task");
   const openTask = (key: string) => {
@@ -80,10 +78,8 @@ export function useOpenTask() {
   return { openKey, openTask, closeTask };
 }
 
-/** A new task may be mine, so Home and My Tasks load again. */
 export const refreshMyTasks = (qc: QueryClient) => qc.invalidateQueries({ queryKey: myTasksKey });
 
-// FR-TASK-13: a 520px panel from the right. Not modal, so the list behind stays usable.
 export function TaskPanel({
   taskKey: key,
   timeZone,
@@ -95,7 +91,6 @@ export function TaskPanel({
   onOpen: (key: string) => void;
   onClose: () => void;
 }) {
-  // Esc closes, unless it belongs to a menu, a dialog or a field (there it only leaves the field).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
@@ -118,7 +113,6 @@ export function TaskPanel({
   );
 }
 
-// The panel's content, also the full page (FR-SHELL-07) when `onClose` is left out.
 export function TaskDetail({
   taskKey: key,
   timeZone,
@@ -193,7 +187,6 @@ function Loaded({
 
   return (
     <>
-      {/* FR-TASK-14 */}
       <div className="flex h-12 shrink-0 items-center gap-1 border-b px-4">
         <span className="mr-auto font-mono text-sm text-muted-foreground">{task.key}</span>
         <Button variant="ghost" size="icon-sm" aria-label={d.copyLink} onClick={copyLink}>
@@ -243,7 +236,6 @@ function Loaded({
           <Title key={task.title} task={task} readOnly={readOnly} onSave={(title) => edit({ title })} />
         </div>
 
-        {/* FR-TASK-15: name/value pairs, click a value to edit it. */}
         <dl className="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-0.5 text-sm">
           <Prop name={t.fields.status}>
             <Pick
@@ -301,7 +293,6 @@ function Loaded({
         <Description task={task} readOnly={readOnly} />
         <Attachments taskId={task.id} readOnly={readOnly} />
         {!task.parentId && <Subtasks task={task} timeZone={timeZone} readOnly={readOnly} onOpen={onOpen} />}
-        {/* FR-TASK-19 */}
         <Tabs value={tab} onValueChange={setTab} className="gap-3 border-t pt-4">
           <TabsList variant="line">
             <TabsTrigger value="comments">
@@ -327,7 +318,6 @@ function Loaded({
   );
 }
 
-// A deleted milestone shows as none.
 function MilestonePick({
   task,
   disabled,
@@ -387,7 +377,6 @@ function TaskLink({
   );
 }
 
-// Enter or leaving the field saves; Esc puts the old title back. Remounted (key) when the title changes.
 function Title({ task, readOnly, onSave }: { task: Task; readOnly: boolean; onSave: (title: string) => void }) {
   const [value, setValue] = useState(task.title);
   const save = () => {
@@ -410,7 +399,6 @@ function Title({ task, readOnly, onSave }: { task: Task; readOnly: boolean; onSa
           e.currentTarget.blur();
         } else if (e.key === "Escape") {
           setValue(task.title);
-          // The blur after this sees the old value, so nothing is saved.
           e.currentTarget.value = task.title;
         }
       }}
@@ -452,7 +440,6 @@ function LabelsPick({
           <DropdownMenuCheckboxItem
             key={l.id}
             checked={has.has(l.id)}
-            // Stays open, so several labels can be ticked in a row.
             onSelect={(e) => e.preventDefault()}
             onCheckedChange={(on) =>
               onChange(
@@ -470,7 +457,6 @@ function LabelsPick({
   );
 }
 
-// FR-TASK-16: saves a second after the last keystroke, and when the panel closes.
 function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
   const qc = useQueryClient();
   const [state, setState] = useState<"idle" | "saving" | "saved">("idle");
@@ -491,7 +477,6 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
         setState("saved");
       },
       (e) => {
-        // Kept, so the next keystroke or closing tries again.
         pending.current ??= doc;
         setState("idle");
         saveError(e);
@@ -523,7 +508,6 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
   );
 }
 
-// FR-TASK-17
 function Subtasks({
   task,
   timeZone,
@@ -619,7 +603,6 @@ function Subtask({ task, timeZone, readOnly, onOpen }: { task: Task; timeZone: s
   );
 }
 
-// FR-TASK-19: the Activity tab.
 function ActivityList({ task, timeZone }: { task: Task; timeZone: string }) {
   const PAGE = 20;
   const query = useInfiniteQuery({
@@ -678,7 +661,6 @@ function ActivityList({ task, timeZone }: { task: Task; timeZone: string }) {
   );
 }
 
-// FR-ROLE-04, FR-UI-04: to Trash at once, with Undo in the toast.
 function useDelete(task: Task, onDeleted: () => void) {
   const qc = useQueryClient();
   const refresh = () => {
@@ -691,7 +673,6 @@ function useDelete(task: Task, onDeleted: () => void) {
     onSuccess: () => {
       qc.setQueryData<Task[]>(tasksKey(task.projectId), (list) => list?.filter((x) => x.id !== task.id));
       qc.setQueriesData<Detail>({ queryKey: ["task"] }, (x) => x && { ...x, subtasks: x.subtasks.filter((s) => s.id !== task.id) });
-      // Its subtasks go to Trash with it.
       qc.setQueryData<MyTask[]>(myTasksKey, (list) => list?.filter((x) => x.id !== task.id && x.parentId !== task.id));
       qc.removeQueries({ queryKey: taskKey(task.key) });
       onDeleted();

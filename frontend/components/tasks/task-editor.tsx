@@ -7,8 +7,6 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import { useTheme } from "next-themes";
 
-// FR-TASK-16 (D7: BlockNote). Loaded only in the browser, through next/dynamic.
-// ponytail: image and file blocks only embed a URL until uploads arrive (F12).
 export default function TaskEditor({
   initial,
   editable,
@@ -20,7 +18,6 @@ export default function TaskEditor({
 }) {
   const editor = useCreateBlockNote({
     dictionary: vi,
-    // An empty document is undefined, not [].
     initialContent: initial?.length ? (initial as PartialBlock[]) : undefined,
   });
   const { resolvedTheme } = useTheme();

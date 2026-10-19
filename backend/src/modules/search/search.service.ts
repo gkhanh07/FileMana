@@ -7,8 +7,6 @@ import { SearchResultDto } from './search.dto';
 
 const TAKE = 5;
 
-// FR-SEARCH-02/03. ponytail: names are folded and matched in memory, so "thiet ke" finds
-// "Thiết kế" without a Postgres extension; fine for a few thousand rows, unaccent + pg_trgm beyond.
 @Injectable()
 export class SearchService {
   constructor(
@@ -58,7 +56,6 @@ export class SearchService {
     ]);
     const match = (s: string) => fold(s).includes(q);
     return {
-      // FR-SEARCH-02: the ID too, so "web-12" finds WEB-12.
       tasks: tasks
         .map((t) => ({ ...t, key: `${t.project.key}-${t.number}` }))
         .filter((t) => match(`${t.key} ${t.title}`))

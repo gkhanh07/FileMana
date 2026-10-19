@@ -41,7 +41,6 @@ const ROW = "grid grid-cols-[1rem_minmax(0,1fr)_10rem_7.5rem_8rem_8rem] gap-3 px
 const useMyTasks = (initial: MyTask[]) =>
   useQuery({ queryKey: myTasksKey, queryFn: () => api<MyTask[]>("/me/tasks"), initialData: initial }).data;
 
-// FR-HOME-05: ticking sets Done, with Undo in the toast. Unticking goes back to Todo.
 function useTick() {
   const update = useUpdateTask();
   return (task: MyTask, on: boolean) => {
@@ -62,12 +61,10 @@ function useTick() {
   };
 }
 
-// FR-HOME-02..06: my open tasks that are overdue, due today or in the next 7 days.
 export function HomeTasks({ initialTasks, timeZone }: { initialTasks: MyTask[]; timeZone: string }) {
   const tasks = useMyTasks(initialTasks);
   const { openKey, openTask, closeTask } = useOpenTask();
   const tick = useTick();
-  // FR-HOME-05: a task ticked here stays (struck through) until reload, so Undo has something to point at.
   const [ticked, setTicked] = useState<Set<string>>(new Set());
   const shown = tasks.filter((x) => x.status !== "DONE" || ticked.has(x.id));
   const groups = groupMyTasks(sortTasks(shown, "due"), "due", timeZone).filter((g) =>
@@ -102,7 +99,6 @@ export function HomeTasks({ initialTasks, timeZone }: { initialTasks: MyTask[]; 
   );
 }
 
-// FR-MY-01..04: every task assigned to me, across projects.
 export function MyTaskList({ initialTasks, timeZone }: { initialTasks: MyTask[]; timeZone: string }) {
   const tasks = useMyTasks(initialTasks);
   const { openKey, openTask, closeTask } = useOpenTask();
@@ -190,7 +186,6 @@ export function MyTaskList({ initialTasks, timeZone }: { initialTasks: MyTask[];
         </div>
       ) : (
         <Groups
-          // Collapsed groups belong to one way of grouping.
           key={group}
           groups={groups}
           title={(g) =>
@@ -246,7 +241,6 @@ function Groups({
     <div className="border-t">
       {groups.map((g) => {
         const open = !collapsed.has(g.key);
-        // FR-HOME-03: Overdue's count is red; the row background stays plain.
         const openCount = g.tasks.filter((x) => x.status !== "DONE").length;
         return (
           <section key={g.key} aria-labelledby={`${id}-${g.key}`}>
@@ -295,7 +289,6 @@ function Groups({
   );
 }
 
-// FR-HOME-04, FR-HOME-06: the whole row opens the panel; the title is the keyboard way in.
 function Row({
   task,
   timeZone,
@@ -322,7 +315,6 @@ function Row({
         onClick={(e) => e.stopPropagation()}
         onCheckedChange={(on) => onTick(task, on === true)}
       />
-      {/* The click bubbles to the row. */}
       <button
         type="button"
         className={cn("truncate text-left hover:underline", done && "text-muted-foreground line-through")}

@@ -5,7 +5,6 @@ import { getMe } from "@/lib/api/server";
 import { strings } from "@/lib/strings";
 import { PasswordForm, ProfileForm, SignOutOthers } from "./personal-settings";
 
-// FR-SET-01, FR-SET-02, FR-SET-13 (Trash has its own page)
 export default async function SettingsPage() {
   const me = await getMe();
   return (

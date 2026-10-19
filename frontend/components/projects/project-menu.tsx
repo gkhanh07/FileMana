@@ -22,7 +22,6 @@ import { ProjectFormDialog } from "./project-form-dialog";
 
 const t = strings.projects;
 
-/** One project action: toast and re-render the server data on success. */
 export function useProjectAction(path: string, method: "POST" | "PUT" | "DELETE", success: string) {
   const router = useRouter();
   return useMutation({
@@ -35,7 +34,6 @@ export function useProjectAction(path: string, method: "POST" | "PUT" | "DELETE"
   });
 }
 
-// FR-PRJ-05 "…" menu: edit, pin, archive (FR-PRJ-10), delete (FR-PRJ-11).
 export function ProjectMenu({ project }: { project: Project }) {
   const [dialog, setDialog] = useState<"edit" | "delete" | null>(null);
   const archived = project.archivedAt !== null;

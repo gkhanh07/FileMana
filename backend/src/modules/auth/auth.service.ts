@@ -14,7 +14,6 @@ import { Prisma, type User } from '../../generated/prisma/client';
 export const SESSION_COOKIE = 'sid';
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
-// FR-AUTH-01: unticked ends after 24 h; ticked lasts 30 days and is renewed while used.
 const TTL = { short: DAY, long: 30 * DAY };
 
 const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -23,7 +22,6 @@ type Renewal = { remember: boolean; expiresAt: Date };
 
 @Injectable()
 export class AuthService {
-  // Verified when the email is unknown, so response time doesn't reveal which emails exist.
   private readonly dummyHash = argon2.hash('not-a-real-password');
 
   constructor(
@@ -46,7 +44,6 @@ export class AuthService {
     return this.startSession(user, remember);
   }
 
-  // FR-AUTH-03: anyone who can reach the app may join, with the same rights as everyone.
   async signUp(email: string, name: string, password: string) {
     try {
       const user = await this.prisma.user.create({
@@ -101,8 +98,6 @@ export class AuthService {
       return null;
     }
 
-    // A remembered session's cookie is re-issued on every authenticated response: the Next.js
-    // server drops these headers, so the browser's own calls must be able to refresh the expiry.
     let cookie: Renewal | undefined;
     if (session.remember) {
       let expiresAt = session.expiresAt;
@@ -128,7 +123,6 @@ export class AuthService {
   setCookie(res: Response, token: string, { remember, expiresAt }: Renewal) {
     res.cookie(SESSION_COOKIE, token, {
       ...this.cookieBase(),
-      // No expiry = browser-session cookie; the server still ends it after 24 h.
       ...(remember && { expires: expiresAt }),
     });
   }

@@ -21,7 +21,6 @@ type Page = components["schemas"]["TrashPageDto"];
 const LIMIT = 50;
 const DAY = 86_400_000;
 
-// NFR-08: the daily job purges it once 30 days have passed.
 const daysLeft = (deletedAt: string) => Math.ceil((Date.parse(deletedAt) + 30 * DAY - Date.now()) / DAY);
 
 function TypeIcon({ entry }: { entry: Entry }) {
@@ -30,7 +29,6 @@ function TypeIcon({ entry }: { entry: Entry }) {
   return <Icon aria-hidden className="size-4 shrink-0" />;
 }
 
-// FR-SET-13, FR-UI-07: restoring happens at once; deleting for good asks first.
 export function TrashList({ timeZone }: { timeZone: string }) {
   const qc = useQueryClient();
   const router = useRouter();
@@ -43,7 +41,6 @@ export function TrashList({ timeZone }: { timeZone: string }) {
   });
   const done = (message: string) => {
     toast.success(message);
-    // What came back shows up everywhere: lists, the sidebar, server-rendered pages.
     void qc.invalidateQueries();
     router.refresh();
   };

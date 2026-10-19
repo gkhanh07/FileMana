@@ -17,12 +17,9 @@ export class Env {
   @IsString()
   DATABASE_URL: string;
 
-  // The only origin the browser may call the API from (CORS, credentials).
   @IsString()
   WEB_ORIGIN: string = 'http://localhost:3000';
 
-  // true behind HTTPS (production); false for plain http://localhost.
-  // Read the raw value: implicit conversion would already have turned the string 'false' into true.
   @Transform(
     ({ obj }: { obj: Record<string, unknown> }) =>
       String(obj.COOKIE_SECURE).toLowerCase() === 'true',
@@ -30,11 +27,9 @@ export class Env {
   @IsBoolean()
   COOKIE_SECURE: boolean = false;
 
-  // Uploaded files live here (a Docker volume in production), never in the database.
   @IsString()
   UPLOAD_DIR: string = 'uploads';
 
-  // NFR-04: sign-in and sign-up tries per minute per IP. Only the Playwright API raises it.
   @IsInt()
   @Min(1)
   THROTTLE_LIMIT: number = 20;

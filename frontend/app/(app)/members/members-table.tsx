@@ -35,7 +35,6 @@ type Open =
   | null;
 const t = strings.settings.members;
 
-// FR-SET-06, FR-AUTH-02, plus add / edit / delete. Your own row has no reset or delete: you use personal settings.
 export function MembersTable({ members, meId }: { members: Member[]; meId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState<Open>(null);

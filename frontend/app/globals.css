@@ -54,7 +54,6 @@
   --color-project-violet: var(--project-violet);
   --color-project-slate: var(--project-slate);
   --color-project-foreground: var(--project-foreground);
-  /* Small radii from design/_ds: 2 / 4 / 7px. */
   --radius-sm: 2px;
   --radius-md: 4px;
   --radius-lg: var(--radius);
@@ -65,8 +64,6 @@
 }
 
 :root {
-  /* D5: steel-blue brand and cool neutrals, after design/_ds. Brand is its 700 step:
-     the 600 step (#597ea3) gives white text only 4.2:1, under WCAG AA (NFR-12). */
   --radius: 7px;
   --background: #ffffff;
   --foreground: #1d1f20;
@@ -99,15 +96,11 @@
   --sidebar-accent-foreground: #1d1f20;
   --sidebar-border: #e7e7ea;
   --sidebar-ring: #597ea3;
-  /* Status colors (CLAUDE.md, Product Rules): always a dot or badge next to a text label.
-     Each passes 4.5:1 as text on the background. */
   --status-gray: #6b7280;
   --status-blue: #2563eb;
   --status-amber: #b45309;
   --status-green: #15803d;
   --status-red: #dc2626;
-  /* Project icon squares (FR-PRJ-01), after design/Projects. Decoration only, not status;
-     white letters on every one, in both themes. */
   --project-blue: oklch(0.55 0.11 255);
   --project-teal: oklch(0.55 0.09 190);
   --project-green: oklch(0.55 0.1 145);
@@ -162,7 +155,6 @@
   * {
     @apply border-border outline-ring;
   }
-  /* FR-UI-08: anything focusable without its own ring still shows one. */
   :focus-visible {
     @apply outline-2 outline-offset-2;
   }
@@ -177,7 +169,6 @@
   }
 }
 
-/* BlockNote paints its own editor colors; use the app's so editors sit on the page in both themes. */
 .bn-container.bn-root[data-color-scheme] {
   --bn-colors-editor-background: var(--background);
   --bn-colors-editor-text: var(--foreground);

@@ -26,7 +26,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-// FR-SET-01. Saving re-renders the server layout, so the sidebar shows the new name and photo.
 export function ProfileForm({ user }: { user: User }) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -118,7 +117,6 @@ export function ProfileForm({ user }: { user: User }) {
   );
 }
 
-// FR-SET-02. This device stays signed in; every other one is signed out.
 export function PasswordForm() {
   const change = useMutation({
     mutationFn: (body: { currentPassword: string; newPassword: string }) =>
@@ -179,7 +177,6 @@ export function PasswordForm() {
   );
 }
 
-// FR-SET-02: "sign out of all devices", except this one.
 export function SignOutOthers() {
   const signOut = useMutation({
     mutationFn: () => api("/me/sessions", { method: "DELETE" }),

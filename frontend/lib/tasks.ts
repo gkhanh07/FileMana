@@ -3,14 +3,12 @@ import { dayKey, daysUntil, dueTone, formatDueDate } from "./format";
 import { strings } from "./strings";
 
 export type Task = components["schemas"]["TaskDto"];
-// FR-HOME-02, FR-MY-01: a task from a list across projects carries its project.
 export type MyTask = components["schemas"]["MyTaskDto"];
 export type TaskStatus = components["schemas"]["TaskStatus"];
 export type TaskPriority = components["schemas"]["TaskPriority"];
 export type Label = components["schemas"]["LabelDto"];
 export type Milestone = components["schemas"]["MilestoneDto"];
 export type TaskPatch = Omit<components["schemas"]["UpdateTaskDto"], "description"> & { description?: unknown[] | null };
-// JSON columns come through OpenAPI as empty objects; these are the real shapes.
 export type TaskDetail = Omit<components["schemas"]["TaskDetailDto"], "description"> & { description: unknown[] | null };
 export type Activity = Omit<components["schemas"]["ActivityDto"], "oldValue" | "newValue"> & {
   oldValue: unknown;
@@ -22,7 +20,6 @@ export const TASK_PRIORITIES: TaskPriority[] = ["URGENT", "HIGH", "MEDIUM", "LOW
 
 export type TaskGroupBy = "status" | "assignee" | "milestone";
 export type TaskSort = "due" | "priority" | "created";
-/** "none" means unassigned. */
 export type TaskFilters = {
   assignee: string | null;
   priority: TaskPriority | null;
@@ -31,11 +28,9 @@ export type TaskFilters = {
 };
 export const NO_FILTERS: TaskFilters = { assignee: null, priority: null, label: null, due: null };
 
-/** FR-TASK-07: the List or Kanban board. */
 export type TasksLayout = "list" | "board";
 export type TasksView = { layout: TasksLayout; group: TaskGroupBy; sort: TaskSort; filters: TaskFilters };
 
-/** Reads the view from the URL; anything unknown falls back to the default. */
 export function parseTasksView(p: Record<string, string | undefined>): TasksView {
   return {
     layout: p.view === "board" ? "board" : "list",
@@ -50,7 +45,6 @@ export function parseTasksView(p: Record<string, string | undefined>): TasksView
   };
 }
 
-/** The first and last day ("2026-10-12") of the week containing `now`, in workspace time. */
 export function weekRange(timeZone: string, weekStartsOn: number, now: Date = new Date()): [string, string] {
   const today = new Date(`${dayKey(now, timeZone)}T00:00:00Z`);
   const start = new Date(today);
@@ -60,7 +54,6 @@ export function weekRange(timeZone: string, weekStartsOn: number, now: Date = ne
   return [start.toISOString().slice(0, 10), end.toISOString().slice(0, 10)];
 }
 
-/** FR-TASK-03. Done tasks are never overdue. */
 export function filterTasks(
   tasks: Task[],
   f: TaskFilters,
@@ -80,7 +73,6 @@ export function filterTasks(
   );
 }
 
-/** FR-TASK-03: nearest due first (no date last), most urgent first, or newest first. */
 export function sortTasks<T extends Task>(tasks: T[], sort: TaskSort): T[] {
   const due = (t: Task) => (t.dueDate ? `${t.dueDate} ${t.dueTime ?? "99:99"}` : "9999");
   return [...tasks].sort((a, b) =>
@@ -94,10 +86,6 @@ export function sortTasks<T extends Task>(tasks: T[], sort: TaskSort): T[] {
 
 export type TaskGroup = { key: string; tasks: Task[] };
 
-/**
- * FR-TASK-02. By status: all four, even empty, so each has its "+ Add task" row. By assignee: A–Z, unassigned last.
- * By milestone: every milestone in date order (`milestones` comes sorted), then "none"; a deleted one's tasks land there.
- */
 export function groupTasks(tasks: Task[], by: TaskGroupBy, milestones: Milestone[] = []): TaskGroup[] {
   if (by === "status") return TASK_STATUSES.map((s) => ({ key: s, tasks: tasks.filter((t) => t.status === s) }));
   if (by === "milestone") {
@@ -117,7 +105,6 @@ export function groupTasks(tasks: Task[], by: TaskGroupBy, milestones: Milestone
     .map(({ key, tasks }) => ({ key, tasks }));
 }
 
-/** FR-TASK-07: the four status columns, each in its dragged order (FR-TASK-09). */
 export function boardColumns(tasks: Task[]): TaskGroup[] {
   return TASK_STATUSES.map((s) => ({
     key: s,
@@ -125,14 +112,12 @@ export function boardColumns(tasks: Task[]): TaskGroup[] {
   }));
 }
 
-/** FR-TASK-09: a position between the new neighbours; either one is missing at an end of the column. */
 export const positionBetween = (before?: number, after?: number) =>
   before === undefined ? (after === undefined ? 1 : after - 1) : after === undefined ? before + 1 : (before + after) / 2;
 
 export type DueBucket ="overdue" | "today" | "week" | "later" | "none";
 export const DUE_BUCKETS: DueBucket[] = ["overdue", "today", "week", "later", "none"];
 
-/** FR-HOME-02, FR-MY-02: which due group a task falls in, by workspace "today". "week" is the next 7 days. */
 export function dueBucket(dueDate: string | null, timeZone: string, now: Date = new Date()): DueBucket {
   if (!dueDate) return "none";
   const days = daysUntil(dueDate, timeZone, now);
@@ -143,7 +128,6 @@ export type MyTasksGroupBy = "due" | "project" | "status";
 export type MyTaskFilters = { project: string | null; priority: TaskPriority | null; status: TaskStatus | null };
 export const NO_MY_FILTERS: MyTaskFilters = { project: null, priority: null, status: null };
 
-/** FR-MY-03, FR-MY-04: Done stays hidden unless shown, or asked for by the status filter. */
 export function filterMyTasks(tasks: MyTask[], f: MyTaskFilters, showDone: boolean): MyTask[] {
   return tasks.filter(
     (t) =>
@@ -156,7 +140,6 @@ export function filterMyTasks(tasks: MyTask[], f: MyTaskFilters, showDone: boole
 
 export type MyTaskGroup = { key: string; tasks: MyTask[] };
 
-/** FR-MY-02: non-empty groups only. Due in bucket order, status in workflow order, projects A–Z. */
 export function groupMyTasks(
   tasks: MyTask[],
   by: MyTasksGroupBy,
@@ -182,7 +165,6 @@ const dueText = (v: unknown) => {
   return formatDueDate(date, time);
 };
 
-/** FR-ACT-02: what an Activity entry says after the actor's name. */
 export function describeActivity({ action, oldValue, newValue }: Activity): string {
   const t = strings.tasks;
   switch (action) {

@@ -17,7 +17,6 @@ import { LoginDto, SignUpDto, UserDto } from './dto/login.dto';
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
-  // NFR-04: rate-limited per IP (see ThrottlerModule in AppModule); no account lockout.
   @Public()
   @UseGuards(ThrottlerGuard)
   @HttpCode(200)
@@ -35,7 +34,6 @@ export class AuthController {
     return user;
   }
 
-  // FR-AUTH-03: rate-limited like sign-in.
   @Public()
   @UseGuards(ThrottlerGuard)
   @Post('signup')
@@ -52,7 +50,6 @@ export class AuthController {
     return user;
   }
 
-  // Public so an already-expired session can still sign out (and get its cookie cleared).
   @Public()
   @HttpCode(204)
   @Post('logout')

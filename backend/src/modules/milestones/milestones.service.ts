@@ -19,12 +19,10 @@ const notFound = () =>
     message: 'Milestone not found',
   });
 
-// FR-PRJ-08. No roles (FR-ROLE-03): anyone can change the milestones of a project that isn't archived.
 @Injectable()
 export class MilestonesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Soonest first.
   async list(projectId: string): Promise<MilestoneDto[]> {
     await this.findProject(projectId);
     const rows = await this.prisma.milestone.findMany({
@@ -54,7 +52,6 @@ export class MilestonesService {
     return (await this.toDtos([m]))[0];
   }
 
-  // To Trash; linked tasks keep the link, so the toast's Undo brings it all back.
   async remove(id: string): Promise<void> {
     await this.findWritable(id, null);
     await this.prisma.milestone.update({
@@ -115,7 +112,6 @@ export class MilestonesService {
     if (writable && project.archivedAt) throw projectArchived();
   }
 
-  // FR-ROLE-02: an archived project's milestones are read-only.
   private async findWritable(id: string, deletedAt: null | { not: null }) {
     const m = await this.prisma.milestone.findFirst({
       where: { id, deletedAt, project: { deletedAt: null } },

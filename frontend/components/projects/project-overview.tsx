@@ -20,7 +20,6 @@ export type ActivityPage = { items: ProjectActivity[]; hasMore: boolean };
 const o = strings.projects.overview;
 const s = strings.tasks.status;
 
-// FR-PRJ-07: one row of stats, the milestones, recent activity.
 export function ProjectOverview({
   projectId,
   readOnly,
@@ -43,7 +42,6 @@ export function ProjectOverview({
     staleTime: 0,
   });
   const pct = stats.taskCount ? Math.round((stats.doneCount / stats.taskCount) * 100) : 0;
-  // ponytail: Review counts as in progress here; the four numbers the spec names.
   const items = [
     { label: o.progress, value: `${pct}%` },
     { label: s.DONE, value: stats.doneCount, dot: "bg-status-green" },

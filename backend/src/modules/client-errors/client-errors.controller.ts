@@ -5,8 +5,6 @@ import {
 } from '../../common/decorators/current-user.decorator';
 import { ClientErrorDto } from './client-error.dto';
 
-// NFR-15: browser errors land in the same JSON log stream as server errors.
-// ponytail: signed-in users only; add @Public() + a throttle if sign-in page errors matter.
 @Controller('client-errors')
 export class ClientErrorsController {
   private readonly logger = new Logger('Browser');

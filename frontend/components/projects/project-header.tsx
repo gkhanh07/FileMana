@@ -31,7 +31,6 @@ export function PinButton({ project }: { project: Project }) {
   );
 }
 
-// FR-PRJ-10
 export function ArchivedBanner({ project }: { project: Project }) {
   const restore = useProjectAction(`/projects/${project.id}/restore`, "POST", t.restoredToast);
   return (
@@ -45,7 +44,6 @@ export function ArchivedBanner({ project }: { project: Project }) {
   );
 }
 
-// FR-PRJ-06
 export function ProjectTabs({ id }: { id: string }) {
   const pathname = usePathname();
   const tabs = [

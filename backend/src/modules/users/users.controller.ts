@@ -45,7 +45,6 @@ export class UsersController {
     return user;
   }
 
-  // FR-SET-01 (name, job title), FR-SHELL-06 (theme).
   @Patch()
   update(
     @CurrentUser() user: AuthUser,
@@ -54,7 +53,6 @@ export class UsersController {
     return this.users.updateMe(user.id, dto);
   }
 
-  // Multipart field `file`; JPG, PNG or WebP up to 2 MB.
   @Put('avatar')
   @UseInterceptors(
     FileInterceptor('file', { limits: { fileSize: AVATAR_MAX_BYTES } }),
@@ -71,7 +69,6 @@ export class UsersController {
     return this.users.removeAvatar(user.id);
   }
 
-  // Rate-limited like sign-in, so the current password can't be guessed here instead.
   @Post('password')
   @UseGuards(ThrottlerGuard)
   @HttpCode(204)
@@ -88,7 +85,6 @@ export class UsersController {
     );
   }
 
-  // FR-SET-02: "sign out of all devices", except this one.
   @Delete('sessions')
   @HttpCode(204)
   signOutOthers(
@@ -99,7 +95,6 @@ export class UsersController {
   }
 }
 
-// Any signed-in user may see any avatar (no roles).
 @Controller('avatars')
 export class AvatarsController {
   constructor(private readonly users: UsersService) {}
@@ -107,14 +102,12 @@ export class AvatarsController {
   @Get(':file')
   get(@Param('file') file: string, @Res() res: Response): void {
     const path = this.users.avatarPath(file);
-    // The web app is another origin in development; helmet's default would block the <img>.
     res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
     res.setHeader('Cache-Control', 'private, max-age=31536000, immutable');
     res.sendFile(path);
   }
 }
 
-// Everyone who can be an owner or member (FR-PRJ-09). ~10 people, so no paging.
 @Controller('users')
 export class PeopleController {
   constructor(private readonly users: UsersService) {}
@@ -125,8 +118,6 @@ export class PeopleController {
   }
 }
 
-// FR-SET-06, FR-AUTH-02: any member may reset any other member's password (no roles).
-// Any member may also add, edit and delete accounts.
 @Controller('members')
 export class MembersController {
   constructor(private readonly users: UsersService) {}

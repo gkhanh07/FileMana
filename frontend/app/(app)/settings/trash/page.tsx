@@ -2,7 +2,6 @@ import { getWorkspace } from "@/lib/api/server";
 import { strings } from "@/lib/strings";
 import { TrashList } from "./trash-list";
 
-// FR-SET-13
 export default async function TrashPage() {
   const workspace = await getWorkspace();
   return (

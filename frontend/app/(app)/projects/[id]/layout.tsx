@@ -4,7 +4,6 @@ import { ArchivedBanner, PinButton, ProjectTabs } from "@/components/projects/pr
 import { ProjectMenu } from "@/components/projects/project-menu";
 import { getProject, getWorkspace } from "@/lib/api/server";
 
-// FR-PRJ-05/06: the header and tabs stay put while the tab below changes.
 export default async function ProjectLayout({
   params,
   children,

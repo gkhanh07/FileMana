@@ -15,7 +15,6 @@ import {
   UpdateCommentDto,
 } from './dto/comment.dto';
 
-// Not in Trash, and neither is its project or its parent task.
 const aliveTask = {
   deletedAt: null,
   project: { deletedAt: null },
@@ -32,7 +31,6 @@ export class CommentsService {
     private readonly items: ItemsService,
   ) {}
 
-  // FR-TASK-19: newest first; the panel shows them oldest at the top.
   async list(taskId: string, offset = 0, limit = 20): Promise<CommentsPageDto> {
     if (
       !(await this.prisma.task.count({ where: { id: taskId, ...aliveTask } }))
@@ -49,7 +47,6 @@ export class CommentsService {
     return { items: await this.toDtos(page), hasMore: rows.length > limit };
   }
 
-  // FR-CMT-01..03, FR-ACT-01
   async create(
     userId: string,
     taskId: string,
@@ -61,7 +58,6 @@ export class CommentsService {
     });
     if (!task) throw taskNotFound();
     if (task.project.archivedAt) throw projectArchived();
-    // Only the sender's own files on this task that no comment holds yet.
     const fileIds = dto.attachmentIds?.length
       ? (
           await this.prisma.item.findMany({
@@ -103,7 +99,6 @@ export class CommentsService {
     return (await this.toDtos([row]))[0];
   }
 
-  // FR-CMT-04: the author only (FR-ROLE-04).
   async update(
     userId: string,
     id: string,
@@ -131,7 +126,6 @@ export class CommentsService {
     });
   }
 
-  // The toast's Undo.
   async restore(userId: string, id: string): Promise<CommentDto> {
     await this.own(userId, id, true);
     const row = await this.prisma.comment.update({
@@ -142,7 +136,6 @@ export class CommentsService {
     return (await this.toDtos([row]))[0];
   }
 
-  // A comment on a live, writable task that `userId` wrote.
   private async own(userId: string, id: string, deleted: boolean) {
     const c = await this.prisma.comment.findFirst({
       where: {
@@ -162,7 +155,6 @@ export class CommentsService {
     return c;
   }
 
-  // ponytail: unknown or deactivated ids are dropped, not rejected; the @ list only offers real people.
   private async mentionable(ids: string[] | undefined): Promise<string[]> {
     if (!ids?.length) return [];
     const users = await this.prisma.user.findMany({
@@ -204,7 +196,6 @@ const commentNotFound = () =>
     message: 'Comment not found',
   });
 
-// FR-ROLE-04
 const notAuthor = () =>
   new ForbiddenException({
     code: 'NOT_COMMENT_AUTHOR',

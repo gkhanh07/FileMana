@@ -16,7 +16,6 @@ import { projectColorClass } from "./project-bits";
 
 const t = strings.projects;
 
-// FR-PRJ-03 (create: only the name is required) and the "Sửa dự án" item of FR-PRJ-05.
 export function ProjectFormDialog({
   open,
   onOpenChange,
@@ -32,7 +31,6 @@ export function ProjectFormDialog({
         <DialogHeader>
           <DialogTitle>{project ? t.form.editTitle : t.form.createTitle}</DialogTitle>
         </DialogHeader>
-        {/* Mounted only while open, so every opening starts from fresh values. */}
         {open && <ProjectForm project={project} onDone={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>

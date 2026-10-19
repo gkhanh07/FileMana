@@ -44,7 +44,6 @@ export class SearchItemDto {
   updatedAt: Date;
 }
 
-// FR-SEARCH-03: one list per group, most recently updated first.
 export class SearchResultDto {
   tasks: SearchTaskDto[];
   projects: SearchProjectDto[];

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-// Another user as shown next to their work: owner, member, assignee.
 export class PersonDto {
   id: string;
   name: string;

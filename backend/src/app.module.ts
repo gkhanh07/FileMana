@@ -26,14 +26,12 @@ import { PrismaModule } from './prisma/prisma.module';
       envFilePath: ['.env', '../.env'],
       validate: validateEnv,
     }),
-    // About 20 sign-in tries per minute per IP (NFR-04); only routes with ThrottlerGuard use it.
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => [
         { ttl: 60_000, limit: config.get<number>('THROTTLE_LIMIT', 20) },
       ],
     }),
-    // NFR-08: the daily Trash purge.
     ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,

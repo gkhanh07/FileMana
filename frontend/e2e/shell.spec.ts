@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-// Account created by the backend's e2e server (backend/src/e2e-server.ts).
 const EMAIL = "e2e@filemana.test";
 const PASSWORD = "e2e-password-123";
 
@@ -37,7 +36,6 @@ test("theme is saved to the account, not just this browser", async ({ page }) =>
   expect((await saved).ok()).toBe(true);
   await expect(page.locator("html")).toHaveClass(/dark/);
 
-  // A fresh browser storage still gets the account's theme.
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/);

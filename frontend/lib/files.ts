@@ -37,7 +37,6 @@ export function fileIcon(item: Pick<Item, "kind" | "name">) {
     spreadsheet: FileSpreadsheet, presentation: Presentation, archive: Archive, other: File }[fileKind(item.name)];
 }
 
-/** Only links to this app turn into status chips; external links keep their normal behavior. */
 export function appLink(text: string, origin: string): { kind: "task" | "project"; id: string } | null {
   try {
     const url = new URL(text, origin);

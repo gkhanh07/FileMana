@@ -1,10 +1,5 @@
-# One origin for everything: the web app at /, the API at /api (prefix stripped).
-# Plain HTTP: the VPS's own Nginx (aaPanel) owns ports 80/443 and will terminate HTTPS for the
-# domain (NFR-04), proxying to this port.
 {
 	servers {
-		# The client IP arrives in X-Forwarded-For from that Nginx (a private Docker gateway address);
-		# a client connecting directly comes from a public IP, so it cannot spoof it.
 		trusted_proxies static private_ranges
 	}
 }

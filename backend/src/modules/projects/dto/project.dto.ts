@@ -17,7 +17,6 @@ import { ProjectStatus } from '../../../generated/prisma/enums';
 import { ActivityDto, TaskRefDto } from '../../tasks/dto/task.dto';
 import { PersonDto } from '../../users/dto/person.dto';
 
-// Names of the icon colors; the frontend maps each to a design token.
 export const PROJECT_COLORS = [
   'blue',
   'teal',
@@ -32,7 +31,6 @@ export const PROJECT_COLORS = [
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
-// A calendar date (2026-10-15), never converted to UTC (CLAUDE.md, API Contract).
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export class CreateProjectDto {
@@ -42,18 +40,15 @@ export class CreateProjectDto {
   @MaxLength(80)
   name: string;
 
-  // Suggested by the client from the name; cannot change after creation.
   @Matches(/^[A-Z]{2,5}$/)
   key: string;
 
-  // An empty string clears it.
   @IsOptional()
   @Transform(trim)
   @IsString()
   @MaxLength(300)
   description?: string;
 
-  // Random when left out.
   @IsOptional()
   @IsIn(PROJECT_COLORS)
   color?: string;
@@ -67,12 +62,10 @@ export class CreateProjectDto {
   @IsEnum(ProjectStatus)
   status?: ProjectStatus;
 
-  // Defaults to the creator.
   @IsOptional()
   @IsUUID()
   ownerId?: string;
 
-  // null clears it.
   @ApiProperty({ type: String, nullable: true, required: false })
   @IsOptional()
   @Matches(DATE)
@@ -91,7 +84,6 @@ export class UpdateProjectDto extends PartialType(
 ) {}
 
 export class DeleteProjectDto {
-  // FR-PRJ-11: the project's name, typed to confirm.
   @IsString()
   name: string;
 }
@@ -122,31 +114,25 @@ export class ProjectDto {
   @ApiProperty({ type: String, nullable: true })
   dueDate: string | null;
   owner: PersonDto;
-  // The owner first, then in the order they were added.
   members: PersonDto[];
   @ApiProperty({ type: String, format: 'date-time', nullable: true })
   archivedAt: Date | null;
-  // In the current user's Favorites.
   pinned: boolean;
-  // FR-PRJ-04: progress is doneCount / taskCount.
   taskCount: number;
   doneCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// FR-PRJ-07: the Overview's stats row. Subtasks don't count (FR-PRJ-04).
 export class ProjectStatsDto {
   taskCount: number;
   todoCount: number;
   inProgressCount: number;
   reviewCount: number;
   doneCount: number;
-  // Not Done and due before today in the workspace timezone.
   overdueCount: number;
 }
 
-// FR-PRJ-07: an entry of the project's activity, with the task it is about.
 export class ProjectActivityDto extends ActivityDto {
   @ApiProperty({ type: TaskRefDto, nullable: true })
   task: TaskRefDto | null;

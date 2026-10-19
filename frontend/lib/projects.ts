@@ -9,10 +9,8 @@ export type ProjectColor = NonNullable<components["schemas"]["CreateProjectDto"]
 export const PROJECT_STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED"];
 export const PROJECT_COLORS: ProjectColor[] = ["blue", "teal", "green", "amber", "red", "pink", "violet", "slate"];
 export const MAX_FAVORITES = 5; // the API enforces the same limit
-/** FR-PRJ-07: recent activity loads this many at a time. */
 export const ACTIVITY_PAGE = 20;
 
-/** FR-PRJ-03: word initials without diacritics ("Thiết kế web" → TKW); one word → its first 3 letters. */
 export function suggestKey(name: string): string {
   const plain = name.normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "D").toUpperCase();
   const words = plain.match(/[A-Z]+/g) ?? [];
@@ -21,7 +19,6 @@ export function suggestKey(name: string): string {
   return key.length >= 2 ? key : "";
 }
 
-/** FR-HOME-07: up to 5 Active projects I'm in (members include the owner), nearest due first. */
 export function runningProjects(projects: Project[], userId: string): Project[] {
   return projects
     .filter((p) => p.status === "ACTIVE" && !p.archivedAt && p.members.some((m) => m.id === userId))
@@ -29,7 +26,6 @@ export function runningProjects(projects: Project[], userId: string): Project[] 
     .slice(0, 5);
 }
 
-/** The status filter on the Projects page. "open" (the default) hides Completed (FR-PRJ-02). */
 export type StatusFilter = "open" | ProjectStatus | "archived";
 export type ProjectSort = "due" | "updated";
 
@@ -39,7 +35,6 @@ export function matchesStatus(p: Project, filter: StatusFilter): boolean {
   return filter === "open" ? p.status !== "COMPLETED" : p.status === filter;
 }
 
-/** FR-PRJ-02: search by name, then sort by nearest due date (none last) or most recently updated. */
 export function filterProjects(projects: Project[], filter: StatusFilter, query: string, sort: ProjectSort): Project[] {
   const q = query.trim().toLocaleLowerCase("vi");
   return projects

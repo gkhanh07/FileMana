@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFileSync } from 'node:fs';
 import { AppModule } from './app.module';
 
-// Writes openapi.json for `npm run api:types` in frontend/. Needs the dev database up.
 async function main() {
   const app = await NestFactory.create(AppModule, {
     logger: new ConsoleLogger({ logLevels: ['error'] }),

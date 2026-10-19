@@ -18,7 +18,6 @@ type Milestone = {
 };
 type Task = { id: string; key: string; milestoneId: string | null };
 
-// FR-PRJ-07, FR-PRJ-08
 describe('Milestones and project overview (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
@@ -116,7 +115,6 @@ describe('Milestones and project overview (e2e)', () => {
     await as(http().patch(`/tasks/${b.id}`))
       .send({ milestoneId: m.id, status: 'DONE' })
       .expect(200);
-    // A subtask doesn't count.
     await newTask('Con', { parentId: b.id, milestoneId: m.id });
     expect((await milestones()).find((x) => x.id === m.id)).toMatchObject({
       taskCount: 2,
@@ -127,7 +125,6 @@ describe('Milestones and project overview (e2e)', () => {
     });
     expect(log?.newValue).toEqual({ id: m.id, name: 'Thiết kế' });
 
-    // Deleting the milestone keeps the link for Undo, but a deleted one can't be picked.
     await as(http().delete(`/milestones/${m.id}`)).expect(204);
     await as(http().patch(`/tasks/${a.id}`))
       .send({ milestoneId: m.id })

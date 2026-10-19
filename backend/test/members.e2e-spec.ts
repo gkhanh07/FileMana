@@ -9,7 +9,6 @@ import { setupApp } from '../src/setup-app';
 
 const PASSWORD = 'correct-horse-battery';
 
-// Members page: add, edit and delete accounts.
 describe('Members (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;

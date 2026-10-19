@@ -67,12 +67,10 @@ type Log = {
   newValue?: Prisma.InputJsonValue;
 };
 
-// No roles (FR-ROLE-03): every signed-in user may do all of this to any project.
 @Injectable()
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ponytail: the whole list in one request; ~10 people won't make enough projects to page.
   async list(userId: string): Promise<ProjectDto[]> {
     const rows = await this.prisma.project.findMany({
       where: { deletedAt: null },
@@ -86,13 +84,11 @@ export class ProjectsService {
     return this.toDto(await this.find(userId, id));
   }
 
-  // FR-PRJ-07
   async stats(userId: string, id: string): Promise<ProjectStatsDto> {
     await this.find(userId, id);
     const { timezone } = await this.prisma.workspace.findFirstOrThrow({
       select: { timezone: true },
     });
-    // en-CA formats as YYYY-MM-DD.
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: timezone });
     const where = { projectId: id, deletedAt: null, parentId: null };
     const [counts, overdueCount] = await Promise.all([
@@ -117,7 +113,6 @@ export class ProjectsService {
     };
   }
 
-  // FR-PRJ-07: newest first. Entries about a task carry its key and title so the feed can link it.
   async activity(
     userId: string,
     id: string,
@@ -193,7 +188,6 @@ export class ProjectsService {
           },
           include: include(userId),
         });
-        // FR-FILE-01: its Docs & Files folder.
         await tx.item.create({
           data: { kind: 'FOLDER', name: p.name, projectId: p.id },
         });
@@ -221,8 +215,6 @@ export class ProjectsService {
     }
   }
 
-  // ponytail: field edits aren't in the activity log yet; FR-ACT-01 lists only project
-  // created/archived and members added. Add a project.updated entry if someone asks.
   async update(
     userId: string,
     id: string,
@@ -244,7 +236,6 @@ export class ProjectsService {
         startDate: toDate(dto.startDate),
         dueDate: toDate(dto.dueDate),
         ownerId,
-        // The owner is always a member.
         members: ownerId
           ? {
               connectOrCreate: {
@@ -259,7 +250,6 @@ export class ProjectsService {
     return this.toDto(updated);
   }
 
-  // FR-PRJ-10: hidden from the default list and read-only until restored.
   async archive(userId: string, id: string): Promise<ProjectDto> {
     await this.findWritable(userId, id);
     return this.setArchived(userId, id, new Date(), 'project.archived');
@@ -271,7 +261,6 @@ export class ProjectsService {
     return this.setArchived(userId, id, null, 'project.restored');
   }
 
-  // FR-PRJ-11: soft delete; Trash (F19) restores or purges it after 30 days.
   async remove(userId: string, id: string, typedName: string): Promise<void> {
     const project = await this.find(userId, id);
     if (typedName.trim() !== project.name) {
@@ -294,7 +283,6 @@ export class ProjectsService {
     });
   }
 
-  // FR-PRJ-09
   async addMember(
     userId: string,
     id: string,
@@ -348,7 +336,6 @@ export class ProjectsService {
     return this.get(userId, id);
   }
 
-  // FR-SHELL-03. Pinning is personal, so archived projects can be pinned too.
   async favorites(userId: string): Promise<FavoriteDto[]> {
     const rows = await this.prisma.favoriteProject.findMany({
       where: { userId, project: { deletedAt: null } },
@@ -378,7 +365,6 @@ export class ProjectsService {
           message: `At most ${MAX_FAVORITES} favorites`,
         });
       }
-      // ponytail: count-then-insert can race from two tabs at once; harmless at this size.
       const { _max } = await this.prisma.favoriteProject.aggregate({
         where: { userId },
         _max: { position: true },
@@ -399,7 +385,6 @@ export class ProjectsService {
     return this.favorites(userId);
   }
 
-  // Ids that aren't pinned are ignored.
   async reorder(userId: string, projectIds: string[]): Promise<FavoriteDto[]> {
     await this.prisma.$transaction(
       projectIds.map((projectId, position) =>
@@ -426,7 +411,6 @@ export class ProjectsService {
     return project;
   }
 
-  // FR-ROLE-02: archived projects are read-only.
   private async findWritable(userId: string, id: string): Promise<ProjectRow> {
     const project = await this.find(userId, id);
     if (project.archivedAt) {
@@ -475,7 +459,6 @@ export class ProjectsService {
     return this.toDto(project);
   }
 
-  // FR-PRJ-04: progress is counted from the tasks, never stored; subtasks don't count.
   private async toDtos(rows: ProjectRow[]): Promise<ProjectDto[]> {
     const counts = await this.prisma.task.groupBy({
       by: ['projectId', 'status'],
@@ -499,7 +482,6 @@ export class ProjectsService {
     return (await this.toDtos([row]))[0];
   }
 
-  // FR-ACT-01/02: written in the same transaction as the change.
   private log(tx: Prisma.TransactionClient, actorId: string, entry: Log) {
     return tx.activity.create({ data: { actorId, ...entry } });
   }

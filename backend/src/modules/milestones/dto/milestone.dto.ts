@@ -12,10 +12,8 @@ import {
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
-// A calendar date in the workspace timezone (CLAUDE.md, API Contract).
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-// FR-PRJ-08
 export class CreateMilestoneDto {
   @Transform(trim)
   @IsString()
@@ -30,7 +28,6 @@ export class CreateMilestoneDto {
 
 const defined = (_: object, v: unknown) => v !== undefined;
 
-// Neither field can be cleared, so null fails validation instead of reaching the database.
 export class UpdateMilestoneDto {
   @ApiProperty({ required: false })
   @ValidateIf(defined)
@@ -47,7 +44,6 @@ export class UpdateMilestoneDto {
   date?: string;
 }
 
-// Progress is doneCount / taskCount over its linked tasks, subtasks left out (like FR-PRJ-04).
 export class MilestoneDto {
   id: string;
   projectId: string;

@@ -9,7 +9,6 @@ import type { Request, Response } from 'express';
 import { IS_PUBLIC } from '../decorators/public.decorator';
 import { AuthService, SESSION_COOKIE } from '../../modules/auth/auth.service';
 
-// Global guard: every route needs a valid session unless it is marked @Public().
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(

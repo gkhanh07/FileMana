@@ -1,7 +1,6 @@
 import { Files, FolderKanban, House, Settings, SquareCheckBig, Users, type LucideIcon } from "lucide-react";
 import { strings } from "@/lib/strings";
 
-// FR-SHELL-02: read by the server layout so the first paint already has the right width.
 export const SIDEBAR_COOKIE = "sidebar_collapsed";
 
 export type NavItem = { href: string; label: string; icon: LucideIcon };

@@ -39,7 +39,6 @@ import { statusShown, useUpdateTask } from "./task-row";
 const t = strings.tasks;
 type Columns = Record<TaskStatus, string[]>;
 
-// FR-TASK-07..11: the same filtered tasks as the list, in four status columns.
 export function TaskBoard({
   projectId,
   tasks,
@@ -72,7 +71,6 @@ export function TaskBoard({
   const saved = Object.fromEntries(
     boardColumns(tasks).map((g) => [g.key, g.tasks.map((x) => x.id)]),
   ) as Columns;
-  // While a card is dragged, the columns follow the pointer; the cache changes only on drop.
   const [drag, setDrag] = useState<{ id: string; columns: Columns } | null>(
     null,
   );
@@ -82,7 +80,6 @@ export function TaskBoard({
     TASK_STATUSES.find((s) => s === id) ??
     TASK_STATUSES.find((s) => cols[s].includes(String(id)));
 
-  // A card that crosses into another column moves there at once, so its placeholder shows where it will land.
   const onDragOver = ({ active, over }: DragOverEvent) => {
     if (!drag || !over) return;
     const from = columnOf(drag.columns, active.id);
@@ -208,7 +205,6 @@ function Column({
   count: number;
   children: React.ReactNode;
 }) {
-  // Lets a card drop into an empty column.
   const { setNodeRef } = useDroppable({ id: status });
   return (
     <section
@@ -263,7 +259,6 @@ function SortableCard({
       aria-label={task.title}
       className="rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
     >
-      {/* FR-TASK-09: the card's own spot is the drop placeholder while it is dragged. */}
       <Card
         task={task}
         timeZone={timeZone}
@@ -278,7 +273,6 @@ function SortableCard({
   );
 }
 
-// FR-TASK-08
 function Card({
   task,
   timeZone,

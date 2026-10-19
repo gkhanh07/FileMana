@@ -1,9 +1,7 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
 
-// Account created by the backend's e2e server (backend/src/e2e-server.ts). Each test puts it back as it was.
 const EMAIL = "e2e@filemana.test";
 const PASSWORD = "e2e-password-123";
-// A real 1×1 PNG, so the browser can draw it.
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
   "base64",
@@ -16,7 +14,6 @@ async function signIn(page: Page, password = PASSWORD) {
   await page.getByRole("button", { name: "Đăng nhập" }).click();
 }
 
-// A second browser with its own session, to check that it gets signed out.
 async function otherDevice(browser: Browser) {
   const page = await (await browser.newContext()).newPage();
   await signIn(page);
@@ -39,7 +36,6 @@ test("name and avatar changes show in the sidebar", async ({ page }) => {
   await page.getByLabel("Ảnh đại diện").setInputFiles({ name: "me.png", mimeType: "image/png", buffer: PNG });
   const img = account.locator("img");
   await expect(img).toBeVisible();
-  // Loaded from the API with the session cookie (not blocked by CORP).
   await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBe(1);
 
   await page.getByRole("button", { name: "Gỡ ảnh" }).click();
@@ -68,7 +64,6 @@ test("changing the password signs out other devices and retires the old one", as
   await signIn(other);
   await expect(other.getByText("Email hoặc mật khẩu không đúng.")).toBeVisible();
 
-  // This device is still signed in; put the password back.
   await page.reload();
   await change("new-password-456", PASSWORD);
   await expect(page.getByText("Đã đổi mật khẩu.", { exact: false })).toBeVisible();

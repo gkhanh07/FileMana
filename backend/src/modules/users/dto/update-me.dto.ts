@@ -18,7 +18,6 @@ export class UpdateMeDto {
   @IsEnum(Theme)
   theme?: Theme;
 
-  // FR-SET-01: one name, shown everywhere (full name and display name were merged).
   @IsOptional()
   @Transform(trim)
   @IsString()
@@ -26,7 +25,6 @@ export class UpdateMeDto {
   @MaxLength(100)
   name?: string;
 
-  // An empty string clears it.
   @IsOptional()
   @Transform(trim)
   @IsString()

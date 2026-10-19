@@ -2,7 +2,6 @@ import { TaskList } from "@/components/tasks/task-list";
 import { getProject, getWorkspace, serverApi } from "@/lib/api/server";
 import { parseTasksView, type Label, type Milestone, type Task } from "@/lib/tasks";
 
-// FR-TASK-01..05
 export default async function ProjectTasksPage({
   params,
   searchParams,
@@ -20,7 +19,6 @@ export default async function ProjectTasksPage({
   ]);
   return (
     <TaskList
-      // Another project starts with a fresh list.
       key={id}
       projectId={id}
       initialTasks={tasks}

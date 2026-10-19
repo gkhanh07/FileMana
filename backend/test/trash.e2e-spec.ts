@@ -27,7 +27,6 @@ type Result = {
   members: { id: string; name: string }[];
 };
 
-// FR-SEARCH-02/03, FR-SET-13, FR-PRJ-11, NFR-08
 describe('Search and Trash (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
@@ -146,7 +145,6 @@ describe('Search and Trash (e2e)', () => {
     expect(existsSync(join(filesDir, file.id))).toBe(false);
     expect(await prisma.item.count({ where: { id: file.id } })).toBe(0);
 
-    // A deleted project is one entry; its tasks come back with it.
     await http()
       .delete(`/projects/${pid}`)
       .set('Cookie', cookie)

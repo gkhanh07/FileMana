@@ -23,7 +23,6 @@ type Project = {
   pinned: boolean;
 };
 
-// FR-PRJ-01..11, FR-ROLE-02/03, FR-SHELL-03, FR-ACT-01/02
 describe('Projects (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
@@ -110,7 +109,6 @@ describe('Projects (e2e)', () => {
       .send({ dueDate: null })
       .expect(200);
     expect((cleared.body as Project).dueDate).toBeNull();
-    // The key can't be changed after creation.
     await http()
       .patch(`/projects/${p.id}`)
       .set('Cookie', cookie)
@@ -195,7 +193,6 @@ describe('Projects (e2e)', () => {
     await http().get('/projects/not-a-uuid').set('Cookie', cookie).expect(404);
     const list = await http().get('/projects').set('Cookie', cookie);
     expect((list.body as Project[]).some((p) => p.id === id)).toBe(false);
-    // Soft delete: the row stays for Trash.
     expect(await prisma.project.findUnique({ where: { id } })).not.toBeNull();
   });
 

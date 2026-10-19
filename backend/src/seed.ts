@@ -2,8 +2,6 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import * as argon2 from 'argon2';
 import { PrismaClient } from './generated/prisma/client';
 
-// FR-ROLE-01: creates the workspace and the first account from the environment.
-// Safe to re-run: existing rows are left alone. Same command on the VPS (no demo data).
 const LABELS = [
   ['Bug', 'red'],
   ['Tính năng', 'blue'],
@@ -34,7 +32,6 @@ async function main() {
       update: {},
       create: { email, name, passwordHash: await argon2.hash(password) },
     });
-    // Shared labels (FR-TASK-03); Settings manages them later (FR-SET-12).
     await prisma.label.createMany({
       data: LABELS.map(([name, color]) => ({ name, color })),
       skipDuplicates: true,

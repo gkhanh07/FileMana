@@ -18,7 +18,6 @@ import { FolderPicker } from "./folder-picker";
 
 const t = strings.files;
 type Mode = "rename" | "move" | "delete" | null;
-// Both menus run the same actions and share dialogs (FR-FILE-08, FR-UI-07).
 export function ItemActions({ item, readOnly, parentId, onDeleted, children }: {
   item: Item; readOnly: boolean; parentId?: string; onDeleted?: () => void;
   children?: (menu: React.ReactNode) => React.ReactElement;

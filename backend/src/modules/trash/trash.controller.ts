@@ -17,12 +17,10 @@ import { PageQuery } from '../tasks/dto/task.dto';
 import { TrashPageDto, TrashType } from './trash.dto';
 import { TrashService } from './trash.service';
 
-// A malformed id or type is just a row that doesn't exist.
 const Type = () =>
   Param('type', new ParseEnumPipe(TrashType, { errorHttpStatusCode: 404 }));
 const Id = () => Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 }));
 
-// FR-SET-13
 @Controller('trash')
 export class TrashController {
   constructor(private readonly trash: TrashService) {}

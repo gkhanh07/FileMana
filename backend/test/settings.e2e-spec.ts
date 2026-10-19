@@ -9,12 +9,10 @@ import { setupApp } from '../src/setup-app';
 
 const EMAIL = 'chi@example.com';
 const PASSWORD = 'correct-horse-battery';
-// The smallest valid PNG header; the server only reads the first bytes.
 const PNG = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
 
 type Me = { name: string; jobTitle: string | null; avatarUrl: string | null };
 
-// FR-SET-01, FR-SET-02
 describe('Personal settings (e2e)', () => {
   let app: INestApplication<App>;
   const http = () => request(app.getHttpServer());

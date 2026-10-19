@@ -5,7 +5,6 @@ export type User = components["schemas"]["UserDto"];
 export type Theme = components["schemas"]["Theme"];
 export type Workspace = components["schemas"]["WorkspaceDto"];
 
-// Browser-side API access (mutations and client-side fetches); the session cookie rides along.
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export async function api<T = void>(
@@ -19,7 +18,6 @@ export async function api<T = void>(
       method: options.method ?? "GET",
       credentials: "include",
       keepalive: options.keepalive,
-      // FormData (file uploads) sets its own multipart Content-Type.
       headers: json ? { "Content-Type": "application/json" } : undefined,
       body: json ? JSON.stringify(options.body) : (options.body as FormData | undefined),
     });
@@ -30,7 +28,6 @@ export async function api<T = void>(
   return res.status === 204 ? (undefined as T) : ((await res.json()) as T);
 }
 
-// The API serves avatars at a path; the browser loads them from the API's origin.
 export function avatarSrc(user: { avatarUrl: string | null }): string | undefined {
   return user.avatarUrl ? `${BASE_URL}${user.avatarUrl}` : undefined;
 }

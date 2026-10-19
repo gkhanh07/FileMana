@@ -26,7 +26,6 @@ type Task = {
   labels: { id: string; name: string }[];
 };
 
-// FR-TASK-01..05/21..23, FR-PRJ-04, FR-ACT-01..03
 describe('Tasks (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
@@ -108,7 +107,6 @@ describe('Tasks (e2e)', () => {
     expect(numbers[4] - numbers[0]).toBe(4);
   });
 
-  // FR-TASK-09/10
   it('puts new tasks at the bottom; a drag sets position and status, logging only the status', async () => {
     const a = await newTask('Kéo A');
     const b = await newTask('Kéo B');
@@ -212,7 +210,6 @@ describe('Tasks (e2e)', () => {
     await patch(t.id, { priority: 'MEDIUM' }).expect(200);
     expect(await taskLog(t.id)).toHaveLength(0);
 
-    // A different field in between starts a new entry.
     await patch(t.id, { status: 'IN_PROGRESS' }).expect(200);
     await patch(t.id, { priority: 'LOW' }).expect(200);
     await patch(t.id, { status: 'REVIEW' }).expect(200);
@@ -223,7 +220,6 @@ describe('Tasks (e2e)', () => {
       'task.status',
     ]);
 
-    // Older than 5 minutes: a new entry.
     await prisma.activity.updateMany({
       where: { targetId: t.id },
       data: { createdAt: new Date(Date.now() - 6 * 60 * 1000) },
@@ -319,7 +315,6 @@ describe('Tasks (e2e)', () => {
       assignee: { id: other.id },
     });
 
-    // Progress counts top-level tasks only (FR-PRJ-04).
     const project = await http()
       .get(`/projects/${projectId}`)
       .set('Cookie', cookie)

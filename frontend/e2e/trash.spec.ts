@@ -11,7 +11,6 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole("heading", { name: /^Chào buổi .+, E2E$/ })).toBeVisible();
 });
 
-// FR-SEARCH-01..05, FR-SET-13, FR-UI-07
 test("find a task with Ctrl+K, delete it, restore it from Trash, then delete it for good", async ({ page }) => {
   await page.getByRole("button", { name: "Tạo mới" }).click();
   await page.getByRole("menuitem", { name: "Dự án" }).click();
@@ -28,7 +27,6 @@ test("find a task with Ctrl+K, delete it, restore it from Trash, then delete it 
   const key = (await row.getAttribute("id"))!.replace("task-", "");
   await add.press("Escape");
 
-  // Typed without diacritics; Enter opens the first hit.
   await page.keyboard.press("Control+K");
   const palette = page.getByRole("dialog", { name: "Tìm kiếm" });
   await palette.getByRole("combobox").fill("dat lich");
@@ -36,7 +34,6 @@ test("find a task with Ctrl+K, delete it, restore it from Trash, then delete it 
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`/tasks/${key}$`));
 
-  // Opened from the palette, so it shows up as recent next time.
   await page.keyboard.press("Control+K");
   await expect(palette.getByRole("group", { name: "Xem gần đây" })).toContainText("Đặt lịch chụp ảnh");
   await page.keyboard.press("Escape");

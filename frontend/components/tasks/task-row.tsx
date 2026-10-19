@@ -28,16 +28,12 @@ const t = strings.tasks;
 export const tasksKey = (projectId: string) => ["tasks", projectId];
 export const taskKey = (key: string) => ["task", key];
 export const activityKey = (id: string) => ["activity", id];
-/** Home and My Tasks (FR-HOME-02, FR-MY-01). */
 export const myTasksKey = ["my-tasks"];
-/** Shared by the rows and the column header so they line up. */
 export const ROW_GRID = "grid grid-cols-[1rem_4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem_2.5rem_2.5rem] gap-3 px-4";
 
-/** A server error has its own text; anything else (offline, timeout) gets the FR-UI-05 "not saved" text. */
 export const saveError = (e: unknown) =>
   toast.error(e instanceof ApiError && e.code !== "NETWORK" ? errorMessage(e.code) : t.saveFailed);
 
-/** Puts a task into every cache that shows it: the project list, my tasks, its panel, its parent's subtasks. */
 export function useReplaceTask() {
   const qc = useQueryClient();
   return (task: Task) => {
@@ -53,7 +49,6 @@ export function useReplaceTask() {
   };
 }
 
-// FR-TASK-04, FR-UI-05, NFR-02: the task changes at once and goes back if the API says no.
 export function useUpdateTask() {
   const qc = useQueryClient();
   const replace = useReplaceTask();
@@ -67,7 +62,6 @@ export function useUpdateTask() {
       replace({ ...task, ...shown });
     },
     onSuccess: replace,
-    // Only this task goes back, so another edit in flight keeps its value.
     onError: (e, { task }) => {
       replace(task);
       saveError(e);
@@ -79,7 +73,6 @@ export function useUpdateTask() {
 export const usePeople = (enabled = true) =>
   useQuery({ queryKey: ["users"], queryFn: () => api<Person[]>("/users"), enabled });
 
-/** One inline edit: `shown` is what the task looks like until the API answers. */
 export function useEditTask(task: Task) {
   const update = useUpdateTask();
   return (patch: TaskPatch, shown: Partial<Task> = patch as Partial<Task>) => update.mutate({ task, patch, shown });
@@ -105,7 +98,6 @@ export function TaskRow({
   highlight: boolean;
   onOpen: (key: string) => void;
   selected: boolean;
-  /** FR-TASK-25: Shift extends the selection from the last ticked row. */
   onSelect: (shift: boolean) => void;
 }) {
   const edit = useEditTask(task);
@@ -114,7 +106,6 @@ export function TaskRow({
     <li
       id={`task-${task.key}`}
       className={cn(
-        // NFR-03: the browser skips laying out rows that are off screen.
         ROW_GRID,
         "h-9 items-center border-b text-sm [contain-intrinsic-size:auto_36px] [content-visibility:auto] hover:bg-muted/50",
         highlight && "bg-accent",
@@ -135,7 +126,6 @@ export function TaskRow({
       )}
       <span className="font-mono text-xs text-muted-foreground">{task.key}</span>
       <span className="flex min-w-0 items-center gap-2">
-        {/* FR-TASK-13: the title opens the panel. */}
         <button
           type="button"
           onClick={() => onOpen(task.key)}
@@ -221,7 +211,6 @@ export function AssigneePick({
   onChange: (assignee: Person | null) => void;
 }) {
   const [open, setOpen] = useState(false);
-  // Loaded the first time someone opens a picker; shared by every row.
   const people = usePeople(open);
   const value = task.assignee?.id ?? "none";
   return (
@@ -261,7 +250,6 @@ export function AssigneePick({
   );
 }
 
-// A date plus an optional time, both in workspace time (CLAUDE.md, API Contract).
 export function DuePick({
   task,
   label = t.edit(t.fields.due, task.key),

@@ -26,10 +26,8 @@ const PAGE = 20;
 export const commentsKey = (taskId: string) => ["comments", taskId];
 type Pages = InfiniteData<CommentsPage, number>;
 
-// ponytail: one /me call per session for "is this my comment"; pass `me` down if the panel ever gets it.
 const useMe = () => useQuery({ queryKey: ["me"], queryFn: () => api<Person>("/me"), staleTime: Infinity });
 
-/** The counts in the list, board and Activity tab follow a new or deleted comment. */
 function refreshTask(qc: QueryClient, task: TaskDetail, delta: number) {
   qc.setQueryData<TaskDetail>(taskKey(task.key), (x) => x && { ...x, commentCount: x.commentCount + delta });
   void qc.invalidateQueries({ queryKey: tasksKey(task.projectId) });
@@ -37,7 +35,6 @@ function refreshTask(qc: QueryClient, task: TaskDetail, delta: number) {
   void qc.invalidateQueries({ queryKey: activityKey(task.id) });
 }
 
-// FR-TASK-19: the Comments tab. Pages come newest first; shown oldest at the top.
 export function CommentList({ task, timeZone, readOnly }: { task: TaskDetail; timeZone: string; readOnly: boolean }) {
   const me = useMe();
   const query = useInfiniteQuery({
@@ -96,7 +93,6 @@ function CommentItem({ comment, task, timeZone, own }: { comment: Comment; task:
       },
     );
 
-  // FR-CMT-04
   const save = useMutation({
     mutationFn: (body: string) =>
       api<Comment>(`/comments/${comment.id}`, {
@@ -235,8 +231,6 @@ function Files({ items }: { items: Item[] }) {
 
 type Pending = { key: string; name: string; item?: Item };
 
-// FR-CMT-01..03: pinned under the panel's scrolling part. Files go up to the task first,
-// then the comment takes them.
 export function CommentComposer({ task, onSent }: { task: TaskDetail; onSent: () => void }) {
   const qc = useQueryClient();
   const { upload } = useUploads();
@@ -250,7 +244,6 @@ export function CommentComposer({ task, onSent }: { task: TaskDetail; onSent: ()
     for (const file of Array.from(list)) {
       const key = crypto.randomUUID();
       setFiles((old) => [...old, { key, name: file.name || "image.png" }]);
-      // A failed upload shows its error in the upload tray.
       upload(file, { taskId: task.id }).then(
         (item) => setFiles((old) => old.map((f) => (f.key === key ? { ...f, item } : f))),
         () => setFiles((old) => old.filter((f) => f.key !== key)),
@@ -294,7 +287,6 @@ export function CommentComposer({ task, onSent }: { task: TaskDetail; onSent: ()
             <li key={f.key} className="flex h-7 items-center gap-1 rounded-md border pr-0.5 pl-2 text-xs">
               {!f.item && <Loader2 aria-label={c.uploading} className="size-3.5 animate-spin" />}
               <span className="max-w-40 truncate">{f.name}</span>
-              {/* ponytail: the file stays on the task, only leaves this comment. */}
               <Button
                 variant="ghost"
                 size="icon-xs"

@@ -1,4 +1,3 @@
-// The API's error shape: { statusCode, code, message } (see CLAUDE.md, API Contract).
 export class ApiError extends Error {
   constructor(
     readonly statusCode: number,

@@ -5,7 +5,6 @@ import { strings } from "@/lib/strings";
 import type { Label, Task, TaskPriority, TaskStatus } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 
-// Product rules: Todo gray, In Progress and Review blue with different icons, Done green.
 const statusIcon = {
   TODO: { Icon: Circle, className: "text-status-gray" },
   IN_PROGRESS: { Icon: CircleDot, className: "text-status-blue" },
@@ -18,7 +17,6 @@ export function StatusIcon({ status }: { status: TaskStatus }) {
   return <Icon aria-hidden className={cn("size-4 shrink-0", className)} />;
 }
 
-// Only Urgent gets a color (red).
 const priorityIcon = { URGENT: OctagonAlert, HIGH: SignalHigh, MEDIUM: SignalMedium, LOW: SignalLow };
 
 export function PriorityIcon({ priority }: { priority: TaskPriority }) {
@@ -31,8 +29,6 @@ export function PriorityIcon({ priority }: { priority: TaskPriority }) {
   );
 }
 
-// Due soon amber, overdue red; a Done task's date is just a date.
-// FR-TASK-01/08: shown only when above zero.
 export function CommentCount({ count }: { count: number }) {
   if (!count) return null;
   return (

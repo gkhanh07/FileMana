@@ -13,7 +13,6 @@ function subscribe(onChange: () => void) {
   };
 }
 
-// FR-UI-06: React Query refetches on its own when the connection returns (refetchOnReconnect).
 export function OfflineBar() {
   const online = useSyncExternalStore(subscribe, () => navigator.onLine, () => true);
   return (

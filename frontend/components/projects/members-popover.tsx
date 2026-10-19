@@ -16,7 +16,6 @@ import { MemberStack } from "./project-bits";
 
 const t = strings.projects.members;
 
-// FR-PRJ-09. The owner can't be removed (change the owner first); archived projects are read-only.
 export function MembersPopover({ project }: { project: Project }) {
   const router = useRouter();
   const readOnly = project.archivedAt !== null;
@@ -66,7 +65,6 @@ export function MembersPopover({ project }: { project: Project }) {
           (people.isSuccess && others.length === 0 ? (
             <p className="text-xs text-muted-foreground">{t.noneLeft}</p>
           ) : (
-            // Remounts after each add, so the picker resets to its placeholder.
             <Select
               key={project.members.length}
               disabled={change.isPending}

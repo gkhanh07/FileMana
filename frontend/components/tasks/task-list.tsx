@@ -42,7 +42,6 @@ import { ROW_GRID, saveError, TaskRow, tasksKey } from "./task-row";
 
 const t = strings.tasks;
 const ALL = "all";
-// FR-TASK-01..05. All tasks come in one request; grouping, filters and sort run here.
 export function TaskList({
   projectId,
   initialTasks,
@@ -71,7 +70,6 @@ export function TaskList({
   const [view, setView] = useState(initial);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [adding, setAdding] = useState<string | null>(null);
-  // FR-TASK-25: ticked task ids, and the last one ticked for Shift ranges.
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [anchor, setAnchor] = useState<string | null>(null);
 
@@ -95,7 +93,6 @@ export function TaskList({
     update({ filters: { ...view.filters, ...patch } });
 
   const { openKey, openTask, closeTask } = useOpenTask();
-  // A link or reload with ?task= scrolls its row into view once.
   const [firstKey] = useState(openKey);
   useEffect(() => {
     if (firstKey)
@@ -107,7 +104,6 @@ export function TaskList({
   const filtered = filterTasks(tasks, view.filters, timeZone, weekStartsOn);
   const groups = groupTasks(sortTasks(filtered, view.sort), view.group, milestones);
   const filtering = Object.values(view.filters).some(Boolean);
-  // Rows in screen order; a hidden task (filtered out, collapsed group) is never acted on.
   const shown = view.layout === "list" ? groups.flatMap((g) => (collapsed.has(g.key) ? [] : g.tasks)) : [];
   const chosen = shown.filter((x) => selected.has(x.id));
   const select = (id: string, shift: boolean) => {
@@ -123,7 +119,6 @@ export function TaskList({
     });
     setAnchor(id);
   };
-  // Everyone who has a task here, for the assignee filter.
   const assignees = [
     ...new Map(
       tasks.flatMap((x) => (x.assignee ? [[x.assignee.id, x.assignee]] : [])),
@@ -179,7 +174,6 @@ export function TaskList({
         </Button>
       )}
       <div className="ml-auto flex items-center gap-2">
-        {/* FR-TASK-07 */}
         <Select
           value={view.layout}
           onValueChange={(layout) => update({ layout: layout as TasksLayout })}
@@ -469,7 +463,6 @@ export function Choice({
   );
 }
 
-// FR-TASK-05: type a title, Enter creates and keeps the row open for the next one.
 export function AddRow({
   projectId,
   defaults,
@@ -545,7 +538,6 @@ export function AddRow({
   );
 }
 
-// The Done group shows the last 14 days; older ones load here, 50 at a time, into the same list.
 export function OlderDone({
   projectId,
   className,

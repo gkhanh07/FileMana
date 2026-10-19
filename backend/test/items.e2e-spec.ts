@@ -38,7 +38,6 @@ type Detail = Root & {
 type Page = { items: Item[]; hasMore: boolean };
 type Task = { id: string; key: string; attachmentCount: number };
 
-// FR-FILE-01..08/12..14, FR-TASK-08/18, FR-UI-07, NFR-05, FR-ACT-01
 describe('Docs & Files (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
@@ -82,7 +81,6 @@ describe('Docs & Files (e2e)', () => {
   const children = async (id: string, query = '') =>
     (await get(`/items/${id}/children${query}`).expect(200)).body as Page;
   const names = (page: Page) => page.items.map((i) => i.name);
-  // The response body as bytes, whatever its type.
   const raw = (url: string) => get(url).responseType('blob');
   const stored = () => readdirSync(filesDir).length;
   const newProject = async (name: string, key: string) => {
@@ -137,7 +135,6 @@ describe('Docs & Files (e2e)', () => {
     await app.close();
   });
 
-  // FR-FILE-01: the Docs & Files page is the General root, opened without its id.
   it('opens the Docs & Files page as the General root', async () => {
     expect(await get('/items/library').expect(200)).toMatchObject({
       body: {
@@ -209,7 +206,6 @@ describe('Docs & Files (e2e)', () => {
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ code: 'NAME_REQUIRED' });
     }
-    // Only folders are created here; files are uploaded.
     await create({ kind: 'FILE', name: 'Tệp' }).expect(400);
     await create({ name: 'X', parentId: 'abc' }).expect(400);
     const nowhere = await create({ name: 'X', parentId: randomUUID() }).expect(
@@ -224,7 +220,6 @@ describe('Docs & Files (e2e)', () => {
       { code: 'NAME_REQUIRED' },
     );
 
-    // FR-FILE-07
     for (const root of [general.id, projectRoot]) {
       for (const res of [
         await patch(root, { name: 'Khác' }),
@@ -274,7 +269,6 @@ describe('Docs & Files (e2e)', () => {
       path: [{ id: projectRoot }],
       project: { id: projectId },
     });
-    // Left out: General.
     const notes = await file('ghi-chú.txt');
     expect((await detail(notes.id)).path).toEqual([
       { id: general.id, name: 'Tài liệu & tệp' },
@@ -350,7 +344,6 @@ describe('Docs & Files (e2e)', () => {
     expect(download.headers['content-type']).toBe('application/octet-stream');
     expect(download.headers['x-frame-options']).toBe('SAMEORIGIN');
 
-    // Pages that could run scripts on the API's origin always download.
     for (const name of ['trang.html', 'logo.svg', 'ghi-chu.txt']) {
       const f = await file(name, projectRoot, '<script>alert(1)</script>');
       const page = await raw(f.url!).expect(200);
@@ -360,11 +353,9 @@ describe('Docs & Files (e2e)', () => {
       expect(page.body).toEqual(Buffer.from('<script>alert(1)</script>'));
     }
 
-    // Video seeking and the start of a long text file.
     const part = await raw(url).set('Range', 'bytes=0-3').expect(206);
     expect(part.body).toEqual(Buffer.from('%PDF'));
 
-    // NFR-05
     await http().get(url).expect(401);
     const [path, query] = url.split('?');
     const params = new URLSearchParams(query);
@@ -373,7 +364,6 @@ describe('Docs & Files (e2e)', () => {
     const forged = await get(`${path}?${params.toString()}`).expect(403);
     expect(forged.body).toMatchObject({ code: 'LINK_EXPIRED' });
     await get(path).expect(400);
-    // Another file's link doesn't open this one.
     const other = await file('khac.pdf', projectRoot, '%PDF-khac');
     await get(`${path}?${other.url!.split('?')[1]}`).expect(403);
 
@@ -428,7 +418,6 @@ describe('Docs & Files (e2e)', () => {
       'Ảnh bìa.png',
       'bảng giá.xlsx',
     ]);
-    // Wildcards are plain characters.
     expect(await search('100%')).toEqual(['Zalo_100%.txt']);
     expect(await search('a_o')).toEqual([]);
     expect(await search('  ')).toEqual(names(all));
@@ -469,7 +458,6 @@ describe('Docs & Files (e2e)', () => {
     expect(stored()).toBe(before);
     await create({ name: 'Mới', parentId: inner.id }).expect(404);
 
-    // Not while the folder it was in is still in Trash.
     await restore(gone.id).expect(404);
     const back = await restore(box.id).expect(200);
     expect(back.body).toMatchObject({ id: box.id, childCount: 1 });
@@ -519,7 +507,6 @@ describe('Docs & Files (e2e)', () => {
       attachmentCount: 0,
     });
 
-    // A file moved into a folder that then goes to Trash leaves the task too.
     const second = (await attach(task.id, 'logo-v2.png').expect(201))
       .body as Item;
     const old = await folder('Bản cũ', projectRoot);
@@ -545,7 +532,6 @@ describe('Docs & Files (e2e)', () => {
     await attach(task.id).expect(404);
     await get(`/tasks/${task.id}/attachments`).expect(404);
     expect(stored()).toBe(count);
-    // The file stays in the folder; it just isn't on a task any more.
     expect((await detail(third.id)).tasks).toEqual([]);
   });
 
@@ -602,7 +588,6 @@ describe('Docs & Files (e2e)', () => {
   it('hides the folder of a project in Trash', async () => {
     const { id, root } = await newProject('Dự án tạm', 'XOA');
     const note = await file('tam.txt', root);
-    // The folder follows the project's name.
     await http()
       .patch(`/projects/${id}`)
       .set('Cookie', cookie)

@@ -23,10 +23,8 @@ import {
   UpdateCommentDto,
 } from './dto/comment.dto';
 
-// A malformed id is just a row that doesn't exist.
 const Id = () => Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 }));
 
-// FR-CMT-01..04
 @Controller()
 export class CommentsController {
   constructor(private readonly comments: CommentsService) {}
@@ -57,7 +55,6 @@ export class CommentsController {
     return this.comments.update(user.id, id, dto);
   }
 
-  // Soft delete; restore is the toast's Undo.
   @Delete('comments/:id')
   @HttpCode(204)
   remove(@CurrentUser() user: AuthUser, @Id() id: string): Promise<void> {

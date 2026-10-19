@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { ApiExceptionFilter } from './common/filters/api-exception.filter';
 
-// Shared by main.ts and the e2e tests so both run the same pipeline.
 export function setupApp(app: INestApplication) {
   app.use(helmet());
   app.use(cookieParser());

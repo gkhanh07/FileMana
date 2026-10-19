@@ -17,7 +17,6 @@ const DEFAULT_CODES: Record<number, string> = {
   429: 'TOO_MANY_REQUESTS',
 };
 
-// Every error leaves the API as { statusCode, code, message }; internals never leak.
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger('Http');
@@ -46,7 +45,6 @@ export class ApiExceptionFilter implements ExceptionFilter {
           ? msg
           : 'Error';
     }
-    // NFR-15: every 5xx is logged with enough context to trace it.
     if (statusCode >= 500) {
       this.logger.error(
         `${req.method} ${req.url} user=${req.user?.id ?? '-'}: ${exception instanceof Error ? (exception.stack ?? exception.message) : String(exception)}`,
