@@ -25,13 +25,11 @@ import { myTasksKey, saveError, statusShown, tasksKey, usePeople, useUpdateTask 
 const t = strings.tasks;
 const b = t.bulk;
 
-/** The old value of every field a patch touches, so Undo can send it back. */
 const undoPatch = (task: Task, patch: TaskPatch): TaskPatch =>
   Object.fromEntries(
     Object.keys(patch).map((k) => [k, k === "assigneeId" ? (task.assignee?.id ?? null) : task[k as keyof Task]]),
   );
 
-// FR-TASK-26. ponytail: one request per task; a bulk endpoint if selections ever reach hundreds.
 export function TaskBulkBar({
   projectId,
   tasks,
@@ -49,7 +47,6 @@ export function TaskBulkBar({
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
 
-  // Each task changes at once and goes back on its own if the API says no (useUpdateTask).
   const apply = (patch: TaskPatch, shown: Partial<Task>) => {
     const before = tasks;
     for (const task of before) update.mutate({ task, patch, shown });
@@ -72,7 +69,6 @@ export function TaskBulkBar({
     void refreshMyTasks(qc);
     onClear();
     if (failed) {
-      // Some made it to Trash; reload to show which.
       void qc.invalidateQueries({ queryKey: tasksKey(projectId) });
       saveError(failed.reason);
       return;

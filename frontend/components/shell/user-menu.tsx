@@ -29,7 +29,6 @@ export function UserMenu({ user, collapsed }: { user: User; collapsed: boolean }
   const signOut = useMutation({
     mutationFn: () => api("/auth/logout", { method: "POST" }),
     onSuccess: leave,
-    // Already signed out (expired session): the goal is reached.
     onError: (e) =>
       e instanceof ApiError && e.statusCode === 401 ? leave() : toast.error(errorMessage(e instanceof ApiError ? e.code : undefined)),
   });

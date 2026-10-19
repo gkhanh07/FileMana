@@ -15,7 +15,6 @@ services:
       interval: 5s
       retries: 10
 
-  # One-off: applies migrations and creates the first account (FR-ROLE-01). Safe to re-run.
   migrate:
     build:
       context: ./backend

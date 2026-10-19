@@ -9,7 +9,6 @@ const KEEP_DAYS = 30;
 
 const inTrash = { deletedAt: { not: null } };
 
-// FR-SET-13, NFR-08: anyone can restore or purge anything (no roles, FR-ROLE-04).
 @Injectable()
 export class TrashService {
   private readonly logger = new Logger(TrashService.name);
@@ -20,8 +19,6 @@ export class TrashService {
     private readonly tasks: TasksService,
   ) {}
 
-  // Only what can come back on its own: a task in a trashed project returns with the project.
-  // ponytail: three lists merged in memory; Trash only holds 30 days of deletes.
   async list(offset = 0, limit = 50): Promise<TrashPageDto> {
     const [projects, tasks, items] = await Promise.all([
       this.prisma.project.findMany({
@@ -90,7 +87,6 @@ export class TrashService {
     }
   }
 
-  // FR-SET-13, FR-PRJ-11: the frontend confirms first (FR-UI-07).
   async purge(type: TrashType, id: string): Promise<void> {
     const where = { id, ...inTrash };
     const count =
@@ -102,7 +98,6 @@ export class TrashService {
     if (!count) throw notFound();
   }
 
-  // NFR-08: daily, everything deleted more than 30 days ago.
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async purgeExpired(): Promise<void> {
     const where = {
@@ -118,7 +113,6 @@ export class TrashService {
     this.logger.log({ message: 'Trash purged', ...counts });
   }
 
-  // A project's tasks, milestones and activity cascade; its folder goes first, for the files on disk.
   private async purgeProjects(where: {
     id?: string;
     deletedAt: object;

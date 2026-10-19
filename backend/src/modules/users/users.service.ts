@@ -81,7 +81,6 @@ async function uniqueEmail<T>(query: Promise<T>): Promise<T> {
 
 const AVATAR_FILE = /^[0-9a-f-]{36}\.(jpg|png|webp)$/;
 
-// The file's first bytes decide its type; the client's Content-Type is not trusted.
 function imageExtension(b: Buffer): string | null {
   if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'jpg';
   if (b.subarray(0, 8).equals(Buffer.from('89504e470d0a1a0a', 'hex')))
@@ -94,7 +93,6 @@ function imageExtension(b: Buffer): string | null {
   return null;
 }
 
-// Methods act on your own account (the id comes from the session), except the member ones.
 @Injectable()
 export class UsersService {
   private readonly avatarDir: string;
@@ -158,8 +156,6 @@ export class UsersService {
     return toMember(user);
   }
 
-  // Only an account with no work behind it (projects owned, tasks created, comments, activity)
-  // can be removed; their sessions, memberships and favorites go with it, assigned tasks are unassigned.
   async deleteMember(actorId: string, id: string): Promise<void> {
     if (actorId === id) {
       throw new BadRequestException({
@@ -199,7 +195,6 @@ export class UsersService {
     return user;
   }
 
-  // FR-AUTH-02: signs the member out everywhere. Your own password is changed with the current one.
   async resetPassword(
     actorId: string,
     userId: string,
@@ -240,7 +235,6 @@ export class UsersService {
     return toAuthUser(user);
   }
 
-  // FR-SET-01: a new file name each time, so the old URL can stay cached forever.
   async setAvatar(userId: string, data: Buffer | undefined): Promise<UserDto> {
     const ext = data && imageExtension(data);
     if (!data || !ext) {
@@ -267,7 +261,6 @@ export class UsersService {
     return path;
   }
 
-  // FR-SET-02: this device stays signed in, every other one is signed out.
   async changePassword(
     userId: string,
     sessionId: string,

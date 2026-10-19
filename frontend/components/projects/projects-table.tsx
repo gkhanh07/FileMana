@@ -24,7 +24,6 @@ const t = strings.projects;
 const FILTERS: StatusFilter[] = ["open", ...PROJECT_STATUSES, "archived"];
 export type ProjectsView = { status: StatusFilter; q: string; sort: ProjectSort };
 
-// FR-PRJ-01/02/04. Filtering runs on the client; the view lives in the URL without refetching.
 export function ProjectsTable({
   projects,
   timeZone,

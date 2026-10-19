@@ -32,14 +32,12 @@ import { cn } from "@/lib/utils";
 const rowClass =
   "flex h-8 items-center gap-2.5 rounded-md px-2 text-sm outline-none hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring";
 
-// FR-SHELL-03: up to 5 pinned projects; drag (or focus the handle and use the arrow keys) to reorder.
 export function Favorites({ favorites, collapsed }: { favorites: Favorite[]; collapsed: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const [items, setItems] = useState(favorites);
   const [prev, setPrev] = useState(favorites);
   if (favorites !== prev) {
-    // The server sent a new list (pinned, unpinned or renamed elsewhere).
     setPrev(favorites);
     setItems(favorites);
   }

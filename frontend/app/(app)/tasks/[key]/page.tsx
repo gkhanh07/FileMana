@@ -6,7 +6,6 @@ import { getWorkspace, serverApi } from "@/lib/api/server";
 import { ApiError } from "@/lib/api/error";
 import type { TaskDetail as Detail } from "@/lib/tasks";
 
-// FR-SHELL-07: the same content as the panel, as its own page.
 export default async function TaskPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
   const [task, workspace] = await Promise.all([

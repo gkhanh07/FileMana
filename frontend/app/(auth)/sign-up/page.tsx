@@ -2,7 +2,6 @@ import Link from "next/link";
 import { strings } from "@/lib/strings";
 import { SignUpForm } from "./sign-up-form";
 
-// FR-AUTH-03
 export default function SignUpPage() {
   return (
     <main className="flex flex-1 items-center justify-center p-6">

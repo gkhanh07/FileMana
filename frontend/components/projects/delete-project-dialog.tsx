@@ -20,7 +20,6 @@ import { errorMessage, strings } from "@/lib/strings";
 
 const t = strings.projects;
 
-// FR-PRJ-11: type the name to confirm; the project goes to Trash for 30 days.
 export function DeleteProjectDialog({
   project,
   open,

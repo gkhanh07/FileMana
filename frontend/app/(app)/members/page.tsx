@@ -3,7 +3,6 @@ import type { components } from "@/lib/api/schema";
 import { strings } from "@/lib/strings";
 import { MembersTable } from "./members-table";
 
-// FR-SET-06, FR-AUTH-02
 export default async function MembersPage() {
   const [me, members] = await Promise.all([
     getMe(),

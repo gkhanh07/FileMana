@@ -21,7 +21,6 @@ import {
 } from "./tasks";
 
 const TZ = "Asia/Ho_Chi_Minh";
-// Tuesday 13/10/2026 08:00 in Hanoi.
 const NOW = new Date("2026-10-13T01:00:00Z");
 let n = 0;
 const task = (extra: Partial<Task>) =>
@@ -41,7 +40,6 @@ describe("weekRange", () => {
   it("starts on the workspace's first day of the week", () => {
     expect(weekRange(TZ, 1, NOW)).toEqual(["2026-10-12", "2026-10-18"]);
     expect(weekRange(TZ, 0, NOW)).toEqual(["2026-10-11", "2026-10-17"]);
-    // Sunday night in Hanoi is still Sunday, though UTC says Sunday afternoon.
     expect(weekRange(TZ, 1, new Date("2026-10-18T16:59:00Z"))).toEqual(["2026-10-12", "2026-10-18"]);
     expect(weekRange(TZ, 1, new Date("2026-10-18T17:00:00Z"))).toEqual(["2026-10-19", "2026-10-25"]);
   });

@@ -14,29 +14,27 @@ enum UserStatus {
   DEACTIVATED
 }
 
-// FR-SHELL-06: lower-case so the API value matches what the frontend theme switcher uses.
 enum Theme {
   light
   dark
   system
 }
 
-// A single row: the workspace the seed creates.
 model Workspace {
   id           String   @id @default(uuid()) @db.Uuid
   name         String
   timezone     String   @default("Asia/Ho_Chi_Minh")
-  weekStartsOn Int      @default(1) // 0 = Sunday, 1 = Monday
+  weekStartsOn Int      @default(1)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
 model User {
   id            String            @id @default(uuid()) @db.Uuid
-  email         String            @unique // stored lower-case
+  email         String            @unique
   name          String
   jobTitle      String?
-  avatarFile    String? // file name inside UPLOAD_DIR/avatars; a new name on every upload
+  avatarFile    String?
   passwordHash  String?
   status        UserStatus        @default(ACTIVE)
   theme         Theme             @default(system)
@@ -55,7 +53,7 @@ model User {
 
 model Session {
   id         String   @id @default(uuid()) @db.Uuid
-  tokenHash  String   @unique // SHA-256 of the cookie value
+  tokenHash  String   @unique
   userId     String   @db.Uuid
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   remember   Boolean
@@ -74,35 +72,33 @@ enum ProjectStatus {
   COMPLETED
 }
 
-// FR-PRJ-01..11. Archived and deleted are timestamps, not statuses: either can apply to any status.
 model Project {
   id          String            @id @default(uuid()) @db.Uuid
-  key         String            @unique // 2–5 upper-case letters, fixed after creation (task links use it)
+  key         String            @unique
   name        String            @db.VarChar(80)
   description String?
-  color       String // a name from the frontend's preset palette
+  color       String
   status      ProjectStatus     @default(PLANNING)
   startDate   DateTime?         @db.Date
   dueDate     DateTime?         @db.Date
   ownerId     String            @db.Uuid
   owner       User              @relation("ProjectOwner", fields: [ownerId], references: [id])
   archivedAt  DateTime?
-  deletedAt   DateTime? // in Trash; purged after 30 days
+  deletedAt   DateTime?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  taskCounter Int               @default(0) // last task number used; task keys are KEY-<number>
+  taskCounter Int               @default(0)
   members     ProjectMember[]
   favorites   FavoriteProject[]
   activities  Activity[]
   tasks       Task[]
   milestones  Milestone[]
-  folder      Item? // FR-FILE-01: created with the project
+  folder      Item?
 
   @@index([ownerId])
   @@index([deletedAt])
 }
 
-// The owner is always a member.
 model ProjectMember {
   projectId String   @db.Uuid
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -114,7 +110,6 @@ model ProjectMember {
   @@index([userId])
 }
 
-// FR-SHELL-03: up to 5 per user, in the user's order.
 model FavoriteProject {
   userId    String  @db.Uuid
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -126,15 +121,14 @@ model FavoriteProject {
   @@index([projectId])
 }
 
-// FR-ACT-01/02: who did what to which target, with the old and new value.
 model Activity {
   id         String   @id @default(uuid()) @db.Uuid
   actorId    String   @db.Uuid
   actor      User     @relation(fields: [actorId], references: [id])
-  projectId  String?  @db.Uuid // null for files in the General folder
+  projectId  String?  @db.Uuid
   project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  action     String // e.g. project.created, member.added
-  targetType String // project, member, task…
+  action     String
+  targetType String
   targetId   String   @db.Uuid
   oldValue   Json?
   newValue   Json?
@@ -158,28 +152,25 @@ enum TaskPriority {
   LOW
 }
 
-// FR-TASK fields. The key (WEB-124) is the project key plus `number`.
 model Task {
   id          String       @id @default(uuid()) @db.Uuid
   projectId   String       @db.Uuid
   project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   number      Int
-  // FR-TASK-17: a subtask has a parent, one level deep; it shows only inside its parent.
   parentId    String?      @db.Uuid
   parent      Task?        @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
   subtasks    Task[]       @relation("Subtasks")
   title       String       @db.VarChar(200)
-  description Json? // FR-TASK-16: the editor's (BlockNote) block list
+  description Json?
   status      TaskStatus   @default(TODO)
   priority    TaskPriority @default(MEDIUM)
   assigneeId  String?      @db.Uuid
   assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
   creatorId   String       @db.Uuid
   creator     User         @relation("TaskCreator", fields: [creatorId], references: [id])
-  dueDate     DateTime?    @db.Date // a calendar date in the workspace timezone
-  dueTime     String?      @db.VarChar(5) // HH:mm, only with a dueDate
-  completedAt DateTime? // set when the status becomes Done
-  // FR-TASK-09: order within a Kanban column; a move takes the midpoint of its new neighbours.
+  dueDate     DateTime?    @db.Date
+  dueTime     String?      @db.VarChar(5)
+  completedAt DateTime?
   position    Float
   deletedAt   DateTime?
   createdAt   DateTime     @default(now())
@@ -187,7 +178,7 @@ model Task {
   milestoneId String?      @db.Uuid
   milestone   Milestone?   @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
   labels      TaskLabel[]
-  attachments Item[] // FR-TASK-18
+  attachments Item[]
   comments    Comment[]
 
   @@unique([projectId, number])
@@ -198,14 +189,12 @@ model Task {
   @@index([status])
 }
 
-// FR-PRJ-08. Progress is counted from its linked tasks, never stored. A deleted one keeps
-// its links, so restoring it brings them back.
 model Milestone {
   id        String    @id @default(uuid()) @db.Uuid
   projectId String    @db.Uuid
   project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   name      String    @db.VarChar(80)
-  date      DateTime  @db.Date // a calendar date in the workspace timezone
+  date      DateTime  @db.Date
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -214,11 +203,10 @@ model Milestone {
   @@index([projectId])
 }
 
-// Shared across the workspace (FR-SET-12 manages them in F19).
 model Label {
   id    String      @id @default(uuid()) @db.Uuid
   name  String      @unique @db.VarChar(40)
-  color String // a name from the frontend's preset palette
+  color String
   tasks TaskLabel[]
 }
 
@@ -232,34 +220,29 @@ model TaskLabel {
   @@index([labelId])
 }
 
-// The enum order is the list order (FR-FILE-03): folders, then files.
 enum ItemKind {
   FOLDER
   FILE
 }
 
-// FR-FILE: one tree for folders and uploaded files. The roots have no parent and are
-// locked (FR-FILE-07): General (no project) and one folder per project.
 model Item {
-  id        String    @id @default(uuid()) @db.Uuid // a file's name on disk: UPLOAD_DIR/files/<id>
+  id        String    @id @default(uuid()) @db.Uuid
   kind      ItemKind
-  name      String    @db.VarChar(255) // COLLATE "vi-x-icu" (set in the migration) so names sort the Vietnamese way
+  name      String    @db.VarChar(255)
   parentId  String?   @db.Uuid
   parent    Item?     @relation("ItemTree", fields: [parentId], references: [id], onDelete: Cascade)
   children  Item[]    @relation("ItemTree")
-  projectId String?   @unique @db.Uuid // only on a project's root folder
+  projectId String?   @unique @db.Uuid
   project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  // FR-TASK-18. ponytail: a file belongs to one task; a join table if one file must sit on several.
   taskId    String?   @db.Uuid
   task      Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  // FR-CMT-03: a task attachment sent with a comment. It stays on the task if the comment goes.
   commentId String?   @db.Uuid
   comment   Comment?  @relation(fields: [commentId], references: [id], onDelete: SetNull)
-  creatorId String?   @db.Uuid // null on the roots
+  creatorId String?   @db.Uuid
   creator   User?     @relation(fields: [creatorId], references: [id])
-  mimeType  String?   @db.VarChar(255) // files only
-  size      Int? // files only, in bytes
-  deletedAt DateTime? // in Trash; a folder's contents hide with it
+  mimeType  String?   @db.VarChar(255)
+  size      Int?
+  deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -268,8 +251,6 @@ model Item {
   @@index([commentId])
 }
 
-// FR-CMT. Plain text; the people picked from the @ list are kept so their names can be
-// highlighted (and, once Inbox ships, notified). Only the author edits or deletes (FR-ROLE-04).
 model Comment {
   id          String    @id @default(uuid()) @db.Uuid
   taskId      String    @db.Uuid
@@ -279,8 +260,8 @@ model Comment {
   body        String    @db.VarChar(10000)
   mentionIds  String[]  @db.Uuid
   attachments Item[]
-  editedAt    DateTime? // FR-CMT-04: the "edited" label
-  deletedAt   DateTime? // the toast's Undo brings it back
+  editedAt    DateTime?
+  deletedAt   DateTime?
   createdAt   DateTime  @default(now())
 
   @@index([taskId, createdAt])

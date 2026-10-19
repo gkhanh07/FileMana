@@ -25,7 +25,6 @@ export function useUploads() {
   return value;
 }
 
-// FR-FILE-06: stays mounted across app navigation; each transfer has its own cancel control.
 export function UploadProvider({ children }: { children: React.ReactNode }) {
   const qc = useQueryClient();
   const [entries, setEntries] = useState<Upload[]>([]);

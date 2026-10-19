@@ -27,7 +27,6 @@ const readLast = () => {
   }
 };
 
-// FR-TASK-21..23. Only the title is required; description and files come with the task page (F6/F12).
 export function QuickCreateDialog({
   open,
   onOpenChange,
@@ -43,7 +42,6 @@ export function QuickCreateDialog({
         <DialogHeader>
           <DialogTitle>{t.quick.title}</DialogTitle>
         </DialogHeader>
-        {/* Mounted only while open, so every opening starts from the defaults. */}
         {open && <QuickCreateForm me={me} onDone={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>
@@ -65,12 +63,10 @@ function QuickCreateForm({ me, onDone }: { me: Person; onDone: () => void }) {
   const [dueDate, setDueDate] = useState("");
   const titleInput = useRef<HTMLInputElement>(null);
 
-  // The project being viewed, else the last one used here, else the first.
   const current = pathname.match(/^\/projects\/([^/]+)/)?.[1];
   const projectId =
     [picked, current, readLast()].find((id) => id && open.some((p) => p.id === id)) ?? open[0]?.id ?? null;
 
-  // The variable is whether the modal stays open afterwards (Shift+Enter).
   const create = useMutation<Task, unknown, boolean>({
     mutationFn: () =>
       api<Task>("/tasks", {

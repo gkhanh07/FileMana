@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { reportError } from "@/lib/report-error";
 
-// NFR-15: uncaught errors and rejected promises anywhere in the signed-in app.
 export function ErrorReporter() {
   useEffect(() => {
     const onError = (e: ErrorEvent) => reportError(e.error ?? e.message);

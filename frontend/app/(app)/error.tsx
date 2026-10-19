@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { reportError } from "@/lib/report-error";
 import { strings } from "@/lib/strings";
 
-// FR-UI-03: plain-language message with Retry.
 export default function AppError({ error, reset }: { error: Error; reset: () => void }) {
   useEffect(() => reportError(error), [error]);
   return (

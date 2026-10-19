@@ -27,7 +27,6 @@ import {
 } from './dto/task.dto';
 import { TasksService } from './tasks.service';
 
-// A malformed id is just a row that doesn't exist.
 const Id = (name = 'id') =>
   Param(name, new ParseUUIDPipe({ errorHttpStatusCode: 404 }));
 
@@ -61,7 +60,6 @@ export class TasksController {
     return this.tasks.create(user.id, dto);
   }
 
-  // FR-SHELL-07: links use the key (WEB-12), so that is what the panel and page ask for.
   @Get('tasks/:key')
   detail(@Param('key') key: string): Promise<TaskDetailDto> {
     return this.tasks.detail(key);
@@ -84,7 +82,6 @@ export class TasksController {
     return this.tasks.update(user.id, id, dto);
   }
 
-  // FR-ROLE-04: to Trash; restore is the toast's Undo (and Trash, F19).
   @Delete('tasks/:id')
   @HttpCode(204)
   remove(@CurrentUser() user: AuthUser, @Id() id: string): Promise<void> {

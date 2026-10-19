@@ -3,7 +3,6 @@ import { ChevronRight } from "lucide-react";
 import type { ItemDetail } from "@/lib/files";
 import { strings } from "@/lib/strings";
 
-// FR-FILE-02: a root has no breadcrumb; its first crumb opens the Docs & Files page or the project's tab.
 export function FileBreadcrumb({ item }: { item: ItemDetail }) {
   if (!item.path.length) return null;
   const root = item.project ? `/projects/${item.project.id}/files` : "/docs";

@@ -11,7 +11,6 @@ import { getMe, getWorkspace, serverApi } from "@/lib/api/server";
 import type { Favorite } from "@/lib/projects";
 import { SessionRefresh } from "./session-refresh";
 
-// Everything under (app) needs a session. The API decides; getMe redirects on its 401.
 async function AuthGate({ children }: { children: React.ReactNode }) {
   const me = await getMe(); // first, so a 401 redirects before another call fails
   const [workspace, favorites] = await Promise.all([getWorkspace(), serverApi<Favorite[]>("/me/favorites")]);

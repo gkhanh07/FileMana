@@ -38,8 +38,6 @@ function readRecent(): Hit[] {
   }
 }
 
-// FR-SEARCH-01..06. Mounted only while open, so it starts empty each time.
-// ponytail: "recently viewed" is what was opened from here, not every page visited.
 export function SearchPalette({
   onClose,
   onCreateTask,
@@ -58,7 +56,6 @@ export function SearchPalette({
   const [q, setQ] = useState("");
   const [recent] = useState(readRecent);
 
-  // FR-SEARCH-06: the server answers in well under 300 ms after this pause.
   useEffect(() => {
     const id = setTimeout(() => setQ(text.trim()), 150);
     return () => clearTimeout(id);
@@ -148,7 +145,6 @@ export function SearchPalette({
   );
 }
 
-// FR-SEARCH-03: icon, name, location, last updated (left out for recent rows, which may be stale).
 function HitRow({ hit, timeZone, onSelect }: { hit: Hit; timeZone?: string; onSelect: (hit: Hit) => void }) {
   const [icon, name, location, updatedAt] =
     hit.type === "task"

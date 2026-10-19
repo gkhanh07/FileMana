@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 import { UserStatus } from '../../../generated/prisma/enums';
 
-// FR-SET-06: a row of the member table.
 export class MemberDto {
   id: string;
   name: string;
@@ -20,11 +19,9 @@ export class MemberDto {
   avatarUrl: string | null;
   @ApiProperty({ enum: UserStatus, enumName: 'UserStatus' })
   status: UserStatus;
-  // Not Done, not in Trash.
   openTaskCount: number;
 }
 
-// FR-AUTH-02: the temporary password another member hands over.
 export class ResetPasswordDto {
   @IsString()
   @MinLength(8)
@@ -37,7 +34,6 @@ const trim = ({ value }: { value: unknown }) =>
 const email = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim().toLowerCase() : value;
 
-// Members page: add, edit and delete accounts for other people (beyond FR-AUTH-03 self sign-up).
 export class CreateMemberDto {
   @Transform(email)
   @IsEmail()
@@ -76,7 +72,6 @@ export class UpdateMemberDto {
   @MaxLength(100)
   name?: string;
 
-  // An empty string clears it.
   @IsOptional()
   @Transform(trim)
   @IsString()

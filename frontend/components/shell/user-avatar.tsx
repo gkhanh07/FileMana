@@ -1,7 +1,6 @@
 import { avatarSrc } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
-// FR-SET-01: the photo if there is one, otherwise the name's first letter. Always round.
 export function UserAvatar({
   user,
   className,
@@ -19,7 +18,6 @@ export function UserAvatar({
       )}
     >
       {src ? (
-        // ponytail: plain <img>; the API already sends a cacheable, right-sized file.
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" className="size-full object-cover" />
       ) : (

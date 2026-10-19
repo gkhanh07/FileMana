@@ -19,8 +19,6 @@ import { SearchPalette } from "./search-palette";
 import { ThemeMenu } from "./theme-menu";
 import { useUploads } from "@/components/files/upload-provider";
 
-// FR-SHELL-04. The bell waits for the Inbox (on hold).
-// FR-SHELL-05: uploads go to the current folder, otherwise the Docs & Files page.
 export function Topbar({ me, timeZone }: { me: Person; timeZone: string }) {
   const pathname = usePathname();
   const { currentFolder, pick } = useUploads();
@@ -28,10 +26,8 @@ export function Topbar({ me, timeZone }: { me: Person; timeZone: string }) {
   const [creatingTask, setCreatingTask] = useState(false);
   const [searching, setSearching] = useState(false);
 
-  // FR-TASK-21: C opens quick create, unless the user is typing or another dialog is open.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // FR-SEARCH-01: Ctrl/⌘+K works everywhere, even while typing.
       if (e.key.toLowerCase() === "k" && (e.ctrlKey || e.metaKey) && !e.altKey) {
         e.preventDefault();
         setSearching((open) => !open);

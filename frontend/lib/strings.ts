@@ -1,5 +1,3 @@
-// All user-facing text lives here (UI is Vietnamese).
-
 export const strings = {
   appName: "FileMana",
   files: {
@@ -341,7 +339,6 @@ export const strings = {
       commented: "đã bình luận",
     },
   },
-  // FR-CMT-01..04
   comments: {
     tab: "Bình luận",
     empty: "Chưa có bình luận nào.",
@@ -411,7 +408,6 @@ export const strings = {
   },
 } as const;
 
-// Maps the API's stable error `code` (see CLAUDE.md, API Contract) to Vietnamese text.
 const errorMessages: Record<string, string> = {
   ITEM_NOT_FOUND: "Không tìm thấy tài liệu hoặc tệp này.",
   ITEM_LOCKED: "Thư mục của dự án không thể đổi tên, di chuyển hoặc xóa.",

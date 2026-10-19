@@ -23,7 +23,6 @@ export class PrismaService
     });
   }
 
-  // The pg adapter connects lazily, so run a query to fail fast if the DB is unreachable.
   async onModuleInit() {
     await this.$queryRaw`SELECT 1`;
     this.logger.log('Database connected successfully');

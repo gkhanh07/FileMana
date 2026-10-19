@@ -11,10 +11,6 @@ import { usePeople } from "./task-row";
 
 const c = strings.comments;
 
-/**
- * FR-CMT-01/02: a comment field. "@" opens a list of people (project members first);
- * Ctrl/⌘+Enter sends, Esc cancels when `onCancel` is given.
- */
 export function MentionTextarea({
   value,
   onChange,
@@ -83,7 +79,6 @@ export function MentionTextarea({
             e.preventDefault();
             pick(options[current]);
           } else if (e.key === "Escape" && (open || onCancel)) {
-            // Handled here, so the task panel stays open.
             e.preventDefault();
             if (open) setClosedAt(at!.start);
             else onCancel?.();
@@ -103,7 +98,6 @@ export function MentionTextarea({
               id={`${listId}-${i}`}
               role="option"
               aria-selected={i === current}
-              // mousedown, so the field keeps focus and its caret.
               onMouseDown={(e) => {
                 e.preventDefault();
                 pick(p);

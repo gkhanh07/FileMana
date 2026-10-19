@@ -29,7 +29,6 @@ import type { Milestone } from "@/lib/tasks";
 const o = strings.projects.overview;
 export const milestonesKey = (projectId: string) => ["milestones", projectId];
 
-// Counts change with every task edit, so always refetch on mount.
 export const useMilestones = (projectId: string, initialData: Milestone[]) =>
   useQuery({
     queryKey: milestonesKey(projectId),
@@ -38,7 +37,6 @@ export const useMilestones = (projectId: string, initialData: Milestone[]) =>
     staleTime: 0,
   });
 
-// FR-PRJ-08: name, date, and progress from the linked tasks (subtasks don't count).
 export function Milestones({
   projectId,
   initial,
@@ -50,7 +48,6 @@ export function Milestones({
 }) {
   const qc = useQueryClient();
   const { data: milestones } = useMilestones(projectId, initial);
-  // undefined: closed; null: a new one.
   const [editing, setEditing] = useState<Milestone | null | undefined>();
   const refresh = () => qc.invalidateQueries({ queryKey: milestonesKey(projectId) });
   const remove = useMutation({

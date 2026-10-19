@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 
 const h = strings.home;
 
-// FR-HOME-01..07
 export default async function Home() {
   const [me, workspace, tasks, projects] = await Promise.all([
     getMe(),

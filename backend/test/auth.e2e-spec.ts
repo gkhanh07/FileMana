@@ -17,7 +17,6 @@ describe('Auth (e2e)', () => {
   const login = (email: string, password: string, remember?: boolean) =>
     http().post('/auth/login').send({ email, password, remember });
 
-  // "sid=abc; Path=/; HttpOnly" -> "sid=abc"
   const cookieOf = (res: request.Response) =>
     (res.headers['set-cookie'] as unknown as string[])[0];
 
@@ -142,7 +141,6 @@ describe('Auth (e2e)', () => {
     expect(String(res.headers['set-cookie'])).toMatch(/sid=;/);
   });
 
-  // FR-AUTH-03
   it('signs up into the workspace with a session; the email must be free', async () => {
     const signUp = (body: object) => http().post('/auth/signup').send(body);
     const res = await signUp({
@@ -174,7 +172,6 @@ describe('Auth (e2e)', () => {
     }).expect(400);
   });
 
-  // FR-SET-06, FR-AUTH-02
   it('lists members; another member resets a password and signs them out everywhere', async () => {
     const passwordHash = await argon2.hash(PASSWORD);
     const quen = await prisma.user.create({

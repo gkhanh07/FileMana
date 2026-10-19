@@ -3,7 +3,6 @@ import { getWorkspace, serverApi } from "@/lib/api/server";
 import { strings } from "@/lib/strings";
 import type { MyTask } from "@/lib/tasks";
 
-// FR-MY-01..04
 export default async function MyTasksPage() {
   const [tasks, workspace] = await Promise.all([serverApi<MyTask[]>("/me/tasks"), getWorkspace()]);
   return (

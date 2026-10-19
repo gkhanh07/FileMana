@@ -5,7 +5,6 @@ RUN npm ci
 
 FROM deps AS build
 COPY . .
-# Public by design (it ends up in the browser bundle); not a secret.
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build

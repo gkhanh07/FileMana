@@ -19,7 +19,6 @@ type Comment = {
 };
 type Page = { items: Comment[]; hasMore: boolean };
 
-// FR-CMT-01..04, FR-TASK-19, FR-ROLE-04
 describe('Comments (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
@@ -126,7 +125,6 @@ describe('Comments (e2e)', () => {
     ).body as { items: { action: string }[] };
     expect(activity.items[0].action).toBe('task.commented');
 
-    // A file already on a comment can't move to another one.
     await http()
       .post(`/tasks/${taskId}/comments`)
       .set('Cookie', hung)

@@ -14,7 +14,6 @@ import { isActive, mainNav, settingsNav, SIDEBAR_COOKIE, type NavItem } from "./
 import { Favorites } from "./favorites";
 import { UserMenu } from "./user-menu";
 
-// NFR-10: below 1280px the sidebar is always the rail.
 const NARROW = "(max-width: 1279px)";
 function subscribeNarrow(onChange: () => void) {
   const query = matchMedia(NARROW);
@@ -22,7 +21,6 @@ function subscribeNarrow(onChange: () => void) {
   return () => query.removeEventListener("change", onChange);
 }
 
-// FR-SHELL-01, FR-SHELL-02: 240px sidebar that collapses into a 56px icon rail.
 export function Sidebar({
   workspaceName,
   user,
@@ -35,7 +33,6 @@ export function Sidebar({
   defaultCollapsed: boolean;
 }) {
   const [savedCollapsed, setCollapsed] = useState(defaultCollapsed);
-  // ponytail: the server can't see the width, so a narrow screen paints wide for one frame.
   const narrow = useSyncExternalStore(subscribeNarrow, () => matchMedia(NARROW).matches, () => false);
   const collapsed = savedCollapsed || narrow;
   const pathname = usePathname();

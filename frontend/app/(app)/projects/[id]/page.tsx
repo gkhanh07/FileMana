@@ -3,7 +3,6 @@ import { getProject, getWorkspace, serverApi } from "@/lib/api/server";
 import { ACTIVITY_PAGE } from "@/lib/projects";
 import type { Milestone } from "@/lib/tasks";
 
-// FR-PRJ-07, FR-PRJ-08
 export default async function ProjectOverviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [project, stats, milestones, activity, workspace] = await Promise.all([

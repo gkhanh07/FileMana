@@ -3,7 +3,6 @@ import { expect, test } from "@playwright/test";
 const EMAIL = "e2e@filemana.test";
 const PASSWORD = "e2e-password-123";
 
-// FR-PRJ-07, FR-PRJ-08, FR-TASK-02: one sign-in for the whole flow (sign-in is rate limited).
 test("milestones, linked tasks and the overview stats", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(EMAIL);
@@ -20,7 +19,6 @@ test("milestones, linked tasks and the overview stats", async ({ page }) => {
   await expect(main.getByText("Chưa có cột mốc nào.")).toBeVisible();
   await expect(main.getByText("đã tạo dự án")).toBeVisible();
 
-  // Create, then rename.
   await main.getByRole("button", { name: "Thêm cột mốc" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Tên cột mốc").fill("Bản thử");
@@ -34,7 +32,6 @@ test("milestones, linked tasks and the overview stats", async ({ page }) => {
   await dialog.getByRole("button", { name: "Lưu" }).click();
   await expect(main.getByText("Bản beta")).toBeVisible();
 
-  // Group the task list by milestone and add a task straight into it.
   await page.getByRole("link", { name: "Công việc" }).click();
   await page.getByRole("button", { name: "Thêm việc đầu tiên" }).click();
   const add = page.getByRole("textbox", { name: "Thêm việc" });
@@ -51,7 +48,6 @@ test("milestones, linked tasks and the overview stats", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Không có cột mốc, 1 việc" })).toContainText("Việc chung");
   await add.press("Escape");
 
-  // Done counts toward the milestone and the stats row.
   await beta.getByRole("button", { name: /^Trạng thái của / }).click();
   await page.getByRole("menuitemradio", { name: "Hoàn thành" }).click();
   await expect(beta.getByRole("button", { name: /^Trạng thái của / })).toHaveText("Hoàn thành");
@@ -60,14 +56,12 @@ test("milestones, linked tasks and the overview stats", async ({ page }) => {
   const stats = main.getByRole("definition");
   await expect(stats.first()).toHaveText("50%");
 
-  // Delete goes at once, with Undo in the toast.
   await main.getByRole("button", { name: "Thao tác với Bản beta" }).click();
   await page.getByRole("menuitem", { name: "Xóa" }).click();
   await expect(main.getByText("Chưa có cột mốc nào.")).toBeVisible();
   await page.getByRole("button", { name: "Hoàn tác" }).click();
   await expect(main.getByRole("listitem").filter({ hasText: "Bản beta" })).toContainText("1/1 việc xong");
 
-  // Archived is read-only.
   const menu = page.getByRole("button", { name: "Thao tác với dự án: Cột mốc thử" });
   await menu.click();
   await page.getByRole("menuitem", { name: "Lưu trữ" }).click();
@@ -75,7 +69,6 @@ test("milestones, linked tasks and the overview stats", async ({ page }) => {
   await expect(main.getByRole("button", { name: "Thêm cột mốc" })).toHaveCount(0);
   await expect(main.getByRole("button", { name: "Thao tác với Bản beta" })).toHaveCount(0);
 
-  // Leave no project behind: projects.spec expects an empty list.
   await menu.click();
   await page.getByRole("menuitem", { name: "Xóa dự án" }).click();
   await dialog.getByLabel("Tên dự án").fill("Cột mốc thử");

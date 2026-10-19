@@ -1,6 +1,5 @@
 import { defineConfig } from "@playwright/test";
 
-// Smoke flows run against their own API (fresh filemana_test database) and a production build of the web app.
 const API = "http://localhost:3101";
 const WEB = "http://localhost:3100";
 

@@ -16,7 +16,6 @@ export const CurrentUser = createParamDecorator(
     ctx.switchToHttp().getRequest<Request & { user: AuthUser }>().user,
 );
 
-// The session making this request, so "sign out other devices" can keep it.
 export const CurrentSessionId = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): string =>
     ctx.switchToHttp().getRequest<Request & { sessionId: string }>().sessionId,

@@ -29,7 +29,6 @@ import {
 import { PageQuery } from '../tasks/dto/task.dto';
 import { ProjectsService } from './projects.service';
 
-// A malformed id is just a project that doesn't exist.
 const Id = (name = 'id') =>
   Param(name, new ParseUUIDPipe({ errorHttpStatusCode: 404 }));
 
@@ -37,13 +36,11 @@ const Id = (name = 'id') =>
 export class ProjectsController {
   constructor(private readonly projects: ProjectsService) {}
 
-  // FR-PRJ-01/02: every project, archived included; the page filters, searches and sorts.
   @Get()
   list(@CurrentUser() user: AuthUser): Promise<ProjectDto[]> {
     return this.projects.list(user.id);
   }
 
-  // FR-PRJ-03
   @Post()
   create(
     @CurrentUser() user: AuthUser,
@@ -57,7 +54,6 @@ export class ProjectsController {
     return this.projects.get(user.id, id);
   }
 
-  // FR-PRJ-07: the Overview tab.
   @Get(':id/stats')
   stats(
     @CurrentUser() user: AuthUser,
@@ -132,7 +128,6 @@ export class ProjectsController {
   }
 }
 
-// FR-SHELL-03: the current user's pinned projects, in their order.
 @Controller('me/favorites')
 export class FavoritesController {
   constructor(private readonly projects: ProjectsService) {}

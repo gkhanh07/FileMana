@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-// Account created by the backend's e2e server (backend/src/e2e-server.ts).
 const EMAIL = "e2e@filemana.test";
 const PASSWORD = "e2e-password-123";
 

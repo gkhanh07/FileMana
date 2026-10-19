@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 
 const t = strings.projects;
 
-// Literal class names, so Tailwind generates them.
 const colorClass: Record<string, string> = {
   blue: "bg-project-blue",
   teal: "bg-project-teal",
@@ -31,7 +30,6 @@ const borderClass: Record<string, string> = {
 };
 export const projectBorderClass = (color: string) => borderClass[color] ?? borderClass.slate;
 
-// FR-PRJ-01: a colored square with the name's first letter.
 export function ProjectIcon({
   project,
   className,
@@ -67,7 +65,6 @@ const statusTint: Record<ProjectStatus, string> = {
   COMPLETED: "bg-status-green/12",
 };
 
-// Product rules: a badge with a dot and a text label; Archived is gray.
 export function ProjectStatusBadge({ project }: { project: Pick<Project, "status" | "archivedAt"> }) {
   const archived = project.archivedAt !== null;
   return (
@@ -86,7 +83,6 @@ export function ProjectStatusBadge({ project }: { project: Pick<Project, "status
   );
 }
 
-// Due soon amber, overdue red; a finished project's date is just a date.
 export function ProjectDue({ project, timeZone }: { project: Project; timeZone: string }) {
   if (!project.dueDate) return null;
   const tone = project.status === "COMPLETED" ? null : dueTone(project.dueDate, timeZone);

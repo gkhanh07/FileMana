@@ -6,7 +6,6 @@ import { strings } from "@/lib/strings";
 
 const STATUS_FILTERS: string[] = ["open", ...PROJECT_STATUSES, "archived"];
 
-// FR-PRJ-01/02
 export default async function ProjectsPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const params = await searchParams;
   const [projects, workspace] = await Promise.all([serverApi<Project[]>("/projects"), getWorkspace()]);

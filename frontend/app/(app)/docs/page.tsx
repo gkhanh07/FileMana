@@ -2,7 +2,6 @@ import { ItemView } from "@/components/files/item-view";
 import { getChildren, getItem } from "@/lib/api/items-server";
 import { getWorkspace } from "@/lib/api/server";
 
-// FR-FILE-01: the General root's contents, with no fixed folders.
 export default async function DocsPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const search = await searchParams;
   const type = search.type === "files" ? "files" : "all";

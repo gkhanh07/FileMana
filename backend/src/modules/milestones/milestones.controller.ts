@@ -16,10 +16,8 @@ import {
 } from './dto/milestone.dto';
 import { MilestonesService } from './milestones.service';
 
-// A malformed id is just a row that doesn't exist.
 const Id = () => Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 }));
 
-// FR-PRJ-08
 @Controller()
 export class MilestonesController {
   constructor(private readonly milestones: MilestonesService) {}
@@ -45,7 +43,6 @@ export class MilestonesController {
     return this.milestones.update(id, dto);
   }
 
-  // To Trash; restore is the toast's Undo.
   @Delete('milestones/:id')
   @HttpCode(204)
   remove(@Id() id: string): Promise<void> {

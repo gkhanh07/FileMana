@@ -3,10 +3,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Also the target for the one-off migrate/seed service: it has the Prisma CLI and the compiled seed.
 FROM deps AS build
 COPY . .
-# prisma generate only reads the schema; the URL is a placeholder, not a real connection.
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma generate && npm run build
 
 FROM node:24.21.0-alpine AS prod-deps
@@ -20,7 +18,6 @@ WORKDIR /app
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
-# Owned by node so the uploads volume (mounted here) is writable by the non-root user.
 RUN mkdir -p /app/uploads && chown node:node /app/uploads
 USER node
 EXPOSE 3001

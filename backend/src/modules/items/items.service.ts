@@ -62,7 +62,6 @@ const detailInclude = {
   },
 } satisfies Prisma.ItemInclude;
 
-// What can hold other items.
 const parentSelect = {
   id: true,
   kind: true,
@@ -75,7 +74,6 @@ type Parent = Prisma.ItemGetPayload<{ select: typeof parentSelect }>;
 type Project = NonNullable<Parent['project']>;
 type Db = Prisma.TransactionClient;
 
-// Not in Trash, and neither is its project or its parent task.
 const aliveTask = (id: string) =>
   ({
     id,
@@ -84,12 +82,10 @@ const aliveTask = (id: string) =>
     OR: [{ parentId: null }, { parent: { deletedAt: null } }],
   }) satisfies Prisma.TaskWhereInput;
 
-// The parents from the root down to `id`, or null if one of them (or the project) is in Trash.
 function chain(parents: Map<string, Parent>, id: string): Parent[] | null {
   const path: Parent[] = [];
   for (let cur: string | null = id; cur;) {
     const p = parents.get(cur);
-    // Missing means in Trash. Seen twice means a loop, which moves are locked to prevent.
     if (!p || path.includes(p)) return null;
     path.unshift(p);
     cur = p.parentId;
@@ -97,9 +93,6 @@ function chain(parents: Map<string, Parent>, id: string): Parent[] | null {
   return path[0]?.project?.deletedAt ? null : path;
 }
 
-// NFR-05: file links stop working after 1–2 hours. Rounded to the hour, so a file keeps the same
-// URL (and stays in the browser cache) for an hour. ponytail: a per-process key, so links also
-// stop working when the API restarts; the page then fetches new ones.
 const SIGNING_KEY = randomBytes(32);
 const signature = (id: string, exp: number) =>
   createHmac('sha256', SIGNING_KEY).update(`${id}.${exp}`).digest('base64url');
@@ -126,7 +119,6 @@ const toProject = (p: Project | null) =>
     archived: !!p.archivedAt,
   };
 
-// A project folder shows the project's current name; General keeps its stored one.
 const displayName = (i: { name: string; project: Project | null }) =>
   i.project?.name ?? i.name;
 
@@ -148,7 +140,6 @@ function toDto(i: ItemRow): ItemDto {
 const fileData = (userId: string, parentId: string, file: StoredFile) => ({
   id: file.filename,
   kind: 'FILE' as const,
-  // Multer reads the name as UTF-8 (defParamCharset), so Vietnamese names arrive intact.
   name: singleLine(file.originalname).slice(0, 255) || file.filename,
   mimeType: file.mimetype.slice(0, 255),
   size: file.size,
@@ -156,7 +147,6 @@ const fileData = (userId: string, parentId: string, file: StoredFile) => ({
   creatorId: userId,
 });
 
-// No roles (FR-ROLE-03): everyone sees and may change every item, except in archived projects.
 @Injectable()
 export class ItemsService {
   readonly filesDir: string;
@@ -168,7 +158,6 @@ export class ItemsService {
     this.filesDir = filesDir(config);
   }
 
-  // FR-FILE-01: the Docs & Files page is the General root's contents; the root itself never shows.
   async library(): Promise<ItemDetailDto> {
     const root = await this.prisma.item.findFirstOrThrow({
       where: { parentId: null, projectId: null },
@@ -177,7 +166,6 @@ export class ItemsService {
     return this.detail(root.id);
   }
 
-  // The move picker's top level: General first, then one folder per project (archived ones too, read-only).
   async roots(): Promise<RootDto[]> {
     const rows = await this.prisma.item.findMany({
       where: {
@@ -218,7 +206,6 @@ export class ItemsService {
     };
   }
 
-  // FR-FILE-01: a project's Docs & Files tab.
   async projectFolder(projectId: string): Promise<ItemDetailDto> {
     const root = await this.prisma.item.findFirst({
       where: { projectId, project: { deletedAt: null } },
@@ -233,7 +220,6 @@ export class ItemsService {
     return this.detail(root.id);
   }
 
-  // FR-FILE-03/04: folders, then files, each by name; a quick filter and a name search.
   async children(id: string, query: ChildrenQuery): Promise<ItemsPageDto> {
     const { item } = await this.find(id);
     if (item.kind !== 'FOLDER') throw itemNotFound();
@@ -244,7 +230,6 @@ export class ItemsService {
         parentId: id,
         deletedAt: null,
         kind: query.type === 'files' ? 'FILE' : undefined,
-        // Prisma passes % and _ through as LIKE wildcards; a search for "100%" means the text.
         name: query.q
           ? {
               contains: query.q.replace(/[\\%_]/g, '\\$&'),
@@ -253,7 +238,6 @@ export class ItemsService {
           : undefined,
       },
       include,
-      // The enum's order is folders, then files.
       orderBy: [{ kind: 'asc' }, { name: 'asc' }, { id: 'asc' }],
       skip: offset,
       take: limit + 1,
@@ -264,7 +248,6 @@ export class ItemsService {
     };
   }
 
-  // FR-FILE-07
   async create(userId: string, dto: CreateItemDto): Promise<ItemDto> {
     if (!dto.name) throw nameRequired();
     const { folder } = await this.target(this.prisma, dto.parentId);
@@ -280,7 +263,6 @@ export class ItemsService {
     return toDto(item);
   }
 
-  // FR-FILE-05
   async upload(
     userId: string,
     parentId: string | undefined,
@@ -308,7 +290,6 @@ export class ItemsService {
     return toDto(item);
   }
 
-  // FR-TASK-18: a file dropped on a task goes into its project's folder and onto the task.
   async attach(
     userId: string,
     taskId: string,
@@ -348,7 +329,6 @@ export class ItemsService {
     return toDto(item);
   }
 
-  // FR-TASK-18: oldest first. Few per task, so not paged.
   async attachments(taskId: string): Promise<ItemDto[]> {
     if (!(await this.prisma.task.count({ where: aliveTask(taskId) }))) {
       throw taskNotFound();
@@ -359,14 +339,12 @@ export class ItemsService {
       orderBy: { createdAt: 'asc' },
     });
     if (!rows.length) return [];
-    // A file moved into a folder that is now in Trash is hidden with it.
     const parents = await this.parents(this.prisma);
     return rows
       .filter((r) => r.parentId && chain(parents, r.parentId))
       .map(toDto);
   }
 
-  // FR-CMT-03: each comment's files, oldest first. A file in Trash drops out of its comment.
   async forComments(commentIds: string[]): Promise<Map<string, ItemDto[]>> {
     const rows = await this.prisma.item.findMany({
       where: { commentId: { in: commentIds }, deletedAt: null },
@@ -382,7 +360,6 @@ export class ItemsService {
     return files;
   }
 
-  // Rename or move (FR-FILE-07/08).
   async update(id: string, dto: UpdateItemDto): Promise<ItemDetailDto> {
     const { item, project } = await this.find(id);
     if (project?.archivedAt) throw projectArchived();
@@ -393,7 +370,6 @@ export class ItemsService {
 
     await this.prisma.$transaction(async (tx) => {
       if (moves) {
-        // Two moves at once could each pass the check below and together make a loop.
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('items.move'))`;
         const { path } = await this.target(tx, dto.parentId);
         if (path.some((p) => p.id === id)) {
@@ -411,7 +387,6 @@ export class ItemsService {
     return this.detail(id);
   }
 
-  // FR-ROLE-04: to Trash for 30 days; a folder's contents go with it.
   async remove(id: string): Promise<void> {
     const { item, project } = await this.find(id);
     if (!item.parentId) throw itemLocked();
@@ -440,8 +415,6 @@ export class ItemsService {
     );
   }
 
-  // FR-SEARCH-02: `q` is already folded. ponytail: every name scanned in memory, newest first;
-  // fine for a few thousand items, unaccent + pg_trgm beyond that.
   async search(q: string, take: number): Promise<SearchItemDto[]> {
     const [rows, parents] = await Promise.all([
       this.prisma.item.findMany({
@@ -467,8 +440,6 @@ export class ItemsService {
     return hits;
   }
 
-  // FR-SET-13: items in Trash whose folders are not; an item inside a trashed folder comes back
-  // with that folder.
   async trashed(): Promise<TrashEntryDto[]> {
     const [rows, parents] = await Promise.all([
       this.prisma.item.findMany({
@@ -500,8 +471,6 @@ export class ItemsService {
     });
   }
 
-  // FR-SET-13: deletes the matching items for good, with everything inside them and their files
-  // on disk. Returns how many matched.
   async purge(where: Prisma.ItemWhereInput): Promise<number> {
     const [roots, all] = await Promise.all([
       this.prisma.item.findMany({ where, select: { id: true } }),
@@ -523,7 +492,6 @@ export class ItemsService {
     };
     const ids = new Set(roots.map((r) => r.id));
     all.filter((i) => ids.has(i.id)).forEach(walk);
-    // The tree's foreign keys cascade to everything inside.
     await this.prisma.item.deleteMany({
       where: { id: { in: [...ids] } },
     });
@@ -533,7 +501,6 @@ export class ItemsService {
     return roots.length;
   }
 
-  // NFR-05: only through a signed, unexpired link, and only while the file can still be seen.
   async rawFile(id: string, exp: string, sig: string) {
     if (!validSignature(id, exp, sig)) {
       throw new ForbiddenException({
@@ -549,7 +516,6 @@ export class ItemsService {
     return { name: item.name, dir: this.filesDir };
   }
 
-  // An item not in Trash, with the folders above it, root first; its project is the root's.
   private async find(id: string) {
     const item = await this.prisma.item.findFirst({
       where: { id, deletedAt: null },
@@ -566,7 +532,6 @@ export class ItemsService {
     return { item, path, project: path[0] ? path[0].project : item.project };
   }
 
-  // Where a new or moved item goes: a folder that can be seen and changed, General if left out.
   private async target(db: Db, parentId?: string) {
     const parents = await this.parents(db);
     const id =
@@ -582,8 +547,6 @@ export class ItemsService {
     return { folder, path, project };
   }
 
-  // ponytail: every folder in one query, walked in memory; fine for thousands, a recursive CTE
-  // beyond that.
   private async parents(db: Db) {
     const rows = await db.item.findMany({
       where: { kind: 'FOLDER', deletedAt: null },
@@ -599,7 +562,6 @@ const itemNotFound = () =>
 const taskNotFound = () =>
   new NotFoundException({ code: 'TASK_NOT_FOUND', message: 'Task not found' });
 
-// FR-FILE-07
 const itemLocked = () =>
   new ForbiddenException({
     code: 'ITEM_LOCKED',

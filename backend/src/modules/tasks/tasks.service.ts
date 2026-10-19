@@ -18,9 +18,7 @@ import {
   UpdateTaskDto,
 } from './dto/task.dto';
 
-// The list shows Done tasks from the last 14 days; older ones come from "See all".
 const RECENT_DONE_MS = 14 * 24 * 60 * 60 * 1000;
-// FR-ACT-03
 const MERGE_MS = 5 * 60 * 1000;
 
 const include = {
@@ -54,14 +52,12 @@ const detailInclude = {
   subtasks: { where: { deletedAt: null }, include, orderBy: { number: 'asc' } },
 } satisfies Prisma.TaskInclude;
 
-// Not in Trash, and neither is its project or its parent (a deleted task takes its subtasks along).
 const alive = {
   deletedAt: null,
   project: { deletedAt: null },
   OR: [{ parentId: null }, { parent: { deletedAt: null } }],
 } satisfies Prisma.TaskWhereInput;
 
-// WEB-124
 const KEY = /^([A-Z]{2,5})-(\d{1,9})$/;
 
 const toDate = (d: string | null | undefined) =>
@@ -92,13 +88,11 @@ function toDto(t: TaskRow): TaskDto {
   };
 }
 
-// What the activity log shows for each edited field (FR-ACT-02: old → new).
 type Value = Prisma.JsonValue;
 const due = (t: { dueDate: Date | null; dueTime: string | null }): Value =>
   t.dueDate ? [fromDate(t.dueDate), t.dueTime].filter(Boolean).join(' ') : null;
 const person = (p: { id: string; name: string } | null): Value =>
   p ? { id: p.id, name: p.name } : null;
-// A milestone in Trash reads as none, as it does in the panel.
 const milestone = (m: TaskRow['milestone']): Value =>
   m && !m.deletedAt ? person(m) : null;
 const same = (a: Value, b: Value) => JSON.stringify(a) === JSON.stringify(b);
@@ -107,13 +101,10 @@ const json = (v: Value) => (v === null ? Prisma.JsonNull : v);
 const taskNotFound = () =>
   new NotFoundException({ code: 'TASK_NOT_FOUND', message: 'Task not found' });
 
-// No roles (FR-ROLE-03): anyone can do this to any task of a project that isn't archived.
 @Injectable()
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // FR-TASK-01..03: every task of the project in one response; the client groups,
-  // filters and sorts. Done tasks only from the last 14 days.
   async list(projectId: string): Promise<TaskDto[]> {
     await this.findProject(projectId);
     const rows = await this.prisma.task.findMany({
@@ -132,8 +123,6 @@ export class TasksService {
     return rows.map(toDto);
   }
 
-  // FR-HOME-02, FR-MY-01: every task assigned to me across projects, subtasks included.
-  // Archived projects are read-only, so their tasks stay out. Done only from the last 14 days.
   async mine(userId: string): Promise<MyTaskDto[]> {
     const rows = await this.prisma.task.findMany({
       where: {
@@ -156,7 +145,6 @@ export class TasksService {
     return rows.map((t) => ({ ...toDto(t), project: t.project }));
   }
 
-  // The Done group's "See all": the older Done tasks, newest first.
   async listOlderDone(
     projectId: string,
     offset = 0,
@@ -182,7 +170,6 @@ export class TasksService {
     };
   }
 
-  // FR-TASK-13..17
   async detail(key: string): Promise<TaskDetailDto> {
     const match = KEY.exec(key);
     const t =
@@ -216,7 +203,6 @@ export class TasksService {
     };
   }
 
-  // FR-TASK-19: the Activity tab, newest first.
   async activity(id: string, offset = 0, limit = 20): Promise<ActivityPageDto> {
     if (!(await this.prisma.task.count({ where: { ...alive, id } }))) {
       throw taskNotFound();
@@ -245,7 +231,6 @@ export class TasksService {
     return this.prisma.label.findMany({ orderBy: { name: 'asc' } });
   }
 
-  // FR-TASK-05/21..23
   async create(userId: string, dto: CreateTaskDto): Promise<TaskDto> {
     await this.findProject(dto.projectId, true);
     const assigneeId = dto.assigneeId === undefined ? userId : dto.assigneeId;
@@ -259,13 +244,11 @@ export class TasksService {
     const status = dto.status ?? 'TODO';
 
     const task = await this.prisma.$transaction(async (tx) => {
-      // Locks the project row, so two creates never get the same number.
       const { taskCounter } = await tx.project.update({
         where: { id: dto.projectId },
         data: { taskCounter: { increment: 1 } },
         select: { taskCounter: true },
       });
-      // FR-TASK-10: a new task goes to the bottom of its column.
       const { _max } = await tx.task.aggregate({
         where: { projectId: dto.projectId },
         _max: { position: true },
@@ -306,7 +289,6 @@ export class TasksService {
     return toDto(task);
   }
 
-  // FR-TASK-04. Each changed field gets its own activity entry, merged per FR-ACT-03.
   async update(
     userId: string,
     id: string,
@@ -337,14 +319,12 @@ export class TasksService {
           assigneeId: dto.assigneeId,
           milestoneId: dto.milestoneId,
           dueDate,
-          // Clearing the date clears its time.
           dueTime: dueDate === null ? null : dto.dueTime,
           completedAt: statusChanged
             ? dto.status === 'DONE'
               ? new Date()
               : null
             : undefined,
-          // Reordering isn't in the activity log (FR-ACT-01); a status change made by the same drag is.
           position: dto.position,
           labels: dto.labelIds && {
             deleteMany: {},
@@ -371,7 +351,6 @@ export class TasksService {
           await this.logChange(tx, userId, t, action, oldValue, newValue);
         }
       }
-      // FR-ACT-01 "edited": the entry says it changed, not the text itself.
       if (
         dto.description !== undefined &&
         !same(before.description, t.description)
@@ -383,8 +362,6 @@ export class TasksService {
     return toDto(after);
   }
 
-  // FR-ACT-03: if the task's latest entry is the same person changing the same field
-  // within 5 minutes, update it instead of adding one; changed back means no entry at all.
   private async logChange(
     tx: Prisma.TransactionClient,
     actorId: string,
@@ -403,7 +380,6 @@ export class TasksService {
       last.action === action &&
       Date.now() - last.createdAt.getTime() < MERGE_MS
     ) {
-      // A description entry has no values, so it never counts as changed back.
       if (!same(oldValue, newValue) && same(last.oldValue, newValue)) {
         await tx.activity.delete({ where: { id: last.id } });
       } else {
@@ -427,7 +403,6 @@ export class TasksService {
     });
   }
 
-  // FR-ROLE-04: anyone can delete any task; it stays in Trash for 30 days.
   async remove(userId: string, id: string): Promise<void> {
     const t = await this.findWritable(id);
     await this.prisma.$transaction([
@@ -487,7 +462,6 @@ export class TasksService {
     if (writable && project.archivedAt) throw projectArchived();
   }
 
-  // FR-ROLE-02: tasks of an archived project are read-only.
   private async findWritable(id: string): Promise<TaskRow> {
     const task = await this.prisma.task.findFirst({
       where: { ...alive, id },
@@ -513,7 +487,6 @@ export class TasksService {
     }
   }
 
-  // FR-TASK-17: one level deep, in the same project.
   private async assertParent(id: string, projectId: string) {
     const parent = await this.prisma.task.findFirst({
       where: { ...alive, id, projectId },
