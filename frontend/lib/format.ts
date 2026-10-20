@@ -1,8 +1,17 @@
-const dateFormat = (timeZone: string) =>
-  new Intl.DateTimeFormat("en-GB", { timeZone, day: "2-digit", month: "2-digit", year: "numeric" });
-const timeFormat = (timeZone: string) =>
-  new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
-export const dayKey = (at: Date, timeZone: string) => new Intl.DateTimeFormat("en-CA", { timeZone }).format(at);
+// Building an Intl.DateTimeFormat is slow, and task lists call these once per task (NFR-02).
+const perZone = (options: Intl.DateTimeFormatOptions, locale = "en-GB") => {
+  const made = new Map<string, Intl.DateTimeFormat>();
+  return (timeZone: string) => {
+    let f = made.get(timeZone);
+    if (!f) made.set(timeZone, (f = new Intl.DateTimeFormat(locale, { ...options, timeZone })));
+    return f;
+  };
+};
+const dateFormat = perZone({ day: "2-digit", month: "2-digit", year: "numeric" });
+const timeFormat = perZone({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const dayFormat = perZone({}, "en-CA");
+const hourFormat = perZone({ hour: "2-digit", hourCycle: "h23" });
+export const dayKey = (at: Date, timeZone: string) => dayFormat(timeZone).format(at);
 const relative = new Intl.RelativeTimeFormat("vi", { numeric: "auto" });
 
 export function formatDate(iso: string, timeZone: string): string {
@@ -43,7 +52,7 @@ const weekday = (date: string) => WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCD
 export const formatLongDate = (date: string) => `${weekday(date)}, ${formatDueDate(date)}`;
 
 export const hourIn = (timeZone: string, now: Date = new Date()) =>
-  Number(new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", hourCycle: "h23" }).format(now));
+  Number(hourFormat(timeZone).format(now));
 
 export function formatDueDay(date: string, time: string | null, timeZone: string, now: Date = new Date()): string {
   const days = daysUntil(date, timeZone, now);

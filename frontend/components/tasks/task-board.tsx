@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import {
   closestCorners,
   DndContext,
@@ -250,30 +250,31 @@ function SortableCard({
     disabled,
   });
   return (
-    <li
-      ref={setNodeRef}
-      id={`task-${task.key}`}
-      style={{ transform: CSS.Translate.toString(transform), transition }}
-      {...attributes}
-      {...listeners}
-      aria-label={task.title}
-      className="rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-    >
-      <Card
-        task={task}
-        timeZone={timeZone}
-        onOpen={onOpen}
-        className={cn(
-          !disabled && "cursor-grab",
-          highlight && "border-primary",
-          isDragging && "border-dashed bg-transparent [&>*]:invisible",
-        )}
-      />
+    <li ref={setNodeRef} style={{ transform: CSS.Translate.toString(transform), transition }}>
+      <div
+        id={`task-${task.key}`}
+        {...attributes}
+        {...listeners}
+        aria-label={task.title}
+        className="rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+      >
+        <Card
+          task={task}
+          timeZone={timeZone}
+          onOpen={onOpen}
+          className={cn(
+            !disabled && "cursor-grab",
+            highlight && "border-primary",
+            isDragging && "border-dashed bg-transparent [&>*]:invisible",
+          )}
+        />
+      </div>
     </li>
   );
 }
 
-function Card({
+// Memo: every drag move and drop re-renders all sortable cards; only the moved one has changed (NFR-02).
+const Card = memo(function Card({
   task,
   timeZone,
   onOpen,
@@ -295,7 +296,7 @@ function Card({
         type="button"
         onClick={() => onOpen?.(task.key)}
         className={cn(
-          "line-clamp-2 text-left hover:underline",
+          "line-clamp-2 min-h-6 text-left hover:underline",
           task.status === "DONE" && "text-muted-foreground",
         )}
       >
@@ -326,4 +327,4 @@ function Card({
       </div>
     </div>
   );
-}
+});

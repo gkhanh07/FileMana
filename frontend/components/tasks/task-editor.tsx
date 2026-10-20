@@ -8,16 +8,19 @@ import { BlockNoteView } from "@blocknote/shadcn";
 import { useTheme } from "next-themes";
 
 export default function TaskEditor({
+  label,
   initial,
   editable,
   onChange,
 }: {
+  label: string;
   initial: unknown[] | null;
   editable: boolean;
   onChange: (doc: unknown[]) => void;
 }) {
   const editor = useCreateBlockNote({
     dictionary: vi,
+    domAttributes: { editor: { "aria-label": label } },
     initialContent: initial?.length ? (initial as PartialBlock[]) : undefined,
   });
   const { resolvedTheme } = useTheme();

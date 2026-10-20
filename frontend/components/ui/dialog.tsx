@@ -51,15 +51,32 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onFocusCapture,
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
+  // Radix returns focus only to a DialogTrigger; our dialogs open from state, so return it to whatever opened them (NFR-12).
+  const opener = React.useRef<HTMLElement | null | undefined>(undefined)
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        onFocusCapture={(e) => {
+          // The first focus into the dialog comes from its opener; autoFocus fields get it before Radix's onOpenAutoFocus.
+          if (opener.current === undefined) opener.current = e.relatedTarget as HTMLElement | null
+          onFocusCapture?.(e)
+        }}
+        onCloseAutoFocus={(e) => {
+          onCloseAutoFocus?.(e)
+          const el = opener.current
+          opener.current = undefined
+          if (e.defaultPrevented || !el?.isConnected) return
+          e.preventDefault()
+          el.focus()
+        }}
         className={cn(
           "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
@@ -76,7 +93,7 @@ function DialogContent({
             >
               <XIcon
               />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">Đóng</span>
             </Button>
           </DialogPrimitive.Close>
         )}
