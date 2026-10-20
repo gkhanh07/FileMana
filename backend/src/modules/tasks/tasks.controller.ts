@@ -18,7 +18,6 @@ import {
   ActivityPageDto,
   CreateTaskDto,
   DoneTasksDto,
-  LabelDto,
   MyTaskDto,
   PageQuery,
   TaskDetailDto,
@@ -92,10 +91,5 @@ export class TasksController {
   @HttpCode(200)
   restore(@CurrentUser() user: AuthUser, @Id() id: string): Promise<TaskDto> {
     return this.tasks.restore(user.id, id);
-  }
-
-  @Get('labels')
-  labels(): Promise<LabelDto[]> {
-    return this.tasks.labels();
   }
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { getMe, getWorkspace } from "@/lib/api/server";
 import { strings } from "@/lib/strings";
 import { PasswordForm, ProfileForm, SignOutOthers } from "./personal-settings";
+import { LabelsSettings } from "./labels-settings";
 import { WorkspaceForm } from "./workspace-settings";
 
 export default async function SettingsPage() {
@@ -16,6 +17,7 @@ export default async function SettingsPage() {
         <PasswordForm />
         <SignOutOthers />
         <WorkspaceForm workspace={workspace} />
+        <LabelsSettings />
         <section className="flex flex-col items-start gap-3">
           <h2 className="text-lg">{strings.trash.title}</h2>
           <p className="text-sm text-muted-foreground">{strings.trash.intro}</p>

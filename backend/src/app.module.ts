@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ClientErrorsController } from './modules/client-errors/client-errors.controller';
 import { HealthController } from './modules/health/health.controller';
 import { ItemsModule } from './modules/items/items.module';
+import { LabelsModule } from './modules/labels/labels.module';
 import { MilestonesModule } from './modules/milestones/milestones.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { SearchModule } from './modules/search/search.module';
@@ -41,6 +42,7 @@ import { PrismaModule } from './prisma/prisma.module';
     TasksModule,
     ItemsModule,
     MilestonesModule,
+    LabelsModule,
     CommentsModule,
     SearchModule,
     TrashModule,

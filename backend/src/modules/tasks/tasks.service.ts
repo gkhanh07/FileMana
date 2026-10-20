@@ -11,7 +11,6 @@ import {
   ActivityPageDto,
   CreateTaskDto,
   DoneTasksDto,
-  LabelDto,
   MyTaskDto,
   TaskDetailDto,
   TaskDto,
@@ -225,10 +224,6 @@ export class TasksService {
       })),
       hasMore: rows.length > limit,
     };
-  }
-
-  labels(): Promise<LabelDto[]> {
-    return this.prisma.label.findMany({ orderBy: { name: 'asc' } });
   }
 
   async create(userId: string, dto: CreateTaskDto): Promise<TaskDto> {
