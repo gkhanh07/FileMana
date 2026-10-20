@@ -128,6 +128,7 @@ The seed creates one workspace (`WORKSPACE_NAME`) and one account from `SEED_EMA
 2. **Keep it simple.** Minimum code that solves the task. No speculative features, single-use abstractions or unrequested options. This app has ~10 users; do not build for scale it will never need.
 3. **Make surgical changes.** Touch only what the task needs. Match the existing style. Mention unrelated problems instead of fixing them. Remove only what your own change made unused.
 4. **Verify against a goal.** Turn tasks into checks: a failing test before a bug fix, the requirement IDs before a screen. For multi-step work, state a short plan with a check for each step.
+5. **Few comments.** Let names and structure explain the code. Comment only logic that is not obvious, or a reason a future developer needs: security, business rules, workarounds, compatibility, unusual decisions. Keep such comments short and do not remove them. No comments that restate the next line, and no section labels (`// Variables`, `// Fetch data`). Delete redundant or outdated comments in code you change.
 
 For trivial tasks, use judgment.
 
