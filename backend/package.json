@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "seed": "nest build && node dist/seed.js",
+    "perf-seed": "nest build && node dist/perf-seed.js",
     "openapi": "nest build && node dist/openapi.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

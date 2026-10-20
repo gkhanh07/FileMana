@@ -5,7 +5,7 @@ import { Client } from 'pg';
 
 const TEST_DB = 'filemana_test';
 
-export async function prepareTestDb() {
+export function loadEnv() {
   for (const file of ['../.env', '../../.env']) {
     try {
       process.loadEnvFile(resolve(__dirname, file));
@@ -13,15 +13,20 @@ export async function prepareTestDb() {
       continue;
     }
   }
+}
+
+export function assertLocalDb(url: string) {
+  const { hostname } = new URL(url);
+  if (!['localhost', '127.0.0.1', '::1', '[::1]', 'db'].includes(hostname)) {
+    throw new Error(`Refusing to touch the database on host "${hostname}"`);
+  }
+}
+
+export async function prepareTestDb() {
+  loadEnv();
   const devUrl = process.env.DATABASE_URL;
   if (!devUrl) throw new Error('DATABASE_URL is not set');
-
-  const { hostname } = new URL(devUrl);
-  if (!['localhost', '127.0.0.1', '::1', '[::1]', 'db'].includes(hostname)) {
-    throw new Error(
-      `Refusing to prepare the test database on host "${hostname}"`,
-    );
-  }
+  assertLocalDb(devUrl);
 
   process.env.UPLOAD_DIR = join(tmpdir(), 'filemana-test-uploads');
 
