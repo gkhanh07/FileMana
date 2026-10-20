@@ -15,7 +15,7 @@ export const strings = {
     deleted: (name: string) => `Đã xóa “${name}”.`, moved: "Đã di chuyển.", renamed: "Đã đổi tên.",
     confirmDelete: "Xóa thư mục và nội dung?", confirmBody: (name: string) => `“${name}” và toàn bộ nội dung sẽ được chuyển vào Thùng rác.`,
     destination: "Thư mục đích", chooseFolder: "Chọn thư mục này", back: "Quay lại", noFolders: "Không có thư mục con.",
-    uploads: "Tải tệp lên", uploaded: "Đã tải lên", canceled: "Đã hủy", chooseOther: "Chọn tệp khác", clear: "Dọn danh sách",
+    uploads: "Tải tệp lên", uploaded: "Đã tải lên", canceled: "Đã hủy", chooseOther: "Chọn tệp khác", clear: "Ẩn",
     tooLarge: (name: string) => `Tệp “${name}” vượt quá 100 MB nên chưa tải lên được.`,
     uploadFailed: "Không tải lên được. Kiểm tra kết nối rồi thử lại.", attachments: "Tệp đính kèm",
     attach: "Đính kèm tệp", noAttachments: "Chưa có tệp đính kèm. Kéo tệp vào đây để tải lên.",
