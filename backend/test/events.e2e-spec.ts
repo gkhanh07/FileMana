@@ -63,7 +63,9 @@ describe('Events (e2e)', () => {
       .expect(200);
     let text = '';
     while (!text.includes('data: change')) {
-      text += new TextDecoder().decode((await reader.read()).value);
+      const { value, done } = await reader.read();
+      if (done) throw new Error('stream ended');
+      text += new TextDecoder().decode(value);
     }
     expect(Date.now() - started).toBeLessThan(1000);
 

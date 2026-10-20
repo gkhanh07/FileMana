@@ -472,26 +472,32 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const { id, key } = task;
+  // A mutation, so live-update refreshes wait for it, and a fetch already running cannot land after the save.
+  const { mutate: save } = useMutation({
+    mutationFn: async (doc: unknown[]) => {
+      await qc.cancelQueries({ queryKey: taskKey(key) });
+      await api(`/tasks/${id}`, { method: "PATCH", body: { description: doc } });
+    },
+    onSuccess: (_, doc) => {
+      setShown((s) => ({ ...s, doc }));
+      qc.setQueryData<Detail>(taskKey(key), (x) => x && { ...x, description: doc });
+      void qc.invalidateQueries({ queryKey: activityKey(id) });
+      setState("saved");
+    },
+    onError: (e, doc) => {
+      pending.current ??= doc;
+      setState("dirty");
+      saveError(e);
+    },
+  });
   const flush = useCallback(() => {
     clearTimeout(timer.current);
     const doc = pending.current;
     if (!doc) return;
     pending.current = null;
     setState("saving");
-    api(`/tasks/${id}`, { method: "PATCH", body: { description: doc } }).then(
-      () => {
-        setShown((s) => ({ ...s, doc }));
-        qc.setQueryData<Detail>(taskKey(key), (x) => x && { ...x, description: doc });
-        void qc.invalidateQueries({ queryKey: activityKey(id) });
-        setState("saved");
-      },
-      (e) => {
-        pending.current ??= doc;
-        setState("dirty");
-        saveError(e);
-      },
-    );
-  }, [qc, id, key]);
+    save(doc);
+  }, [save]);
   useEffect(() => flush, [flush]);
 
   // R2: someone else's edit replaces the content only while this person is not editing or saving it.
@@ -511,7 +517,8 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
       <div
         className="-mx-6 min-h-24"
         onFocus={() => setFocused(true)}
-        onBlur={() => {
+        onBlur={(e) => {
+          if (e.currentTarget.contains(e.relatedTarget)) return;
           setFocused(false);
           flush();
         }}

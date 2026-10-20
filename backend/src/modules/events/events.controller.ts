@@ -28,7 +28,8 @@ export class EventsController {
     const token = (req.cookies as Record<string, string>)[SESSION_COOKIE];
     // The guard checked the session once; the heartbeat ends the stream after logout, password reset or deactivation.
     const heartbeat = interval(HEARTBEAT_MS).pipe(
-      concatMap(() => this.auth.authenticate(token)),
+      // A DB blip keeps the stream open instead of sending the raw error to the browser.
+      concatMap(() => this.auth.authenticate(token).catch(() => true)),
       share(),
     );
     return merge(
