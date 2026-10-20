@@ -166,6 +166,17 @@ export const strings = {
       deleteBody: (name: string) =>
         `Xóa hẳn tài khoản của ${name}, không khôi phục được. Việc đang giao cho họ sẽ thành chưa giao.`,
       deleted: (name: string) => `Đã xóa ${name}.`,
+      deactivate: "Vô hiệu hóa",
+      deactivateBody: (name: string, open: number) =>
+        `${name} sẽ không đăng nhập được nữa và bị đăng xuất khỏi mọi thiết bị.` +
+        (open ? ` ${open} việc đang mở của họ sẽ chuyển cho người bạn chọn.` : "") +
+        " Dự án và lịch sử của họ vẫn giữ nguyên.",
+      heir: (n: number) => `Người nhận ${n} việc đang mở`,
+      heirPlaceholder: "Chọn thành viên",
+      deactivated: (name: string) => `Đã vô hiệu hóa ${name}.`,
+      reactivate: "Kích hoạt lại",
+      reactivateBody: (name: string) => `${name} sẽ đăng nhập lại được bằng mật khẩu cũ.`,
+      reactivated: (name: string) => `Đã kích hoạt lại ${name}.`,
     },
   },
   projects: {
@@ -467,7 +478,10 @@ const errorMessages: Record<string, string> = {
   CANNOT_RESET_SELF: "Hãy đổi mật khẩu của bạn ở mục Mật khẩu.",
   CANNOT_DELETE_SELF: "Bạn không thể tự xóa tài khoản của mình.",
   MEMBER_EMAIL_TAKEN: "Email này đã có tài khoản khác dùng.",
-  MEMBER_HAS_HISTORY: "Không xóa được: người này đã có dự án, công việc, bình luận hoặc hoạt động trong hệ thống.",
+  MEMBER_HAS_HISTORY:
+    "Không xóa được: người này đã có dự án, công việc, bình luận hoặc hoạt động trong hệ thống. Hãy vô hiệu hóa tài khoản thay vì xóa.",
+  CANNOT_DEACTIVATE_SELF: "Bạn không thể tự vô hiệu hóa tài khoản của mình.",
+  ASSIGNEE_REQUIRED: "Hãy chọn người nhận các việc đang mở.",
   INVALID_IMAGE: "Ảnh phải là JPG, PNG hoặc WebP.",
   FILE_TOO_LARGE: "Ảnh lớn quá, tối đa 2 MB.",
   PROJECT_NOT_FOUND: "Không tìm thấy dự án này.",

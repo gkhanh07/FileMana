@@ -25,6 +25,7 @@ import {
 import { UserDto } from '../auth/dto/login.dto';
 import {
   CreateMemberDto,
+  DeactivateMemberDto,
   MemberDto,
   ResetPasswordDto,
   UpdateMemberDto,
@@ -147,6 +148,24 @@ export class MembersController {
     @Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 })) id: string,
   ): Promise<void> {
     return this.users.deleteMember(user.id, id);
+  }
+
+  @Post(':id/deactivate')
+  @HttpCode(204)
+  deactivate(
+    @CurrentUser() user: AuthUser,
+    @Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 })) id: string,
+    @Body() dto: DeactivateMemberDto,
+  ): Promise<void> {
+    return this.users.deactivateMember(user.id, id, dto.assigneeId);
+  }
+
+  @Post(':id/reactivate')
+  @HttpCode(204)
+  reactivate(
+    @Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 })) id: string,
+  ): Promise<void> {
+    return this.users.reactivateMember(id);
   }
 
   @Post(':id/password')
