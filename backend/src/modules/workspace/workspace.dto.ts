@@ -1,13 +1,14 @@
 import { Transform } from 'class-transformer';
 import {
   IsIn,
-  IsOptional,
   IsString,
   IsTimeZone,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
+const defined = (_: object, v: unknown) => v !== undefined;
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
@@ -19,18 +20,18 @@ export class WorkspaceDto {
 }
 
 export class UpdateWorkspaceDto {
-  @IsOptional()
+  @ValidateIf(defined)
   @Transform(trim)
   @IsString()
   @MinLength(1)
   @MaxLength(80)
   name?: string;
 
-  @IsOptional()
+  @ValidateIf(defined)
   @IsTimeZone()
   timezone?: string;
 
-  @IsOptional()
+  @ValidateIf(defined)
   @IsIn([0, 1])
   weekStartsOn?: number;
 }

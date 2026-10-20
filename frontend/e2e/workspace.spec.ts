@@ -5,6 +5,16 @@ const PNG = Buffer.from(
   "base64",
 );
 
+let original = "";
+
+// Restored through the API so a failed step cannot leave Home and the task filters on Tokyo time.
+test.afterEach(async ({ page }) => {
+  if (!original) return;
+  const api = "http://localhost:3101/workspace";
+  await page.request.patch(api, { data: { name: original, timezone: "Asia/Ho_Chi_Minh", weekStartsOn: 1 } });
+  await page.request.delete(`${api}/logo`);
+});
+
 test("company name, logo, week start and timezone", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill("e2e@filemana.test");
@@ -16,7 +26,7 @@ test("company name, logo, week start and timezone", async ({ page }) => {
   const section = page.getByRole("region", { name: "Không gian làm việc" });
   const sidebar = page.getByRole("complementary");
   const name = section.getByLabel("Tên công ty");
-  const original = await name.inputValue();
+  original = await name.inputValue();
   const save = () => section.getByRole("button", { name: "Lưu" }).click();
 
   await name.fill("Công ty E2E");
@@ -38,11 +48,7 @@ test("company name, logo, week start and timezone", async ({ page }) => {
   await section.getByRole("button", { name: "Gỡ logo" }).click();
   await expect(logo).toHaveCount(0);
 
-  await name.fill(original);
-  await section.getByLabel("Ngày đầu tuần").click();
-  await page.getByRole("option", { name: "Thứ Hai" }).click();
   await section.getByLabel("Múi giờ").click();
-  await page.getByRole("option", { name: "Asia/Ho_Chi_Minh" }).click();
-  await save();
-  await expect(sidebar).toContainText(original);
+  await expect(page.getByRole("option", { name: "Asia/Ho_Chi_Minh" })).toHaveCount(1);
+  await expect(page.getByRole("option", { name: "Asia/Saigon" })).toHaveCount(0);
 });

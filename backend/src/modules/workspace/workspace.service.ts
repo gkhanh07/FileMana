@@ -7,7 +7,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { UpdateWorkspaceDto, WorkspaceDto } from './workspace.dto';
 
 const SELECT = {
-  id: true,
   name: true,
   logoFile: true,
   timezone: true,

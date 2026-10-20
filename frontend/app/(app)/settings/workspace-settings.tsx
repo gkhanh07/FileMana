@@ -23,8 +23,10 @@ export function WorkspaceForm({ workspace }: { workspace: Workspace }) {
   const fileInput = useRef<HTMLInputElement>(null);
   // Node's and the browser's timezone lists can differ, so the full list renders only after hydration.
   const zones = useSyncExternalStore(noop, allZones, () => noZones);
-  // Chromium lists the default as Asia/Saigon, so the default and the saved value are always added.
-  const timezones = [...new Set([...zones, workspace.timezone, "Asia/Ho_Chi_Minh"])].sort();
+  // Chromium lists the default as Asia/Saigon, so Asia/Ho_Chi_Minh replaces it and the saved value is always offered.
+  const timezones = [
+    ...new Set([...zones.filter((z) => z !== "Asia/Saigon"), workspace.timezone, "Asia/Ho_Chi_Minh"]),
+  ].sort();
   const src = logoSrc(workspace);
 
   const save = useMutation({

@@ -88,6 +88,9 @@ describe('Me and workspace (e2e)', () => {
       { name: 'x'.repeat(81) },
       { timezone: 'Mars/Olympus' },
       { weekStartsOn: 3 },
+      { name: null },
+      { timezone: null },
+      { weekStartsOn: null },
     ]) {
       await http()
         .patch('/workspace')
