@@ -5,6 +5,8 @@ umask 077
 KEEP=${KEEP:-30}
 dir=/backups
 name=filemana-$(date -u +%Y%m%dT%H%M%SZ).tar
+# Leftovers from a run that was killed; only one backup or restore runs at a time.
+rm -rf "$dir"/.tmp-*
 work=$(mktemp -d "$dir/.tmp-XXXXXX")
 trap 'status=$?; rm -rf "$work"; [ "$status" = 0 ] || echo "backup: FAILED ($status)" >&2' EXIT
 

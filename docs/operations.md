@@ -51,14 +51,14 @@ dc exec backup crontab -l
 dc logs backup
 ```
 
-Each run logs `backup: wrote ...` or `backup: FAILED`. Run one by hand:
+Each run logs `backup: wrote ...` or `backup: FAILED`. Run one by hand (hand runs count toward the 30 kept):
 
 ```sh
 dc exec backup sh /scripts/backup.sh
 ls -lh /var/backups/filemana
 ```
 
-Check disk space now and then. Thirty backups take about 30 times the size of one:
+Check disk space now and then. Thirty backups take about 30 times the size of one, and a run briefly needs room for two more:
 
 ```sh
 df -h /var/backups/filemana
@@ -69,19 +69,22 @@ df -h /var/backups/filemana
 This replaces everything in the database and the uploads with the backup.
 
 ```sh
+dc exec backup sh -c 'KEEP=31 sh /scripts/backup.sh'
 dc stop api web
 dc exec backup sh /scripts/restore.sh /backups/filemana-<time>.tar
-dc start api web
+dc up -d
 ```
+
+The first line takes a fresh backup, so you can go back if the restore fails partway (`KEEP=31` keeps the oldest file in case that is the one you restore). `dc up -d` runs any migrations newer than the backup before the API starts.
 
 The script refuses to run while anything else is connected to the database. People who were signed in when the backup was taken stay signed in; everyone else signs in again.
 
 ### Copy backups off the VPS
 
-The backups sit on the same disk as the app. Pull a copy from another machine regularly (the folder is readable only by root):
+The backups sit on the same disk as the app. Pull a copy from another machine regularly. The files are readable only by root, so the VPS user needs passwordless sudo for rsync:
 
 ```sh
 rsync -a --rsync-path="sudo rsync" user@vps:/var/backups/filemana/ ./filemana-backups/
 ```
 
-To restore on a new server, copy the file into its `BACKUP_DIR`, start the stack with `dc up -d`, then follow the restore steps.
+To restore on a new server, copy the file into its `BACKUP_DIR`, start the stack with `dc up -d`, then follow the restore steps (the fresh backup is optional there).

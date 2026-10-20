@@ -2,7 +2,7 @@
 # Replaces the database and the uploads with a backup. Stop the api and web services first.
 set -eu
 file=${1:?usage: restore.sh /backups/filemana-<time>.tar}
-work=$(mktemp -d)
+work=$(mktemp -d /backups/.tmp-XXXXXX)
 trap 'rm -rf "$work"' EXIT
 
 others=$(psql -Atc "SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND pid <> pg_backend_pid()")
