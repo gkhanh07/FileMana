@@ -308,7 +308,7 @@ function Card({
           ))}
         </div>
       )}
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs whitespace-nowrap text-muted-foreground">
         <span className="font-mono">{task.key}</span>
         <span className="sr-only">
           {t.fields.priority}: {t.priority[task.priority]}

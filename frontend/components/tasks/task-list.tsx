@@ -297,8 +297,8 @@ export function TaskList({
             <span>{t.fields.priority}</span>
             <span>{t.fields.assignee}</span>
             <span>{t.fields.due}</span>
-            <MessageSquare aria-label={strings.comments.tab} className="size-3.5" />
-            <Paperclip aria-label={strings.files.attachments} className="size-3.5" />
+            <MessageSquare aria-label={strings.comments.tab} className="hidden size-3.5 xl:block" />
+            <Paperclip aria-label={strings.files.attachments} className="hidden size-3.5 xl:block" />
           </div>
           {groups.map((g) => {
             const open = !collapsed.has(g.key);
