@@ -27,20 +27,16 @@ const USER_SELECT = {
   avatarFile: true,
 } as const;
 
+const OPEN_TASKS = {
+  status: { not: 'DONE' },
+  deletedAt: null,
+  project: { deletedAt: null },
+} satisfies Prisma.TaskWhereInput;
+
 const MEMBER_SELECT = {
   ...USER_SELECT,
   status: true,
-  _count: {
-    select: {
-      assignedTasks: {
-        where: {
-          status: { not: 'DONE' },
-          deletedAt: null,
-          project: { deletedAt: null },
-        },
-      },
-    },
-  },
+  _count: { select: { assignedTasks: { where: OPEN_TASKS } } },
 } as const;
 
 const toMember = (u: {
@@ -166,10 +162,73 @@ export class UsersService {
     if (avatarFile) await rm(join(this.avatarDir, avatarFile), { force: true });
   }
 
+  async deactivateMember(
+    actorId: string,
+    id: string,
+    assigneeId: string | undefined,
+  ): Promise<void> {
+    if (actorId === id) {
+      throw new BadRequestException({
+        code: 'CANNOT_DEACTIVATE_SELF',
+        message: 'You cannot deactivate your own account',
+      });
+    }
+    const member = await this.findMember(id);
+    await this.prisma.$transaction(async (tx) => {
+      const tasks = await tx.task.findMany({
+        where: { assigneeId: id, ...OPEN_TASKS },
+        select: { id: true, projectId: true },
+      });
+      if (tasks.length) {
+        if (!assigneeId || assigneeId === id) {
+          throw new BadRequestException({
+            code: 'ASSIGNEE_REQUIRED',
+            message: 'Choose who takes over the open tasks',
+          });
+        }
+        const assignee = await tx.user.findFirst({
+          where: { id: assigneeId, status: { not: 'DEACTIVATED' } },
+          select: { id: true, name: true },
+        });
+        if (!assignee) {
+          throw new NotFoundException({
+            code: 'USER_NOT_FOUND',
+            message: 'User not found',
+          });
+        }
+        await tx.task.updateMany({
+          where: { id: { in: tasks.map((t) => t.id) } },
+          data: { assigneeId },
+        });
+        await tx.activity.createMany({
+          data: tasks.map((t) => ({
+            actorId,
+            projectId: t.projectId,
+            action: 'task.assignee',
+            targetType: 'task',
+            targetId: t.id,
+            oldValue: { id, name: member.name },
+            newValue: assignee,
+          })),
+        });
+      }
+      await tx.user.update({ where: { id }, data: { status: 'DEACTIVATED' } });
+      await tx.session.deleteMany({ where: { userId: id } });
+    });
+  }
+
+  async reactivateMember(id: string): Promise<void> {
+    await this.findMember(id);
+    await this.prisma.user.update({
+      where: { id },
+      data: { status: 'ACTIVE' },
+    });
+  }
+
   private async findMember(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: { avatarFile: true },
+      select: { avatarFile: true, name: true },
     });
     if (!user) {
       throw new NotFoundException({

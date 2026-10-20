@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Ellipsis, KeyRound, Pencil, Plus, Trash2 } from "lucide-react";
+import { Ellipsis, KeyRound, Pencil, Plus, Trash2, UserCheck, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserAvatar } from "@/components/shell/user-avatar";
 import { api } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/error";
@@ -31,7 +32,7 @@ import { errorMessage, strings } from "@/lib/strings";
 type Member = components["schemas"]["MemberDto"];
 type Open =
   | { kind: "add" }
-  | { kind: "edit" | "reset" | "delete"; member: Member }
+  | { kind: "edit" | "reset" | "delete" | "deactivate" | "reactivate"; member: Member }
   | null;
 const t = strings.settings.members;
 
@@ -55,6 +56,15 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
         await api(`/members/${open.member.id}/password`, { method: "POST", body: { password: field("password") } });
         return t.resetDone(open.member.name);
       }
+      if (open?.kind === "deactivate") {
+        const assigneeId = field("assigneeId") || undefined;
+        await api(`/members/${open.member.id}/deactivate`, { method: "POST", body: { assigneeId } });
+        return t.deactivated(open.member.name);
+      }
+      if (open?.kind === "reactivate") {
+        await api(`/members/${open.member.id}/reactivate`, { method: "POST" });
+        return t.reactivated(open.member.name);
+      }
       if (open?.kind === "delete") {
         await api(`/members/${open.member.id}`, { method: "DELETE" });
         return t.deleted(open.member.name);
@@ -72,7 +82,16 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
     setOpen(next);
   };
   const member = open && open.kind !== "add" ? open.member : null;
-  const title = open && { add: t.add, edit: t.edit, reset: t.reset, delete: t.delete }[open.kind];
+  const labels = {
+    add: [t.add, t.addSubmit],
+    edit: [t.edit, t.save],
+    reset: [t.reset, t.resetSubmit],
+    delete: [t.delete, t.delete],
+    deactivate: [t.deactivate, t.deactivate],
+    reactivate: [t.reactivate, t.reactivate],
+  };
+  const [title, submit] = open ? labels[open.kind] : [];
+  const heirs = members.filter((m) => m.status !== "DEACTIVATED" && m.id !== member?.id);
 
   return (
     <section className="flex flex-col gap-4">
@@ -128,6 +147,17 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
                             <KeyRound />
                             {t.reset}
                           </DropdownMenuItem>
+                          {m.status === "DEACTIVATED" ? (
+                            <DropdownMenuItem onSelect={() => show({ kind: "reactivate", member: m })}>
+                              <UserCheck />
+                              {t.reactivate}
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem onSelect={() => show({ kind: "deactivate", member: m })}>
+                              <UserX />
+                              {t.deactivate}
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem variant="destructive" onSelect={() => show({ kind: "delete", member: m })}>
                             <Trash2 />
                             {t.delete}
@@ -154,6 +184,10 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
             {open?.kind === "reset" && <DialogDescription>{t.resetBody(open.member.name)}</DialogDescription>}
             {open?.kind === "delete" && <DialogDescription>{t.deleteBody(open.member.name)}</DialogDescription>}
             {open?.kind === "add" && <DialogDescription>{t.addBody}</DialogDescription>}
+            {open?.kind === "deactivate" && (
+              <DialogDescription>{t.deactivateBody(open.member.name, open.member.openTaskCount)}</DialogDescription>
+            )}
+            {open?.kind === "reactivate" && <DialogDescription>{t.reactivateBody(open.member.name)}</DialogDescription>}
           </DialogHeader>
           <form
             className="flex flex-col gap-4"
@@ -181,6 +215,23 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
                 autoFocus={open.kind === "reset"}
               />
             )}
+            {open?.kind === "deactivate" && open.member.openTaskCount > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="assigneeId">{t.heir(open.member.openTaskCount)}</Label>
+                <Select name="assigneeId" required>
+                  <SelectTrigger id="assigneeId" className="w-full">
+                    <SelectValue placeholder={t.heirPlaceholder} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {heirs.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {save.error && (
               <p role="alert" className="text-sm text-destructive">
                 {errorMessage(save.error instanceof ApiError ? save.error.code : undefined)}
@@ -191,7 +242,7 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
                 {strings.files.cancel}
               </Button>
               <Button type="submit" variant={open?.kind === "delete" ? "destructive" : "default"} disabled={save.isPending}>
-                {open && { add: t.addSubmit, edit: t.save, reset: t.resetSubmit, delete: t.delete }[open.kind]}
+                {submit}
               </Button>
             </DialogFooter>
           </form>

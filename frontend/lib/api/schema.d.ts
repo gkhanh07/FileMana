@@ -260,6 +260,38 @@ export interface paths {
         patch: operations["MembersController_update"];
         trace?: never;
     };
+    "/members/{id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MembersController_deactivate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/members/{id}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MembersController_reactivate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/members/{id}/password": {
         parameters: {
             query?: never;
@@ -1012,6 +1044,10 @@ export interface components {
             email?: string;
             name?: string;
             jobTitle?: string;
+        };
+        DeactivateMemberDto: {
+            /** Format: uuid */
+            assigneeId?: string;
         };
         ResetPasswordDto: {
             password: string;
@@ -1892,6 +1928,48 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MemberDto"];
                 };
+            };
+        };
+    };
+    MembersController_deactivate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeactivateMemberDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MembersController_reactivate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

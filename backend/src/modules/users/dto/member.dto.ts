@@ -3,9 +3,11 @@ import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsOptional,
+  IsUUID,
   IsString,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { UserStatus } from '../../../generated/prisma/enums';
 
@@ -77,4 +79,11 @@ export class UpdateMemberDto {
   @IsString()
   @MaxLength(100)
   jobTitle?: string;
+}
+
+export class DeactivateMemberDto {
+  /** Who takes over the member's open tasks. Required when they have any. */
+  @ValidateIf((_: object, v: unknown) => v !== undefined)
+  @IsUUID()
+  assigneeId?: string;
 }

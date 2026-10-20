@@ -113,4 +113,97 @@ describe('Members (e2e)', () => {
     await login('mem-moi2@example.com', 'temporary-123').expect(401);
     await as(http().delete(`/members/${id}`)).expect(404);
   });
+
+  it('deactivates a member, hands over their open tasks, and reactivates them', async () => {
+    const helper = cookieOf(await login('mem-an@example.com', PASSWORD));
+    const as = <T extends request.Test>(r: T) => r.set('Cookie', helper);
+    const add = async (email: string, name: string) =>
+      (
+        await as(http().post('/members'))
+          .send({ email, name, password: 'temporary-123' })
+          .expect(201)
+      ).body as { id: string };
+    const leaver = await add('mem-leaver@example.com', 'Leaver');
+    const heir = await add('mem-heir@example.com', 'Heir');
+    const gone = await add('mem-gone@example.com', 'Gone');
+    const leaverCookie = cookieOf(
+      await login('mem-leaver@example.com', 'temporary-123'),
+    );
+    const project = await as(http().post('/projects'))
+      .send({ name: 'Bàn giao', key: 'DEAC' })
+      .expect(201);
+    const projectId = (project.body as { id: string }).id;
+    const task = async (status?: string) =>
+      (
+        await as(http().post('/tasks'))
+          .send({ projectId, title: 'Việc', assigneeId: leaver.id, status })
+          .expect(201)
+      ).body as { id: string };
+    const open = await task();
+    const review = await task('REVIEW');
+    const done = await task('DONE');
+    await as(http().post(`/members/${gone.id}/deactivate`)).expect(204);
+
+    const self = (await as(http().get('/me'))).body as { id: string };
+    await as(http().post(`/members/${self.id}/deactivate`))
+      .send({ assigneeId: heir.id })
+      .expect(400)
+      .expect((r) =>
+        expect(r.body).toMatchObject({ code: 'CANNOT_DEACTIVATE_SELF' }),
+      );
+    await as(http().post(`/members/${leaver.id}/deactivate`))
+      .expect(400)
+      .expect((r) =>
+        expect(r.body).toMatchObject({ code: 'ASSIGNEE_REQUIRED' }),
+      );
+    await as(http().post(`/members/${leaver.id}/deactivate`))
+      .send({ assigneeId: leaver.id })
+      .expect(400);
+    await as(http().post(`/members/${leaver.id}/deactivate`))
+      .send({ assigneeId: gone.id })
+      .expect(404)
+      .expect((r) => expect(r.body).toMatchObject({ code: 'USER_NOT_FOUND' }));
+    await as(
+      http().post('/members/00000000-0000-4000-8000-000000000000/deactivate'),
+    ).expect(404);
+
+    await as(http().post(`/members/${leaver.id}/deactivate`))
+      .send({ assigneeId: heir.id })
+      .expect(204);
+    const assignees = await prisma.task.findMany({
+      where: { id: { in: [open.id, review.id, done.id] } },
+      select: { id: true, assigneeId: true },
+    });
+    expect(
+      Object.fromEntries(assignees.map((t) => [t.id, t.assigneeId])),
+    ).toEqual({
+      [open.id]: heir.id,
+      [review.id]: heir.id,
+      [done.id]: leaver.id,
+    });
+    const logged = await prisma.activity.findMany({
+      where: { action: 'task.assignee', targetId: { in: [open.id, done.id] } },
+    });
+    expect(logged).toEqual([
+      expect.objectContaining({
+        targetId: open.id,
+        oldValue: { id: leaver.id, name: 'Leaver' },
+        newValue: { id: heir.id, name: 'Heir' },
+      }),
+    ]);
+    await http().get('/me').set('Cookie', leaverCookie).expect(401);
+    await login('mem-leaver@example.com', 'temporary-123').expect(401);
+    const people = (await as(http().get('/users'))).body as { id: string }[];
+    expect(people.map((p) => p.id)).not.toContain(leaver.id);
+    const members = (await as(http().get('/members'))).body as {
+      id: string;
+    }[];
+    expect(members.find((m) => m.id === leaver.id)).toMatchObject({
+      status: 'DEACTIVATED',
+      openTaskCount: 0,
+    });
+
+    await as(http().post(`/members/${leaver.id}/reactivate`)).expect(204);
+    await login('mem-leaver@example.com', 'temporary-123').expect(200);
+  });
 });

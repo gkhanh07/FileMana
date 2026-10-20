@@ -146,7 +146,8 @@ function ProjectForm({ project, onDone }: { project?: Project; onDone: () => voi
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(people.data ?? [project.owner]).map((p) => (
+                {/* A deactivated owner is not in /users but stays selectable until changed. */}
+                {[project.owner, ...(people.data ?? []).filter((p) => p.id !== project.owner.id)].map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
                   </SelectItem>
