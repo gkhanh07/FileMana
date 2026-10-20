@@ -29,7 +29,7 @@ export const tasksKey = (projectId: string) => ["tasks", projectId];
 export const taskKey = (key: string) => ["task", key];
 export const activityKey = (id: string) => ["activity", id];
 export const myTasksKey = ["my-tasks"];
-export const ROW_GRID = "grid grid-cols-[1rem_4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem_2.5rem_2.5rem] gap-3 px-4";
+export const ROW_GRID = "grid grid-cols-[1rem_4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem] gap-3 px-4 xl:grid-cols-[1rem_4.5rem_minmax(0,1fr)_8.5rem_8rem_10rem_9rem_2.5rem_2.5rem]";
 
 export const saveError = (e: unknown) =>
   toast.error(e instanceof ApiError && e.code !== "NETWORK" ? errorMessage(e.code) : t.saveFailed);
@@ -153,10 +153,10 @@ export function TaskRow({
       />
       <AssigneePick task={task} disabled={readOnly} onChange={(a) => edit({ assigneeId: a?.id ?? null }, { assignee: a })} />
       <DuePick task={task} timeZone={timeZone} disabled={readOnly} onChange={(due) => edit(due)} />
-      <span className="text-xs text-muted-foreground">
+      <span className="hidden text-xs text-muted-foreground xl:block">
         <CommentCount count={task.commentCount} />
       </span>
-      <span className="text-xs text-muted-foreground">
+      <span className="hidden text-xs text-muted-foreground xl:block">
         <AttachmentCount count={task.attachmentCount} />
       </span>
     </li>
