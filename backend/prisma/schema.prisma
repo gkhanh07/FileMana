@@ -25,6 +25,7 @@ model Workspace {
   name         String
   timezone     String   @default("Asia/Ho_Chi_Minh")
   weekStartsOn Int      @default(1)
+  logoFile     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

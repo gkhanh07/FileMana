@@ -29,8 +29,9 @@ test.beforeEach(async ({ page }) => {
 
 test("name and avatar changes show in the sidebar", async ({ page }) => {
   const account = page.getByRole("button", { name: "Tài khoản" });
-  await page.getByLabel("Tên").fill("E2E Mới");
-  await page.getByRole("button", { name: "Lưu" }).click();
+  const profile = page.getByRole("region", { name: "Hồ sơ" });
+  await profile.getByLabel("Tên").fill("E2E Mới");
+  await profile.getByRole("button", { name: "Lưu" }).click();
   await expect(account).toContainText("E2E Mới");
 
   await page.getByLabel("Ảnh đại diện").setInputFiles({ name: "me.png", mimeType: "image/png", buffer: PNG });
@@ -40,8 +41,8 @@ test("name and avatar changes show in the sidebar", async ({ page }) => {
 
   await page.getByRole("button", { name: "Gỡ ảnh" }).click();
   await expect(img).toHaveCount(0);
-  await page.getByLabel("Tên").fill("E2E");
-  await page.getByRole("button", { name: "Lưu" }).click();
+  await profile.getByLabel("Tên").fill("E2E");
+  await profile.getByRole("button", { name: "Lưu" }).click();
   await expect(account).toContainText("E2E");
   await expect(account).not.toContainText("Mới");
 });

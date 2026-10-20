@@ -6,10 +6,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
-import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { imagePath, saveImage } from '../../common/image';
 import { PrismaService } from '../../prisma/prisma.service';
 import { toAuthUser } from '../auth/auth.service';
 import { UserDto } from '../auth/dto/login.dto';
@@ -77,20 +76,6 @@ async function uniqueEmail<T>(query: Promise<T>): Promise<T> {
     }
     throw e;
   }
-}
-
-const AVATAR_FILE = /^[0-9a-f-]{36}\.(jpg|png|webp)$/;
-
-function imageExtension(b: Buffer): string | null {
-  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'jpg';
-  if (b.subarray(0, 8).equals(Buffer.from('89504e470d0a1a0a', 'hex')))
-    return 'png';
-  if (
-    b.subarray(0, 4).toString() === 'RIFF' &&
-    b.subarray(8, 12).toString() === 'WEBP'
-  )
-    return 'webp';
-  return null;
 }
 
 @Injectable()
@@ -236,16 +221,7 @@ export class UsersService {
   }
 
   async setAvatar(userId: string, data: Buffer | undefined): Promise<UserDto> {
-    const ext = data && imageExtension(data);
-    if (!data || !ext) {
-      throw new BadRequestException({
-        code: 'INVALID_IMAGE',
-        message: 'Avatar must be a JPG, PNG or WebP image',
-      });
-    }
-    const file = `${randomUUID()}.${ext}`;
-    await mkdir(this.avatarDir, { recursive: true });
-    await writeFile(join(this.avatarDir, file), data);
+    const file = await saveImage(this.avatarDir, data);
     return this.replaceAvatar(userId, file);
   }
 
@@ -254,11 +230,7 @@ export class UsersService {
   }
 
   avatarPath(file: string): string {
-    const path = join(this.avatarDir, file);
-    if (!AVATAR_FILE.test(file) || !existsSync(path)) {
-      throw new NotFoundException();
-    }
-    return path;
+    return imagePath(this.avatarDir, file);
   }
 
   async changePassword(
