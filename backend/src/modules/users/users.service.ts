@@ -175,6 +175,7 @@ export class UsersService {
     }
     const member = await this.findMember(id);
     await this.prisma.$transaction(async (tx) => {
+      // Archived projects included on purpose (FR-SET-09 decision D1): no task may stay with a deactivated member.
       const tasks = await tx.task.findMany({
         where: { assigneeId: id, ...OPEN_TASKS },
         select: { id: true, projectId: true },

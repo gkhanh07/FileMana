@@ -76,12 +76,15 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
       setOpen(null);
       router.refresh();
     },
+    // The member got a task after this page loaded, so reload to show the handover picker.
+    onError: (e) => e instanceof ApiError && e.code === "ASSIGNEE_REQUIRED" && router.refresh(),
   });
   const show = (next: Open) => {
     save.reset();
     setOpen(next);
   };
-  const member = open && open.kind !== "add" ? open.member : null;
+  const picked = open && open.kind !== "add" ? open.member : null;
+  const member = picked && (members.find((m) => m.id === picked.id) ?? picked);
   const labels = {
     add: [t.add, t.addSubmit],
     edit: [t.edit, t.save],
@@ -185,7 +188,7 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
             {open?.kind === "delete" && <DialogDescription>{t.deleteBody(open.member.name)}</DialogDescription>}
             {open?.kind === "add" && <DialogDescription>{t.addBody}</DialogDescription>}
             {open?.kind === "deactivate" && (
-              <DialogDescription>{t.deactivateBody(open.member.name, open.member.openTaskCount)}</DialogDescription>
+              <DialogDescription>{t.deactivateBody(open.member.name, member?.openTaskCount ?? 0)}</DialogDescription>
             )}
             {open?.kind === "reactivate" && <DialogDescription>{t.reactivateBody(open.member.name)}</DialogDescription>}
           </DialogHeader>
@@ -215,9 +218,9 @@ export function MembersTable({ members, meId }: { members: Member[]; meId: strin
                 autoFocus={open.kind === "reset"}
               />
             )}
-            {open?.kind === "deactivate" && open.member.openTaskCount > 0 && (
+            {open?.kind === "deactivate" && member && member.openTaskCount > 0 && (
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="assigneeId">{t.heir(open.member.openTaskCount)}</Label>
+                <Label htmlFor="assigneeId">{t.heir(member.openTaskCount)}</Label>
                 <Select name="assigneeId" required>
                   <SelectTrigger id="assigneeId" className="w-full">
                     <SelectValue placeholder={t.heirPlaceholder} />
