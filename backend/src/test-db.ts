@@ -16,6 +16,10 @@ export function loadEnv() {
 }
 
 export function assertLocalDb(url: string) {
+  // The production compose file also names its database host "db".
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Refusing to touch the database in production');
+  }
   const { hostname } = new URL(url);
   if (!['localhost', '127.0.0.1', '::1', '[::1]', 'db'].includes(hostname)) {
     throw new Error(`Refusing to touch the database on host "${hostname}"`);

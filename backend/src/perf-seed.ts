@@ -6,6 +6,7 @@ import { assertLocalDb, loadEnv } from './test-db';
 // Performance data for NFR-01/02/03: project PERF with 1,000 tasks and 200 subtasks. Local databases only.
 // Usage: npm run perf-seed [-- --clean]
 const KEY = 'PERF';
+const NAME = 'Perf data';
 const TASKS = 1000;
 const SUBTASKS = 200;
 const STATUSES = Object.values(TaskStatus);
@@ -25,6 +26,9 @@ async function main() {
   });
   try {
     const existing = await prisma.project.findUnique({ where: { key: KEY } });
+    if (existing && existing.name !== NAME) {
+      throw new Error(`Project ${KEY} exists but is not perf data`);
+    }
     if (process.argv.includes('--clean')) {
       if (existing) await prisma.project.delete({ where: { key: KEY } });
       console.log(existing ? 'Removed project PERF' : 'No project PERF');
@@ -49,7 +53,7 @@ async function main() {
         const project = await tx.project.create({
           data: {
             key: KEY,
-            name: 'Perf data',
+            name: NAME,
             color: 'slate',
             status: 'ACTIVE',
             ownerId: user.id,

@@ -58,7 +58,7 @@ function DialogContent({
   showCloseButton?: boolean
 }) {
   // Radix returns focus only to a DialogTrigger; our dialogs open from state, so return it to whatever opened them (NFR-12).
-  const opener = React.useRef<HTMLElement | null>(null)
+  const opener = React.useRef<HTMLElement | null | undefined>(undefined)
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -66,13 +66,13 @@ function DialogContent({
         data-slot="dialog-content"
         onFocusCapture={(e) => {
           // The first focus into the dialog comes from its opener; autoFocus fields get it before Radix's onOpenAutoFocus.
-          if (!opener.current && !e.currentTarget.contains(e.relatedTarget)) opener.current = e.relatedTarget as HTMLElement | null
+          if (opener.current === undefined) opener.current = e.relatedTarget as HTMLElement | null
           onFocusCapture?.(e)
         }}
         onCloseAutoFocus={(e) => {
           onCloseAutoFocus?.(e)
           const el = opener.current
-          opener.current = null
+          opener.current = undefined
           if (e.defaultPrevented || !el?.isConnected) return
           e.preventDefault()
           el.focus()
