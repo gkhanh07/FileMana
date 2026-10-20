@@ -68,6 +68,27 @@ services:
       - web
       - api
 
+  # Daily at 02:00 Vietnam time (19:00 UTC); see docs/operations.md. crond needs root, so this one service runs as root.
+  backup:
+    image: postgres:17.6-alpine
+    restart: unless-stopped
+    entrypoint:
+      - sh
+      - -c
+      - echo '0 19 * * * sh /scripts/backup.sh > /proc/1/fd/1 2>&1' | crontab - && exec crond -f -l 8
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+    volumes:
+      - uploads:/uploads
+      - ${BACKUP_DIR:-/var/backups/filemana}:/backups
+      - ./scripts:/scripts:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db-data:
   uploads:
