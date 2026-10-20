@@ -14,7 +14,7 @@ import {
   LabelSummaryDto,
   MergeLabelDto,
   UpdateLabelDto,
-} from './labels.dto';
+} from './dto/label.dto';
 import { LabelsService } from './labels.service';
 
 const Id = () => Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 404 }));

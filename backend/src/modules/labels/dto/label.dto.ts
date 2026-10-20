@@ -7,7 +7,7 @@ import {
   MinLength,
   ValidateIf,
 } from 'class-validator';
-import { PROJECT_COLORS } from '../projects/dto/project.dto';
+import { PROJECT_COLORS } from '../../projects/dto/project.dto';
 
 const defined = (_: object, v: unknown) => v !== undefined;
 const trim = ({ value }: { value: unknown }) =>

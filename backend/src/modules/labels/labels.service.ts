@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateLabelDto, LabelSummaryDto, UpdateLabelDto } from './labels.dto';
+import {
+  CreateLabelDto,
+  LabelSummaryDto,
+  UpdateLabelDto,
+} from './dto/label.dto';
 
 const SELECT = {
   id: true,
@@ -120,7 +124,11 @@ export class LabelsService {
   private async assertNameFree(name: string, exceptId?: string) {
     const taken = await this.prisma.label.findFirst({
       where: {
-        name: { equals: name, mode: 'insensitive' },
+        // Prisma sends insensitive equals as ILIKE without escaping, so `_` and `%` would match anything.
+        name: {
+          equals: name.replace(/[\\%_]/g, '\\$&'),
+          mode: 'insensitive',
+        },
         id: exceptId && { not: exceptId },
       },
       select: { id: true },

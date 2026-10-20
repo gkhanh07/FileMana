@@ -103,6 +103,12 @@ describe('Labels (e2e)', () => {
     await as(http().patch(`/labels/${label.id}`))
       .send({ color: null })
       .expect(400);
+    await create('UI-UX');
+    await create('UI_UX');
+    await create('100%');
+    await as(http().post('/labels'))
+      .send({ name: 'ui_ux', color: 'blue' })
+      .expect(409);
     await http().get('/labels').expect(401);
   });
 

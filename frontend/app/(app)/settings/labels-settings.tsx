@@ -22,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { projectColorClass } from "@/components/projects/project-bits";
 import { api } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
@@ -36,15 +35,12 @@ type Editing = { kind: "add" } | { kind: "edit" | "merge" | "delete"; label: Lab
 
 const t = strings.settings.labels;
 
-export function LabelsSettings() {
-  const {
-    data: labels,
-    isPending,
-    isError,
-    refetch,
-  } = useQuery({
+export function LabelsSettings({ initial }: { initial: LabelSummary[] }) {
+  const { data: labels } = useQuery({
     queryKey: ["labels"],
     queryFn: () => api<LabelSummary[]>("/labels"),
+    initialData: initial,
+    staleTime: 0,
   });
   const [editing, setEditing] = useState<Editing>();
 
@@ -57,20 +53,7 @@ export function LabelsSettings() {
           {t.add}
         </Button>
       </div>
-      {isPending ? (
-        <div className="flex flex-col gap-2">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-10" />
-          ))}
-        </div>
-      ) : isError ? (
-        <div role="alert" className="flex items-center gap-3 text-sm">
-          <span className="text-destructive">{t.loadFailed}</span>
-          <Button variant="outline" size="sm" onClick={() => void refetch()}>
-            {t.retry}
-          </Button>
-        </div>
-      ) : labels.length === 0 ? (
+      {labels.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t.empty}</p>
       ) : (
         <ul className="divide-y rounded-md border">
@@ -111,7 +94,7 @@ export function LabelsSettings() {
       {editing?.kind === "merge" && (
         <MergeDialog
           label={editing.label}
-          targets={(labels ?? []).filter((l) => l.id !== editing.label.id)}
+          targets={labels.filter((l) => l.id !== editing.label.id)}
           onClose={() => setEditing(undefined)}
         />
       )}
@@ -237,7 +220,7 @@ function MergeDialog({
           <Label htmlFor="merge-target">{t.mergeTarget}</Label>
           <Select value={targetId} onValueChange={setTargetId}>
             <SelectTrigger id="merge-target" className="w-full">
-              <SelectValue />
+              <SelectValue placeholder={t.mergePlaceholder} />
             </SelectTrigger>
             <SelectContent>
               {targets.map((l) => (

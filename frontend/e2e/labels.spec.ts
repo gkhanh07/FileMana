@@ -42,6 +42,9 @@ test("add, edit, merge and delete shared labels", async ({ page }) => {
   await expect(green).toBeChecked();
   await page.getByRole("dialog").getByRole("button", { name: "Lưu" }).click();
   await expect(row("E2E Renamed")).toBeVisible();
+  await menu("E2E Renamed", "Sửa");
+  await expect(green).toBeChecked();
+  await page.getByRole("dialog").getByRole("button", { name: "Hủy" }).click();
 
   const source = (
     (await (await page.request.get(`${API}/labels`)).json()) as {
