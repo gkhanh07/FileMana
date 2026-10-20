@@ -12,6 +12,7 @@ import { ItemsModule } from './modules/items/items.module';
 import { LabelsModule } from './modules/labels/labels.module';
 import { MilestonesModule } from './modules/milestones/milestones.module';
 import { CommentsModule } from './modules/comments/comments.module';
+import { EventsModule } from './modules/events/events.module';
 import { SearchModule } from './modules/search/search.module';
 import { TrashModule } from './modules/trash/trash.module';
 import { ProjectsModule } from './modules/projects/projects.module';
@@ -46,6 +47,7 @@ import { PrismaModule } from './prisma/prisma.module';
     CommentsModule,
     SearchModule,
     TrashModule,
+    EventsModule,
   ],
   controllers: [HealthController, WorkspaceController, ClientErrorsController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }, WorkspaceService],

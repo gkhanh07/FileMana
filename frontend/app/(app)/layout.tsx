@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorReporter } from "@/components/shell/error-reporter";
+import { LiveUpdates } from "@/components/shell/live-updates";
 import { SIDEBAR_COOKIE } from "@/components/shell/nav";
 import { OfflineBar } from "@/components/shell/offline-bar";
 import { Sidebar } from "@/components/shell/sidebar";
@@ -20,6 +21,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
       <SessionRefresh />
       <ThemeSync theme={me.theme} />
       <ErrorReporter />
+      <LiveUpdates />
       <Sidebar workspace={workspace} user={me} favorites={favorites} defaultCollapsed={collapsed} />
       <div className="flex min-w-0 flex-1 flex-col">
         <OfflineBar />

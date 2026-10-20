@@ -457,9 +457,17 @@ function LabelsPick({
   );
 }
 
+// jsonb reorders object keys, so a saved description comes back with the same content in a different order.
+const sortedJson = (v: unknown) =>
+  JSON.stringify(v, (_, x: unknown) =>
+    x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort()) : x,
+  );
+
 function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
   const qc = useQueryClient();
-  const [state, setState] = useState<"idle" | "saving" | "saved">("idle");
+  const [state, setState] = useState<"idle" | "dirty" | "saving" | "saved">("idle");
+  const [focused, setFocused] = useState(false);
+  const [shown, setShown] = useState({ doc: task.description, rev: 0 });
   const pending = useRef<unknown[] | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -472,18 +480,25 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
     setState("saving");
     api(`/tasks/${id}`, { method: "PATCH", body: { description: doc } }).then(
       () => {
+        setShown((s) => ({ ...s, doc }));
         qc.setQueryData<Detail>(taskKey(key), (x) => x && { ...x, description: doc });
         void qc.invalidateQueries({ queryKey: activityKey(id) });
         setState("saved");
       },
       (e) => {
         pending.current ??= doc;
-        setState("idle");
+        setState("dirty");
         saveError(e);
       },
     );
   }, [qc, id, key]);
   useEffect(() => flush, [flush]);
+
+  // R2: someone else's edit replaces the content only while this person is not editing or saving it.
+  const settled = !focused && (state === "idle" || state === "saved");
+  if (settled && sortedJson(task.description) !== sortedJson(shown.doc)) {
+    setShown({ doc: task.description, rev: shown.rev + 1 });
+  }
 
   return (
     <section aria-label={d.description} className="flex flex-col gap-1">
@@ -493,12 +508,21 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
           {state === "saving" ? d.saving : state === "saved" ? d.saved : ""}
         </span>
       </div>
-      <div className="-mx-6 min-h-24">
+      <div
+        className="-mx-6 min-h-24"
+        onFocus={() => setFocused(true)}
+        onBlur={() => {
+          setFocused(false);
+          flush();
+        }}
+      >
         <TaskEditor
-          initial={task.description}
+          key={shown.rev}
+          initial={shown.doc}
           editable={!readOnly}
           onChange={(doc) => {
             pending.current = doc;
+            setState("dirty");
             clearTimeout(timer.current);
             timer.current = setTimeout(flush, 1000);
           }}
