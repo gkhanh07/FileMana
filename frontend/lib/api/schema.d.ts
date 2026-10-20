@@ -33,6 +33,38 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        patch: operations["WorkspaceController_update"];
+        trace?: never;
+    };
+    "/workspace/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["WorkspaceController_setLogo"];
+        post?: never;
+        delete: operations["WorkspaceController_removeLogo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workspace/logo/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WorkspaceController_logo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -874,8 +906,15 @@ export interface components {
     schemas: {
         WorkspaceDto: {
             name: string;
+            logoUrl: string | null;
             timezone: string;
             weekStartsOn: number;
+        };
+        UpdateWorkspaceDto: {
+            name?: string;
+            timezone?: string;
+            /** @enum {number} */
+            weekStartsOn?: 0 | 1;
         };
         ClientErrorDto: {
             message: string;
@@ -1395,6 +1434,86 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["WorkspaceDto"];
                 };
+            };
+        };
+    };
+    WorkspaceController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkspaceDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceDto"];
+                };
+            };
+        };
+    };
+    WorkspaceController_setLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceDto"];
+                };
+            };
+        };
+    };
+    WorkspaceController_removeLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceDto"];
+                };
+            };
+        };
+    };
+    WorkspaceController_logo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

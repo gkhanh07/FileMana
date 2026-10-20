@@ -20,7 +20,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
       <SessionRefresh />
       <ThemeSync theme={me.theme} />
       <ErrorReporter />
-      <Sidebar workspaceName={workspace.name} user={me} favorites={favorites} defaultCollapsed={collapsed} />
+      <Sidebar workspace={workspace} user={me} favorites={favorites} defaultCollapsed={collapsed} />
       <div className="flex min-w-0 flex-1 flex-col">
         <OfflineBar />
         <Topbar me={me} timeZone={workspace.timezone} />

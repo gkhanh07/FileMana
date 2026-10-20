@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import type { User } from "@/lib/api/client";
+import { logoSrc, type User, type Workspace } from "@/lib/api/client";
 import type { Favorite } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
@@ -22,12 +22,12 @@ function subscribeNarrow(onChange: () => void) {
 }
 
 export function Sidebar({
-  workspaceName,
+  workspace,
   user,
   favorites,
   defaultCollapsed,
 }: {
-  workspaceName: string;
+  workspace: Workspace;
   user: User;
   favorites: Favorite[];
   defaultCollapsed: boolean;
@@ -54,12 +54,12 @@ export function Sidebar({
         <div className={cn("flex h-13 shrink-0 items-center gap-2.5", !collapsed && "pr-2 pl-4")}>
           {!collapsed && (
             <>
-              <WorkspaceMark name={workspaceName} />
-              <span className="flex-1 truncate font-medium">{workspaceName}</span>
+              <WorkspaceMark workspace={workspace} />
+              <span className="flex-1 truncate font-medium">{workspace.name}</span>
             </>
           )}
           {narrow ? (
-            <WorkspaceMark name={workspaceName} />
+            <WorkspaceMark workspace={workspace} />
           ) : (
             <Button
               variant="ghost"
@@ -92,13 +92,18 @@ export function Sidebar({
   );
 }
 
-function WorkspaceMark({ name }: { name: string }) {
+function WorkspaceMark({ workspace }: { workspace: Workspace }) {
+  const src = logoSrc(workspace);
+  if (src) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt="" className="size-6 shrink-0 rounded-sm object-contain" />;
+  }
   return (
     <span
       aria-hidden
       className="grid size-6 shrink-0 place-items-center rounded-sm bg-primary font-heading text-sm text-primary-foreground"
     >
-      {name.charAt(0).toUpperCase()}
+      {workspace.name.charAt(0).toUpperCase()}
     </span>
   );
 }

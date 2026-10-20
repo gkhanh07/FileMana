@@ -31,3 +31,7 @@ export async function api<T = void>(
 export function avatarSrc(user: { avatarUrl: string | null }): string | undefined {
   return user.avatarUrl ? `${BASE_URL}${user.avatarUrl}` : undefined;
 }
+
+export function logoSrc(workspace: { logoUrl: string | null }): string | undefined {
+  return workspace.logoUrl ? `${BASE_URL}${workspace.logoUrl}` : undefined;
+}

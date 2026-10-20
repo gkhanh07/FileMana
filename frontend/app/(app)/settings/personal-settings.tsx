@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -13,14 +13,17 @@ import { ApiError } from "@/lib/api/error";
 import { errorMessage, strings } from "@/lib/strings";
 
 const t = strings.settings;
-const AVATAR_MAX_BYTES = 2 * 1024 * 1024; // the API enforces the same limit
+export const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // the API enforces the same limit
 const codeOf = (e: unknown) => (e instanceof ApiError ? e.code : undefined);
-const showError = (e: unknown) => toast.error(errorMessage(codeOf(e)));
+export const showError = (e: unknown) => toast.error(errorMessage(codeOf(e)));
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+export function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const id = useId();
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">{title}</h2>
+    <section aria-labelledby={id} className="flex flex-col gap-4">
+      <h2 id={id} className="text-lg font-semibold">
+        {title}
+      </h2>
       {children}
     </section>
   );
@@ -82,7 +85,7 @@ export function ProfileForm({ user }: { user: User }) {
             const file = e.target.files?.[0];
             e.target.value = ""; // picking the same file again still fires
             if (!file) return;
-            if (file.size > AVATAR_MAX_BYTES) return void toast.error(errorMessage("FILE_TOO_LARGE"));
+            if (file.size > IMAGE_MAX_BYTES) return void toast.error(errorMessage("FILE_TOO_LARGE"));
             upload.mutate(file);
           }}
         />

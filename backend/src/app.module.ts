@@ -17,6 +17,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { UsersModule } from './modules/users/users.module';
 import { WorkspaceController } from './modules/workspace/workspace.controller';
+import { WorkspaceService } from './modules/workspace/workspace.service';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -45,6 +46,6 @@ import { PrismaModule } from './prisma/prisma.module';
     TrashModule,
   ],
   controllers: [HealthController, WorkspaceController, ClientErrorsController],
-  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }, WorkspaceService],
 })
 export class AppModule {}

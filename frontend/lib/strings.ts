@@ -102,6 +102,17 @@ export const strings = {
     sessionsHint: "Đăng xuất khỏi mọi thiết bị khác. Thiết bị này vẫn đăng nhập.",
     signOutOthers: "Đăng xuất mọi thiết bị khác",
     signedOutOthers: "Đã đăng xuất các thiết bị khác.",
+    workspace: {
+      title: "Không gian làm việc",
+      name: "Tên công ty",
+      logo: "Logo",
+      changeLogo: "Đổi logo",
+      removeLogo: "Gỡ logo",
+      weekStart: "Ngày đầu tuần",
+      weekDays: { 1: "Thứ Hai", 0: "Chủ nhật" } as Record<number, string>,
+      timezone: "Múi giờ",
+      saved: "Đã lưu cài đặt không gian làm việc.",
+    },
     members: {
       name: "Tên",
       email: "Email",
