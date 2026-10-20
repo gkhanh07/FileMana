@@ -62,20 +62,21 @@ const TaskEditor = dynamic(() => import("./task-editor"), {
 
 type Open = ((key: string) => void) | undefined;
 
+function openTask(key: string) {
+  const params = new URLSearchParams(location.search);
+  params.set("task", key);
+  window.history.pushState(null, "", `?${params}`);
+}
+
+function closeTask() {
+  const params = new URLSearchParams(location.search);
+  params.delete("task");
+  const query = params.toString();
+  window.history.replaceState(null, "", query ? `?${query}` : location.pathname);
+}
+
 export function useOpenTask() {
-  const openKey = useSearchParams().get("task");
-  const openTask = (key: string) => {
-    const params = new URLSearchParams(location.search);
-    params.set("task", key);
-    window.history.pushState(null, "", `?${params}`);
-  };
-  const closeTask = () => {
-    const params = new URLSearchParams(location.search);
-    params.delete("task");
-    const query = params.toString();
-    window.history.replaceState(null, "", query ? `?${query}` : location.pathname);
-  };
-  return { openKey, openTask, closeTask };
+  return { openKey: useSearchParams().get("task"), openTask, closeTask };
 }
 
 export const refreshMyTasks = (qc: QueryClient) => qc.invalidateQueries({ queryKey: myTasksKey });
@@ -509,7 +510,7 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
   return (
     <section aria-label={d.description} className="flex flex-col gap-1">
       <div className="flex h-5 items-center justify-between">
-        <h3 className="text-sm font-medium">{d.description}</h3>
+        <h2 className="text-sm font-medium">{d.description}</h2>
         <span aria-live="polite" className="text-xs text-muted-foreground">
           {state === "saving" ? d.saving : state === "saved" ? d.saved : ""}
         </span>
@@ -525,6 +526,7 @@ function Description({ task, readOnly }: { task: Detail; readOnly: boolean }) {
       >
         <TaskEditor
           key={shown.rev}
+          label={d.description}
           initial={shown.doc}
           editable={!readOnly}
           onChange={(doc) => {
@@ -566,14 +568,14 @@ function Subtasks({
 
   return (
     <section aria-label={d.subtasks} className="flex flex-col gap-1">
-      <h3 className="flex h-5 items-center gap-2 text-sm font-medium">
+      <h2 className="flex h-5 items-center gap-2 text-sm font-medium">
         {d.subtasks}
         {task.subtasks.length > 0 && (
           <span className="text-xs font-normal text-muted-foreground tabular-nums">
             {done}/{task.subtasks.length}
           </span>
         )}
-      </h3>
+      </h2>
       <ul className="flex flex-col">
         {task.subtasks.map((s) => (
           <Subtask key={s.id} task={s} timeZone={timeZone} readOnly={readOnly} onOpen={onOpen} />
