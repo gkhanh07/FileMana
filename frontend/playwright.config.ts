@@ -2,11 +2,18 @@ import { defineConfig } from "@playwright/test";
 
 const API = "http://localhost:3101";
 const WEB = "http://localhost:3100";
+const BROWSER = process.env.BROWSER ?? "chromium";
 
 export default defineConfig({
   testDir: "e2e",
   workers: 1,
-  use: { baseURL: WEB, locale: "vi-VN" },
+  // NFR-09: BROWSER=msedge|firefox|webkit runs the suite in that browser (WebKit stands in for Safari).
+  // One browser per run, because the specs expect the fresh test database each run starts with.
+  use: {
+    baseURL: WEB,
+    locale: "vi-VN",
+    ...(BROWSER === "msedge" ? { channel: "msedge" } : { browserName: BROWSER as "chromium" | "firefox" | "webkit" }),
+  },
   webServer: [
     {
       command: "npm run e2e:serve",

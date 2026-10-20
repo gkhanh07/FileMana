@@ -28,19 +28,25 @@ test("other people's changes show up without a reload", async ({ browser }) => {
 
   const b = await signIn(browser, "watcher@filemana.test", "watcher-password-1");
   const live = { timeout: 5000 };
+  // Changes made before the page's event stream opens are not sent to it; slower engines (WebKit) open it later.
+  const goto = async (url: string) => {
+    const stream = b.waitForResponse((r) => r.url() === `${API}/events`);
+    await b.goto(url);
+    await stream;
+  };
 
-  await b.goto(`/projects/${project.id}/tasks`);
+  await goto(`/projects/${project.id}/tasks`);
   await expect(b.locator("main li[id^=task-]")).toHaveCount(1);
   await a.request.post(`${API}/tasks`, { data: { projectId: project.id, title: "Việc thứ hai" } });
   await expect(b.locator("main")).toContainText("Việc thứ hai", live);
 
-  await b.goto(`/projects/${project.id}/tasks?task=${task.key}`);
+  await goto(`/projects/${project.id}/tasks?task=${task.key}`);
   const title = b.getByRole("complementary", { name: `Chi tiết ${task.key}` }).getByLabel("Tên công việc");
   await expect(title).toHaveValue("Việc đầu");
   await a.request.patch(`${API}/tasks/${task.id}`, { data: { title: "Việc đầu đã sửa" } });
   await expect(title).toHaveValue("Việc đầu đã sửa", live);
 
-  await b.goto("/members");
+  await goto("/members");
   await expect(b.getByRole("row").filter({ hasText: "watcher@filemana.test" })).toBeVisible();
   await a.request.patch(`${API}/members/${member.id}`, {
     data: { email: "watcher@filemana.test", name: "Watcher Renamed" },

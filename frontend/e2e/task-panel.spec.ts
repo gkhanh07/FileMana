@@ -60,7 +60,7 @@ test("open a task in the panel, edit it, add subtasks, delete and undo", async (
   await expect(page).not.toHaveURL(/task=/);
 
   await page.goto(`/tasks/${key}`);
-  await expect(page.getByLabel("Tên công việc")).toHaveValue("Trang chủ mới");
+  await expect(page.getByRole("textbox", { name: "Tên công việc" })).toHaveValue("Trang chủ mới");
 
   await page.getByRole("button", { name: "Thêm thao tác" }).click();
   await page.getByRole("menuitem", { name: "Xóa công việc" }).click();

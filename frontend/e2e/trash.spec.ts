@@ -41,6 +41,7 @@ test("find a task with Ctrl+K, delete it, restore it from Trash, then delete it 
   await page.getByRole("button", { name: "Thêm thao tác" }).click();
   await page.getByRole("menuitem", { name: "Xóa công việc" }).click();
   await expect(page.getByText(`Đã xóa ${key}.`)).toBeVisible();
+  await expect(page).toHaveURL(/\/projects\/[^/]+\/tasks$/);
 
   const name = `${key} Đặt lịch chụp ảnh`;
   await page.goto("/settings/trash");
